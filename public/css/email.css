@@ -1,0 +1,8 @@
+table{
+    width: 95%;
+    border: 1px solid #000;
+    background: #eee;
+}
+th,td{
+    border-left: 1px solid #000;
+}
