@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Post;
 
+use App\Committee;
 use Illuminate\Http\Resources\Json\Resource;
 
 class RegisterCollection extends Resource
@@ -16,11 +17,7 @@ class RegisterCollection extends Resource
     {
             return [
 
-                'href'       =>[
-                    'view Article' =>    action('PostsController@show',$this->id)
-                ]
-
-
+                'committees' =>Committee::all()->pluck('name'),
 
             ];
 

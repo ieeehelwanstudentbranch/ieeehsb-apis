@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AuthApi;
 use App\Committee;
 use App\Ex_com_options;
 use App\HighBoardOptions;
+use App\Http\Resources\Post\RegisterCollection;
 use Illuminate\Http\Request;
 //use App\Http\Controllers\Controller;
 use App\Http\Controllers\Controller as Controller;
@@ -23,6 +24,11 @@ protected $user;
     public function __construct(User $user)
     {
         $this->user = $user;
+    }
+
+    public function registerPage(){
+        $committee = Committee::all();
+        return new RegisterCollection($committee);
     }
 
     public function register(Request $request)
