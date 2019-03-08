@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\AuthApi;
 
+use App\Committee;
 use App\Ex_com_options;
 use App\HighBoardOptions;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ protected $user;
         if ($request->input('position')=='EX-com') {$this->validate($request, ['EX-comOptions' => 'required']);}
 
         //if position High board and the committee was chosen RAS, PES, WIE:
-        if ($request->input('position')=='highBoard'&& ($request->input('committee')=='RAS' || 'PES' || 'WIE'))
+        if ($request->input('position')=='highBoard' && ($request->input('committee')== 'RAS' || $request->input('committee')==  'PES' || $request->input('committee')==  'WIE'))
         {$this->validate($request, ['highBoardOptions' => 'required']);}
 
         $confirmation_code = str_random(30);
@@ -67,11 +68,13 @@ protected $user;
             }else{return response()->json('error');}
         }
 
-        if ($request->input('position')=='highBoard' || 'volunteer'){
-            $user->committee = $request->input('committee');
+        if ($request->input('position')=='highBoard' || $request->input('position')== 'volunteer'){
+//            $user->committee = $request->input('committee');
+            $committee = Committee::where('name',$request->input('committee'))->first();
+            $user->committee_id = $committee->id;
         }
 
-        if ($request->input('position')=='highBoard' && ($request->input('committee')==('RAS'||'PES' || 'WIE') )){
+        if ($request->input('position')=='highBoard' && ($request->input('committee')=='RAS'|| $request->input('committee')== 'PES' || $request->input('committee')=='WIE') ){
             $hb = new HighBoardOptions();
             $hb->HB_options = $request->input('highBoardOptions');
             if ($hb->HB_options != null){
@@ -81,11 +84,12 @@ protected $user;
             }else{return response()->json('error');}
         }
 
-        if ($request->input('position')!='EX_com' && ($request->input('position')=='highBoard' && ($request->input('committee')==('RAS'||'PES' || 'WIE') )))
+        if ( $request->input('position')!='EX_com' && ($request->input('position')=='highBoard' && ($request->input('committee')== 'RAS'|| $request->input('committee')=='PES' || $request->input('committee')=='WIE' )))
         {
             $user->save();
         }
 
+        if ($request->input('position')=='volunteer'){$user->save();}
 //        send activation email
         Mail::send('/emails.verify', compact(['user','confirmation_code']), function($message) use ($req) {
             $message->to($this->MailTarget($req), 'user')->subject('Verify your email address');

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateExComOptionsTable extends Migration
+class CreateCommitteesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,15 @@ class CreateExComOptionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('ex_com_options', function (Blueprint $table) {
+        Schema::create('committees', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('ex_options');
-            $table->integer('user_id')->unsigned();
+            $table->string('name');
+            $table->string('Ex_com_Mentor');
+            $table->string('director')->nullable();
+            $table->string('hr_ordinator')->nullable();
+            $table->integer('user_id')->unsigned()->nullable();
             $table->foreign('user_id')->references('id')->on('users');
+            $table->timestamps();
         });
     }
 
@@ -28,6 +32,6 @@ class CreateExComOptionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ex_com_options');
+        Schema::dropIfExists('committees');
     }
 }
