@@ -33,10 +33,14 @@ class User extends Authenticatable
     ];
 
     public function ex_com_option(){
-        return$this->hasOne(Ex_com_options::class);
+        return $this->hasOne(Ex_com_options::class);
     }
 
     public function high_board_option(){
-        return$this->hasOne(HighBoardOptions::class);
+        return $this->hasOne(HighBoardOptions::class);
+    }
+
+    public function committee(){
+        return $this->belongsTo(Committee::class);
     }
 }
