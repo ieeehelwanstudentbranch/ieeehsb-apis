@@ -33,3 +33,19 @@ Route::post('/updatecommittee/{id}', 'CommitteeController@update');
 
 Route::delete('/deletecommittee/{id}', 'CommitteeController@destroy');
 
+//posts
+
+Route::get('articles', 'PostController@index');
+
+Route::get('article/{id}', 'PostController@show');
+
+Route::post('create-article', 'PostController@store');
+
+Route::PUT('update-article/{id}', 'PostController@update');
+
+Route::delete('/article/{id}', 'PostController@destroy');
+
+//comments
+Route::post('/article/{id}/addComment', 'CommentController@addComment');
+
+Route::get('/article/{id}/destroyComment', 'CommentController@destroyComment');
