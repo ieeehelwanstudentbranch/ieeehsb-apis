@@ -20,7 +20,7 @@ class CommitteeData extends JsonResource
             'name' => $this->name,
             'mentor' => $this->Ex_com_Mentor,
             'director' => $this->director,
-            'hr_ordinator' => $this->hr_ordinator,
+            'hr_coordinator' => $this->hr_coordinator,
             'members'      =>User::where('committee_id' ,$this->id)->get(),
 
 //            'href'       =>[

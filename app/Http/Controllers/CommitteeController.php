@@ -40,6 +40,8 @@ class CommitteeController extends Controller
 
             $committee = Committee::where('name','hr_od')->get();
             return CommitteeResource::collection($committee);
+        } else {
+            return response()->json('error');
         }
 
     }
@@ -51,14 +53,14 @@ class CommitteeController extends Controller
                 'name' => 'required |string | unique:committees| max:50 | min:2',
                 'mentor' => 'required |string | max:50 | min:2',
                 'director' => 'nullable |string | max:50 | min:2',
-                'hr_ordinator' => 'nullable |string | max:50 | min:2',
+                'hr_coordinator' => 'nullable |string | max:50 | min:2',
             ]);
 
             $committee = new Committee();
             $committee->name = $request->input('name');
             $committee->Ex_com_Mentor = $request->input('mentor');
             $committee->director = $request->input('director');
-            $committee->hr_ordinator = $request->input('hr_ordinator');
+            $committee->hr_coordinator = $request->input('hr_coordinator');
             $committee->save();
 
             return redirect()->action('CommitteeController@index')->with('Committee Added');
@@ -84,14 +86,14 @@ class CommitteeController extends Controller
                 'name' => 'required |string | unique:committees| max:50 | min:2',
                 'mentor' => 'required |string | max:50 | min:2',
                 'director' => 'nullable |string | max:50 | min:2',
-                'hr_ordinator' => 'nullable |string | max:50 | min:2',
+                'hr_coordinator' => 'nullable |string | max:50 | min:2',
             ]);
 
             $committee = Committee::findOrFail($id);
             $committee->name = $request->input('name');
             $committee->Ex_com_Mentor = $request->input('mentor');
             $committee->director = $request->input('director');
-            $committee->hr_ordinator = $request->input('hr_ordinator');
+            $committee->hr_coordinator = $request->input('hr_coordinator');
             $committee->update();
 
             return redirect()->action('CommitteeController@index')->with('Committee Updated');

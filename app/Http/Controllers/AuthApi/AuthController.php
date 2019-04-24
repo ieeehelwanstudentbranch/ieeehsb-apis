@@ -27,29 +27,26 @@ protected $user;
     public function login(Request $request){
         $credentials = $request->only('email', 'password');
         $token = null;
-        if ($request['rememberme']) {
+        if ($request['remember_me']) {
             config(['jwt.ttl' => env('TOKEN_TTL_REMEMBER_ME',  86400 * 30)]); // 30 days
         }
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
                     'response' => 'error',
-                    'message' => 'invalid_email_or_password',
+                    'message' => 'Invalid Email or Password',
                 ]);
             }
         } catch (JWTAuthException $e) {
             return response()->json([
                 'response' => 'error',
-                'message' => 'failed_to_create_token',
+                'message' => 'Failed to create token',
             ]);
         }
         return response()->json([
             'response' => 'success',
             'result' => [
-                'token' => $token,
-
-
-                
+                'token' => $token
             ],
         ]);
     }

@@ -17,10 +17,8 @@ class CreateCommitteesTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('Ex_com_Mentor');
-            $table->string('director')->nullable();
-            $table->string('hr_ordinator')->nullable();
-            $table->integer('user_id')->unsigned()->nullable();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->string('director')->nullable(); 
+            $table->string('hr_coordinator')->nullable();
             $table->timestamps();
         });
     }
