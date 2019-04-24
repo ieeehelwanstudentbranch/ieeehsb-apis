@@ -35,17 +35,17 @@ protected $user;
     {
         $req = $request;
         $this->validate($request ,[
-            'firstName' => 'required |string | max:50 | min:5',
-            'lastName' => 'required |string | max:50 | min:5',
-            'faculty' => 'required |string',
-            'university' => 'required |string',
+            'firstName' => 'required |string | max:50 | min:3',
+            'lastName' => 'required |string | max:50 | min:3',
+            'faculty' => 'required |string | max:30 | min:3',
+            'university' => 'required |string | max:30 | min:3',
 //            'DOB' => 'date_format:Y-M-D|before:today',
             'email' => 'required |string|email|max:255| unique:users',
             'password'=>'required|confirmed|string|min:6',
             'password_confirmation'=>'sometimes|required_with:password',
         ]);
          //if position EX-com
-        if ($request->input('position')=='EX-com') {$this->validate($request, ['EX-comOptions' => 'required']);}
+        if ($request->input('position')=='EX_com') {$this->validate($request, ['EX-comOptions' => 'required']);}
 
         //if position High board and the committee was chosen RAS, PES, WIE:
         if ($request->input('position')=='highBoard' && ($request->input('committee')== 'RAS' || $request->input('committee')==  'PES' || $request->input('committee')==  'WIE'))
@@ -66,31 +66,35 @@ protected $user;
 
         if ($request->input('position')=='EX_com'){
             $ex = new Ex_com_options();
-            $ex->ex_options = $request->input('ex_options');
+            $ex->ex_options = $request->input('EX-comOptions');
             if ($ex->ex_options!=null){
                 $user->save();
                 $ex->user_id = $user->id;
                 $ex->save();
-            }else{return response()->json('error');}
+            }else{
+                return response()->json('error');
+            }
         }
 
         if ($request->input('position')=='highBoard' || $request->input('position')== 'volunteer'){
 //            $user->committee = $request->input('committee');
-            $committee = Committee::where('name',$request->input('committee'))->first();
+            $committee = Committee::where('name', $request->input('committee'))->first();
             $user->committee_id = $committee->id;
         }
 
-        if ($request->input('position')=='highBoard' && ($request->input('committee')=='RAS'|| $request->input('committee')== 'PES' || $request->input('committee')=='WIE') ){
+        if (($request->input('position')=='highBoard') && ($request->input('committee')=='RAS'|| $request->input('committee')== 'PES' || $request->input('committee')=='WIE') ){
             $hb = new HighBoardOptions();
             $hb->HB_options = $request->input('highBoardOptions');
             if ($hb->HB_options != null){
                 $user->save();
                 $hb->user_id = $user->id;
                 $hb->save();
-            }else{return response()->json('error');}
+            } else {
+                return response()->json('error');
+            }
         }
 
-        if ( $request->input('position')!='EX_com' && ($request->input('position')=='highBoard' && ($request->input('committee')== 'RAS'|| $request->input('committee')=='PES' || $request->input('committee')=='WIE' )))
+        if ( $request->input('position')!='EX_com' && ($request->input('position') =='highBoard' && ($request->input('committee') != 'RAS'|| $request->input('committee') != 'PES' || $request->input('committee') != 'WIE' )))
         {
             $user->save();
         }
@@ -108,30 +112,25 @@ protected $user;
 //        mail target
         public function MailTarget(Request $request)
         {
-            $email = 'mhmdy4554@gmail.com';
+            $email = 'm.emad550@gmail.com';
 
 //            if Ex-com register
             if ($request->input( 'position')=='EX_com' && ($request->input('ex_options')!='Chairperson') ){
-                $ex = Ex_com_options::where('ex_options','Chairperson' )->first();
+                $ex = Ex_com_options::where('EX-comOptions','Chairperson' )->first();
                 $user = User::findOrFail($ex->user_id);
                 $email = $user->email;
             }
 
 ////            if high board register
 //            if ($request->input( 'position')=='highBoard' && ($request->input('committee')!='Chairperson') ){
-//                $ex = Ex_com_options::where('ex_options','Chairperson' )->first();
+//                $ex = Ex_com_options::where('EX-comOptions','Chairperson' )->first();
 //                $user = User::findOrFail($ex->user_id);
 //                $email = $user->email;
 //            }
 
-
             return $email;
-
-
         }
-
-
- }
+}
         
 
 

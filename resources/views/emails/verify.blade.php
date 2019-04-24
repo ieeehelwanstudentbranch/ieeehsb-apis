@@ -22,71 +22,52 @@
     </head>
     <body>
         <h2>Please verify This email address</h2>
-
         <div>
-            Thanks for creating an account with the verification demo app. Please follow the link below to verify your email
+            Please follow the link below to verify the applicant email
             address {{ URL::to('api/register/verify/' . $confirmation_code) }}.<br/>
             User Data is
             <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Faculty</th>
-                    <th>University</th>
-                    <th>DOB</th>
-                    <th>E-Mail</th>
-                    <th>Position</th>
-                    @if($user->position=='EX_com')
-                        <th>EX Options</th>
-                    @endif
-                    @if($user->position != 'EX_com')
-                        <th>Committee</th>
-                    @endif
-                    @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))
-                        <th>HB Options</th>
-                    @endif
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>E-Mail</th>
+                        <th>Position</th>
 
-                </tr>
-                <tr>
-                    <td>{{$user->firstName .' ' .$user->lastName }}</td>
-                    <td>{{$user->faculty}}</td>
-                    <td>{{$user->university}}</td>
-                    <td>{{$user->DOB}}</td>
-                    <td>{{$user->email}}</td>
-                    <td>{{$user->position}}</td>
-                    @if($user->position == 'EX_com')
-                    <td>{{$user->ex_com_option->ex_options}}</td>
-                        @endif
-                    @if($user->position != 'EX_com')
-                    <td>{{$user->committee}}</td>
-                         @endif
-                    @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))
-                    <td>{{$user->high_board_option->HB_options}}</td>
+                        @if($user->position=='EX_com')
+                            <th>EX Options</th>
                         @endif
 
-                </tr>
+                        @if($user->position != 'EX_com')
+                            <th>Committee</th>
+                        @endif
+
+                        @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))
+                            <th>HB Options</th>
+                        @endif
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    <tr>
+                        <td>{{$user->firstName .' ' .$user->lastName }}</td>
+                        <td>{{$user->email}}</td>
+                        <td>{{$user->position}}</td>
+
+                        @if($user->position == 'EX_com')
+                            <td>{{$user->ex_com_option->ex_options}}</td>
+                        @endif
+
+                        @if($user->position != 'EX_com')
+                            <td>{{$user->committee->name}}</td>
+                        @endif
+
+                        @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))
+                            <td>{{$user->high_board_option->HB_options}}</td>
+                        @endif
+
+                    </tr>
+                </tbody>
             </table>
-
-            {{--<table>--}}
-                {{--                @foreach($user as $users)--}}
-                {{--<tr>--}}
-                    {{--<th>mohamed hamdu </th>--}}
-                    {{--<th>mohamed hamdu</th>--}}
-                    {{--<th>mohamed hamdu</th>--}}
-                    {{--<th>mohamed hamdu</th>--}}
-                    {{--<th>mohamed hamdu</th>--}}
-                    {{--<th>mohamed hamdu</th>--}}
-                    {{--@if($user->position)--}}
-                        {{--<th>mohamed hamdu</th>--}}
-                    {{--@endif--}}
-                    {{--<th>mohamed hamdu</th>--}}
-{{--                    @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))--}}
-                        {{--<th>mdksmfksdmfk</th>--}}
-                    {{--@endif--}}
-
-                {{--</tr>--}}
-                {{--@endforeach--}}
-            {{--</table>--}}
-
             If you have problems, please paste the above URL into your web browser.
 
         </div>
