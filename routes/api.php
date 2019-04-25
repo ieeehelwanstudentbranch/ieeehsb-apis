@@ -49,3 +49,8 @@ Route::delete('/article/{id}', 'PostController@destroy');
 Route::post('/article/{id}/addComment', 'CommentController@addComment');
 
 Route::get('/article/{id}/destroyComment', 'CommentController@destroyComment');
+
+//User
+
+Route::get('user/{id}', 'UserController@updateProfilePage');
+Route::PUT('user/{id}', 'UserController@updateProfile');
