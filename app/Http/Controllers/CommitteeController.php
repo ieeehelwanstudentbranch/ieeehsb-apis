@@ -52,15 +52,24 @@ class CommitteeController extends Controller
             $this->validate($request ,[
                 'name' => 'required |string | unique:committees| max:50 | min:2',
                 'mentor' => 'required |string | max:50 | min:2',
-                'director' => 'nullable |string | max:50 | min:2',
-                'hr_coordinator' => 'nullable |string | max:50 | min:2',
+                'director' => 'nullable |string | max:50 | min:1',
+                'hr_coordinator' => 'nullable |string | max:50 | min:1',
             ]);
 
             $committee = new Committee();
+            $user =User::all();
             $committee->name = $request->input('name');
+
             $committee->Ex_com_Mentor = $request->input('mentor');
-            $committee->director = $request->input('director');
-            $committee->hr_coordinator = $request->input('hr_coordinator');
+
+            $director=User::findOrFail($request->input('director'));
+            $committee->director =$director->firstName .' '.$director->lastName;
+            $committee->director_id = $director->id;
+
+            $hr_coordinator =User::findOrFail($request->input('hr_coordinator'));
+            $committee->hr_coordinator = $hr_coordinator->firstName .' '.$hr_coordinator->lastName;
+            $committee->hr_coordinator_id = $hr_coordinator->id;
+
             $committee->save();
 
             return redirect()->action('CommitteeController@index')->with('Committee Added');
