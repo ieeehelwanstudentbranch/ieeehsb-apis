@@ -52,8 +52,8 @@ class CommitteeController extends Controller
             $this->validate($request ,[
                 'name' => 'required |string | unique:committees| max:50 | min:2',
                 'mentor' => 'required |string | max:50 | min:2',
-                'director' => 'nullable |string | max:50 | min:1',
-                'hr_coordinator' => 'nullable |string | max:50 | min:1',
+                'director' => 'nullable |numeric | min:1 | max:20000',
+                'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
             ]);
 
             $committee = new Committee();
