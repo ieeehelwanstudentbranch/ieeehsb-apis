@@ -17,9 +17,9 @@ class CommitteeResource extends Resource
     {
       $users=  User::all()->where('committee_id', $this->id);
         return [
-            'director' =>User::select('firstName','lastName' , 'position')->where('position', 'highBoard')->get(),
+            'director' =>User::select('id','firstName','lastName' , 'position')->where('position', 'highBoard')->get(),
 
-            'hr-od' =>User::select('firstName','lastName' ,'position')->where('committee_id', $this->id)->get(),
+            'hr-od' =>User::select('id','firstName','lastName' ,'position')->where('committee_id', $this->id)->get(),
         ];
     }
 }

@@ -17,12 +17,13 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('firstName');
             $table->string('lastName');
-            $table->string('faculty');
-            $table->string('university');
-            $table->string('DOB');
+            $table->string('faculty')->nullable();
+            $table->string('university')->nullable();
+            $table->string('DOB')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('level')->nullable();
+            $table->string('address')->nullable();
             $table->string('position');
-//            $table->string('committee')->nullable();
-//            $table->integer('committee_id')->unsigned()->nullable();
             $table->string('image')->nullable();
             $table->enum('status',['active','freezed','deprecated'])->default('active');
             $table->boolean('confirmed')->default('0');

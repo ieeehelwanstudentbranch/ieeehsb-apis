@@ -49,3 +49,19 @@ Route::delete('/article/{id}', 'PostController@destroy');
 Route::post('/article/{id}/addComment', 'CommentController@addComment');
 
 Route::get('/article/{id}/destroyComment', 'CommentController@destroyComment');
+
+//User
+
+Route::get('user/{id}', 'UserController@updateProfilePage');
+Route::PUT('user/{id}', 'UserController@updateProfile');
+
+//task
+
+Route::get('create-task', 'TaskController@createPage');
+Route::post('create-task', 'TaskController@store');
+Route::get('pendingtasks', 'TaskController@pendingTasks');
+Route::get('completetasks', 'TaskController@completeTasks');
+Route::get('task/{id}', 'TaskController@viewTask');
+Route::post('accepttask/{id}', 'TaskController@acceptTask');
+Route::get('refusetask/{id}', 'TaskController@refuseTask');
+Route::post('delivertask/{id}', 'TaskController@deliverTask');

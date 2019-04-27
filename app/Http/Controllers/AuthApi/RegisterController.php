@@ -37,10 +37,10 @@ protected $user;
         $this->validate($request ,[
             'firstName' => 'required |string | max:50 | min:3',
             'lastName' => 'required |string | max:50 | min:3',
-            'faculty' => 'required |string | max:30 | min:3',
-            'university' => 'required |string | max:30 | min:3',
-//            'DOB' => 'date_format:Y-M-D|before:today',
-            'email' => 'required |string|email|max:255| unique:users',
+            'faculty' => 'nullable |string | max:30 | min:3',
+            'university' => 'nullable |string | max:30 | min:3',
+            'DOB' => 'nullable|date_format:Y-M-D|before:today',
+            'email' => 'required |string|email|max:255|unique:users',
             'password'=>'required|confirmed|string|min:6',
             'password_confirmation'=>'sometimes|required_with:password',
         ]);
@@ -56,6 +56,7 @@ protected $user;
         $user= new User();
         $user->firstName= $request->input('firstName');
         $user->lastName= $request->input('lastName');
+        $user->image= 'default.jpg';
         $user->faculty= $request->input('faculty');
         $user->university= $request->input('university');
         $user->DOB= $request->input('DOB');

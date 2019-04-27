@@ -9,6 +9,7 @@ use App\Post;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class PostController extends Controller
 {
@@ -65,17 +66,22 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $post =   Post::findOrFail($id);
+
+        if($post->user_id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
                 'title' => 'required',
                 'body' => 'required',
             ]);
 
-            $post =   Post::findOrFail($id);
             $post->title = $request->input('title');
             $post->body = $request->input('body');
             $post->update();
 
             return new PostResource($post);
+        }else{
+            return response()->json('Un Authenticated');
+        }
     }
 
     /**
@@ -86,11 +92,16 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        $post = Post::findOrFail($id);
+        $post =   Post::findOrFail($id);
+
+        if($post->user_id == JWTAuth::parseToken()->authenticate()->id) {
         Comment::where('post_id',$id)->delete();
             $post->delete();
             return redirect('/api/articles')->with('success', 'Done successfully');
 
+        }else{
+            return response()->json('Un Authenticated');
+        }
     }
 
 }
