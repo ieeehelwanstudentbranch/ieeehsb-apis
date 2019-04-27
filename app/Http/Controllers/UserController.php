@@ -35,7 +35,7 @@ class UserController extends Controller
                 'email' => 'required|string|email|max:255',
                 'DOB' => 'nullable',
                 'faculty' => 'nullable|string | max:30 | min:3',
-                'level' => 'nullable|number | max:30 | min:3',
+                'level' => 'nullable|numeric | max:30 | min:3',
                 'university' => 'nullable|string | max:30 | min:3',
                 'phone' => 'nullable|regex:/(01)[0-9]{9}/',
                 'address' => 'nullable|string | max:100 | min:3',
@@ -75,7 +75,7 @@ class UserController extends Controller
             $user->update();
               return redirect('/user/'.$id)->with('success','User Updated');
         }else{
-            return response()->json('Un Authenticated');
+            return response()->json('error','Un Authenticated');
         }
     }
 

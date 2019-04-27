@@ -12,7 +12,9 @@
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "~5.0",
         "tymon/jwt-auth": "^0.5.12",
-        "unisharp/laravel-ckeditor": "^4.7"
+        "unisharp/laravel-ckeditor": "^4.7",
+      "ext-json": "*",
+        "ext-mysql": "*"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",
