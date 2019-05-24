@@ -57,7 +57,7 @@ class CommitteeController extends Controller
             ]);
 
             $committee = new Committee();
-            $user =User::all();
+//            $user =User::all();
             $committee->name = $request->input('name');
 
             $committee->mentor = $request->input('mentor');
