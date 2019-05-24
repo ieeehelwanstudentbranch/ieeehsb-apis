@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Committee;
 
+use App\Committee;
 use App\User;
 use Illuminate\Http\Resources\Json\Resource;
 
@@ -17,7 +18,9 @@ class CommitteeResource extends Resource
     {
       $users=  User::all()->where('committee_id', $this->id);
         return [
-            'director' =>User::select('id','firstName','lastName' , 'position')->where('position', 'highBoard')->get(),
+            'mentor' =>User::select('id','firstName','lastName' , 'position')->where('position', 'EX_com')->get(),
+
+            'director' =>User::select('id','firstName','lastName' , 'position' ,'committee_id')->where('position', 'highBoard')->get(),
 
             'hr-od' =>User::select('id','firstName','lastName' ,'position')->where('committee_id', $this->id)->get(),
         ];

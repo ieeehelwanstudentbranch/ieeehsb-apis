@@ -51,7 +51,7 @@ class CommitteeController extends Controller
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
             $this->validate($request ,[
                 'name' => 'required |string | unique:committees| max:50 | min:2',
-                'mentor' => 'required |string | max:50 | min:2',
+                'mentor' => 'required|numeric | min:1 | max:20000',
                 'director' => 'nullable |numeric | min:1 | max:20000',
                 'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
             ]);
@@ -60,7 +60,11 @@ class CommitteeController extends Controller
             $user =User::all();
             $committee->name = $request->input('name');
 
-            $committee->Ex_com_Mentor = $request->input('mentor');
+            $committee->mentor = $request->input('mentor');
+
+            $mentor=User::findOrFail($request->input('mentor'));
+            $committee->mentor =$mentor->firstName .' '.$mentor->lastName;
+            $committee->mentor_id = $mentor->id;
 
             $director=User::findOrFail($request->input('director'));
             $committee->director =$director->firstName .' '.$director->lastName;
