@@ -39,7 +39,7 @@ protected $user;
             'lastName' => 'required |string | max:50 | min:3',
             'faculty' => 'nullable |string | max:30 | min:3',
             'university' => 'nullable |string | max:30 | min:3',
-            'DOB' => 'nullable|date_format:Y-M-D|before:today',
+            'DOB' => 'nullable|date_format:d-m-Y|before:today',
             'email' => 'required |string|email|max:255|unique:users',
             'password'=>'required|confirmed|string|min:6',
             'password_confirmation'=>'sometimes|required_with:password',
@@ -106,18 +106,18 @@ protected $user;
             $message->to($this->MailTarget($req), 'user')->subject('Verify your email address');
         });
 
-           return response()->json(['status' =>'success','user'=>$user]);
+           return response()->json(['status' =>'success', 'message' => 'Registration is Successful, please wait until your account being activated']);
         }
 
 
-//        mail target
+        //  mail target
         public function MailTarget(Request $request)
         {
             $email = 'm.emad550@gmail.com';
 
-//            if Ex-com register
-            if ($request->input( 'position')=='EX_com' && ($request->input('ex_options')!='Chairperson') ){
-                $ex = Ex_com_options::where('EX-comOptions','Chairperson' )->first();
+            // if Ex-com register
+            if ($request->input('position')=='EX_com' && ($request->input('ex_options')!='Chairperson') ){
+                $ex = Ex_com_options::where('ex_options','Chairperson' )->first();
                 $user = User::findOrFail($ex->user_id);
                 $email = $user->email;
             }
