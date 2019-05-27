@@ -37,7 +37,14 @@ protected $user;
                     'message' => 'Invalid Email or Password',
                 ]);
             }
-        } catch (JWTAuthException $e) {
+            if (!User::where('email',$request['email'])->first()->confirmed) {
+                return response()->json([
+                    'response' => 'error',
+                    'message' => 'Sorry your account does not been activated yet',
+                ]);
+            }
+
+        }catch (JWTAuthException $e) {
             return response()->json([
                 'response' => 'error',
                 'message' => 'Failed to create token',
