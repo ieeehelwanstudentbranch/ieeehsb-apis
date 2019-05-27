@@ -46,7 +46,7 @@ protected $user;
             'password_confirmation'=>'sometimes|required_with:password',
         ]);
          //if position EX-com
-        if ($request->input('position')=='EX_com') {$this->validate($request, ['EX-comOptions' => 'required']);}
+        if ($request->input('position')=='EX_com') {$this->validate($request, ['ex_options' => 'required']);}
 
         //if position High board and the committee was chosen RAS, PES, WIE:
         if ($request->input('position')=='highBoard' && ($request->input('committee')== 'RAS' || $request->input('committee')==  'PES' || $request->input('committee')==  'WIE'))
@@ -68,7 +68,7 @@ protected $user;
 
         if ($request->input('position')=='EX_com'){
             $ex = new Ex_com_options();
-            $ex->ex_options = $request->input('EX-comOptions');
+            $ex->ex_options = $request->input('ex_options');
             if ($ex->ex_options!=null){
                 $user->save();
                 $ex->user_id = $user->id;
@@ -106,9 +106,13 @@ protected $user;
         Mail::send('/emails.verify', compact(['user','confirmation_code']), function($message) use ($req) {
             $message->to($this->MailTarget($req), 'user')->subject('Verify your email address');
         });
+        if ($user->id) {
+            return response()->json(['status' => 'success', 'message' => 'Registration is Successful, please wait until your account being activated']);
+        }else{
+            return response()->json(['status' => 'fail', 'message' => 'Registration is Fail, please check your data again!']);
 
-           return response()->json(['status' =>'success', 'message' => 'Registration is Successful, please wait until your account being activated']);
         }
+    }
 
 
         //  mail target
@@ -122,7 +126,7 @@ protected $user;
             }
 
             // if Ex-com(!Chairperson) register
-            if ($request->input('position')=='EX_com' && ($request->input('ex_options')!='Chairperson') ) {
+            if ($request->input('position')=='EX_com' && ($request->input('ex_options')!='chairperson') ) {
                 try {
                     $ex = Ex_com_options::where('ex_options', 'chairperson')->first();
                     $user = User::findOrFail($ex->user_id);

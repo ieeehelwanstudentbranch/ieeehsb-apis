@@ -58,7 +58,7 @@
                         @endif
 
                         @if($user->position != 'EX_com')
-                            <td>{{$user->committee->name}}</td>
+{{--                            <td>{{$user->committee->name}}</td>--}}
                         @endif
 
                         @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))
