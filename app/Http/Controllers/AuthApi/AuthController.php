@@ -27,6 +27,7 @@ protected $user;
     public function login(Request $request){
         $credentials = $request->only('email', 'password');
         $this->validate($request ,[
+            'email' => 'required',
             'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
         ]);
         $token = null;
