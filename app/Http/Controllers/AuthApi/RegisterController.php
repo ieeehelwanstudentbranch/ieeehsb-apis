@@ -42,7 +42,7 @@ protected $user;
             'university' => 'nullable |string | max:30 | min:3',
             'DOB' => 'nullable|date_format:d-m-Y|before:today',
             'email' => 'required |string|email|max:255|unique:users',
-            'password'=>'required|confirmed|string|min:6',
+            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
             'password_confirmation'=>'sometimes|required_with:password',
         ]);
          //if position EX-com

@@ -26,6 +26,10 @@ protected $user;
     
     public function login(Request $request){
         $credentials = $request->only('email', 'password');
+        $this->validate($request ,[
+            'email' => 'required',
+            'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
+        ]);
         $token = null;
         if ($request['remember_me']) {
             config(['jwt.ttl' => env('TOKEN_TTL_REMEMBER_ME',  86400 * 30)]); // 30 days
