@@ -58,19 +58,16 @@
                         @endif
 
                         @if($user->position != 'EX_com')
-{{--                            <td>{{$user->committee->name}}</td>--}}
+                           <td>{{$user->committee->name}}</td>
                         @endif
 
                         @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))
                             <td>{{$user->high_board_option->HB_options}}</td>
                         @endif
-
                     </tr>
                 </tbody>
             </table>
             If you have problems, please paste the above URL into your web browser.
-
         </div>
-
     </body>
 </html>
