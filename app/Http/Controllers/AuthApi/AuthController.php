@@ -28,7 +28,7 @@ protected $user;
         $credentials = $request->only('email', 'password');
         $this->validate($request ,[
             'email' => 'required',
-            'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
+            'password' => 'required|string|min:8|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/',
         ]);
         $token = null;
         if ($request['remember_me']) {
@@ -37,54 +37,47 @@ protected $user;
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
-                    'response' => 'error',
+                    'response' => 'Error',
                     'message' => 'Invalid Email or Password',
                 ]);
             }
             if (!User::where('email',$request['email'])->first()->confirmed) {
                 return response()->json([
-                    'response' => 'error',
+                    'response' => 'Error',
                     'message' => 'Sorry your account does not been activated yet',
                 ]);
             }
 
         }catch (JWTAuthException $e) {
             return response()->json([
-                'response' => 'error',
+                'response' => 'Error',
                 'message' => 'Failed to create token',
             ]);
         }
         return response()->json([
-            'response' => 'success',
-            'result' => [
-                'token' => $token
-            ],
+            'response' => 'Success',
+            'message' => 'You logged in successfully',
+            'token' => $token
         ]);
     }
 
-//        Logout
+    // Logout
     public function logout(Request $request)
     {
         $this->validate($request, [
             'token' => 'required'
         ]);
-
         try {
             JWTAuth::invalidate($request->token);
-
             return response()->json([
                 'success' => true,
-                'message' => 'User logged out successfully'
+                'message' => 'You logged out Successfully'
             ]);
         } catch (JWTException $exception) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, the user cannot be logged out'
+                'message' => 'Sorry, You cannot be logged out'
             ], 500);
         }
     }
-
- }
-        
-
-
+}
