@@ -31,8 +31,9 @@ protected $user;
             'password' => 'required|string|min:8|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/',
         ]);
         $token = null;
+        $expirationTime = 86400 * 30;
         if ($request['remember_me']) {
-            config(['jwt.ttl' => env('TOKEN_TTL_REMEMBER_ME',  86400 * 30)]); // 30 days
+            config(['jwt.ttl' => env('TOKEN_TTL_REMEMBER_ME',  $expirationTime)]); // 30 days
         }
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
@@ -57,7 +58,8 @@ protected $user;
         return response()->json([
             'response' => 'Success',
             'message' => 'You logged in successfully',
-            'token' => $token
+            'token' => $token,
+            'expirationTime' => $expirationTime
         ]);
     }
 
