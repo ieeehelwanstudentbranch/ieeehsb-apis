@@ -11,6 +11,7 @@ use App\Http\Resources\Committee\CommitteeResource;
 use App\Http\Resources\User\UserData;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CommitteeController extends Controller
 {
@@ -39,7 +40,14 @@ class CommitteeController extends Controller
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
 
             $committee = Committee::where('name','hr_od')->get();
-            return CommitteeResource::collection($committee);
+            if (count($committee)>=1) {
+                return CommitteeResource::collection($committee);
+            }else{
+                return new CommitteeResource(true);
+            }
+
+
+
         } else {
             return response()->json('error');
         }
@@ -96,17 +104,30 @@ class CommitteeController extends Controller
     {
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
             $this->validate($request ,[
-                'name' => 'required |string | unique:committees| max:50 | min:2',
-                'mentor' => 'required |string | max:50 | min:2',
-                'director' => 'nullable |string | max:50 | min:2',
-                'hr_coordinator' => 'nullable |string | max:50 | min:2',
+                'name' => ['required',Rule::unique('committees')->ignore($id) ],
+                'mentor' => 'required |string | max:100 | min:1',
+                'director' => 'nullable |string | max:100 | min:1',
+                'hr_coordinator' => 'nullable |string | max:100 | min:1',
             ]);
 
             $committee = Committee::findOrFail($id);
             $committee->name = $request->input('name');
-            $committee->Ex_com_Mentor = $request->input('mentor');
-            $committee->director = $request->input('director');
-            $committee->hr_coordinator = $request->input('hr_coordinator');
+
+            $mentor = User::findOrFail($request->input('mentor'));
+            $committee->mentor = $mentor->firstName . ' ' . $mentor->lastName;
+            $committee->mentor_id = $mentor->id;
+
+            if ($request->input('director')){
+                $director = User::findOrFail($request->input('director'));
+                $committee->director = $director->firstName . ' ' . $director->lastName;
+                $committee->director_id = $director->id;
+            }
+
+            if ($request->input('hr_coordinator')) {
+                $hr_coordinator = User::findOrFail($request->input('hr_coordinator'));
+                $committee->hr_coordinator = $hr_coordinator->firstName . ' ' . $hr_coordinator->lastName;
+                $committee->hr_coordinator_id = $hr_coordinator->id;
+            }
             $committee->update();
 
             return redirect()->action('CommitteeController@index')->with('Committee Updated');
