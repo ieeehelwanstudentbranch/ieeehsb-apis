@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller as Controller;
 use App\Http\Requests;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Mail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Facades\JWTFactory;
@@ -35,6 +36,7 @@ protected $user;
     public function register(Request $request)
     {
         $req = $request;
+        Input::merge(array_map('trim', Input::all()));
         $this->validate($request ,[
             'firstName' => 'required |string | max:50 | min:3',
             'lastName' => 'required |string | max:50 | min:3',

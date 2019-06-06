@@ -15,4 +15,7 @@ class Committee extends Model
     public function user(){
         return$this->hasMany(User::class);
     }
+//    protected $rules = [
+//        'name' => 'sometimes|required |string | unique:committees| max:100 | min:2',
+//];
 }

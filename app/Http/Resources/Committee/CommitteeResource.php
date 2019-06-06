@@ -16,13 +16,21 @@ class CommitteeResource extends Resource
      */
     public function toArray($request)
     {
-      $users=  User::all()->where('committee_id', $this->id);
+        try {
+            return [
+                'mentor' =>User::select('id','firstName','lastName' , 'position')->where('position', 'EX_com')->get(),
+
+                'director' =>User::select('id','firstName','lastName' , 'position' ,'committee_id')->where('position', 'highBoard')->get(),
+
+                'hr-od' =>User::select('id','firstName','lastName' ,'position')->where('committee_id', $this->id)->get(),
+            ];
+        }catch (\Exception $e){
         return [
             'mentor' =>User::select('id','firstName','lastName' , 'position')->where('position', 'EX_com')->get(),
 
             'director' =>User::select('id','firstName','lastName' , 'position' ,'committee_id')->where('position', 'highBoard')->get(),
 
-            'hr-od' =>User::select('id','firstName','lastName' ,'position')->where('committee_id', $this->id)->get(),
         ];
+        }
     }
 }
