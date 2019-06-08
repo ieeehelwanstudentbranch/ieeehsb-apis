@@ -32,8 +32,9 @@ protected $user;
         ]);
         $token = null;
         $expirationTime = 86400 * 30;
+
         if ($request['remember_me']) {
-            config(['jwt.ttl' => env('TOKEN_TTL_REMEMBER_ME',  $expirationTime)]); // 30 days
+            config(['jwt.ttl' => env('TOKEN_TTL_REMEMBER_ME',$expirationTime)]); // 30 days
         }
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
@@ -55,11 +56,13 @@ protected $user;
                 'message' => 'Failed to create token',
             ]);
         }
+        $payload = JWTAuth::getPayload($token);
+        $expirationTime = $payload['exp'];
         return response()->json([
             'response' => 'Success',
             'message' => 'You logged in successfully',
             'token' => $token,
-            'expirationTime' => $expirationTime
+            'expirationTime' => $expirationTime,
         ]);
     }
 

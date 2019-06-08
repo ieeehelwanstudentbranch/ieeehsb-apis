@@ -19,7 +19,7 @@ class CommentController extends Controller
             $comment->save();
         }
 
-          return redirect('api/articles/'.$id)->with('success', 'Done successfully');
+          return redirect('api/posts/'.$id)->with('success', 'Done successfully');
     }
 
     //delete comment
@@ -28,7 +28,7 @@ class CommentController extends Controller
         $comment = Comment::findOrFail($id);
         $pid = $comment->post_id;
         $comment->delete();
-        return redirect("/article/".$pid);
+        return redirect("/post/".$pid);
     }
 
 }

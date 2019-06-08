@@ -48,7 +48,7 @@ class PostController extends Controller
             $post->user_id = auth()->user()->id;
             $post->save();
 
-            return redirect('api/articles')->with('success', 'Done successfully');
+            return redirect('api/posts')->with('success', 'Done successfully');
     }
 
     public function show($id)
@@ -80,7 +80,7 @@ class PostController extends Controller
 
             return new PostResource($post);
         }else{
-            return response()->json('Un Authenticated');
+            return response()->json('error','Un Authenticated');
         }
     }
 
@@ -97,10 +97,10 @@ class PostController extends Controller
         if($post->user_id == JWTAuth::parseToken()->authenticate()->id) {
         Comment::where('post_id',$id)->delete();
             $post->delete();
-            return redirect('/api/articles')->with('success', 'Done successfully');
+            return redirect('/api/posts')->with('success', 'Done successfully');
 
         }else{
-            return response()->json('Un Authenticated');
+            return response()->json('error' ,'Un Authenticated');
         }
     }
 
