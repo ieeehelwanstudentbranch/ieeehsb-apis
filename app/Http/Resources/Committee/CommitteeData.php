@@ -18,7 +18,7 @@ class CommitteeData extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'mentor' => $this->Ex_com_Mentor,
+            'mentor' => $this->mentor,
             'director' => $this->director,
             'hr_coordinator' => $this->hr_coordinator,
             'members'      =>User::where('committee_id' ,$this->id)->get(),
