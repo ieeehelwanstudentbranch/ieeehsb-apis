@@ -42,9 +42,9 @@ protected $user;
             'lastName' => 'required |string | max:50 | min:3',
             'faculty' => 'nullable |string | max:30 | min:3',
             'university' => 'nullable |string | max:30 | min:3',
-            'DOB' => 'nullable|date_format:m-d-Y|before:today',
+            'DOB' => 'nullable|date_format:Y-m-d|before:today',
             'email' => 'required |string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
+            'password' => 'required|string|min:8|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/',
             'password_confirmation'=>'sometimes|required_with:password',
         ]);
          //if position EX-com
@@ -81,7 +81,7 @@ protected $user;
         }
 
         if ($request->input('position')=='highBoard' || $request->input('position')== 'volunteer'){
-//            $user->committee = $request->input('committee');
+            // $user->committee = $request->input('committee');
             $committee = Committee::where('name', $request->input('committee'))->first();
             $user->committee_id = $committee->id;
         }
@@ -104,7 +104,7 @@ protected $user;
         }
 
         if ($request->input('position')=='volunteer'){$user->save();}
-//        send activation email
+        // send activation email
         Mail::send('/emails.verify', compact(['user','confirmation_code']), function($message) use ($req) {
             $message->to($this->MailTarget($req), 'user')->subject('Verify your email address');
         });
@@ -117,60 +117,56 @@ protected $user;
     }
 
 
-        //  mail target
-        public function MailTarget(Request $request)
-        {
-            $email =  'ieeehelwanstudentbranch@gmail.com';
+    //  mail target
+    public function MailTarget(Request $request)
+    {
+        $email =  'ieeehelwanstudentbranch@gmail.com';
 
-            // if Ex-com(Chairperson) register
-            if ($request->input('position')=='EX_com' && ($request->input('ex_options')=='chairperson') ){
+        // if Ex-com(Chairperson) register
+        if ($request->input('position')=='EX_com' && ($request->input('ex_options')=='chairperson') ){
+            $email = 'ieeehelwanstudentbranch@gmail.com';
+        }
+
+        // if Ex-com(!Chairperson) register
+        if ($request->input('position')=='EX_com' && ($request->input('ex_options')!='chairperson') ) {
+            try {
+                $ex = Ex_com_options::where('ex_options', 'chairperson')->first();
+                $user = User::findOrFail($ex->user_id);
+                $email = $user->email;
+
+            } catch (JWTAuthException $e) {
                 $email = 'ieeehelwanstudentbranch@gmail.com';
             }
-
-            // if Ex-com(!Chairperson) register
-            if ($request->input('position')=='EX_com' && ($request->input('ex_options')!='chairperson') ) {
-                try {
-                    $ex = Ex_com_options::where('ex_options', 'chairperson')->first();
-                    $user = User::findOrFail($ex->user_id);
-                    $email = $user->email;
-
-                } catch (JWTAuthException $e) {
-                    $email = 'ieeehelwanstudentbranch@gmail.com';
-                }
-            }
-
-            // if High Board register
-            if ($request->input('position')=='highBoard') {
-                try {
-                    $committee = Committee::where('name', $request->input('committee'))->first();
-                    $mentor =User::where('id', $committee->mentor_id);
-                    $email = $mentor->email;
-
-                } catch (JWTAuthException $e) {
-                    $email = 'ieeehelwanstudentbranch@gmail.com';
-                }
-            }
-
-            // if volunteer register
-            if ($request->input('position')=='volunteer') {
-                try {
-                    $committee = Committee::where('name', $request->input('committee'))->first();
-                    if ($committee->director_id) {
-                        $director = User::where('id', $committee->director_id);
-                        $email = $director->email;
-                    }else {
-                        $mentor = User::where('id', $committee->mentor_id);
-                        $email = $mentor->email;
-                    }
-
-                } catch (JWTAuthException $e) {
-                    $email = 'ieeehelwanstudentbranch@gmail.com';
-                }
-            }
-
-            return $email;
         }
+
+        // if High Board register
+        if ($request->input('position')=='highBoard') {
+            try {
+                $committee = Committee::where('name', $request->input('committee'))->first();
+                $mentor =User::where('id', $committee->mentor_id);
+                $email = $mentor->email;
+
+            } catch (JWTAuthException $e) {
+                $email = 'ieeehelwanstudentbranch@gmail.com';
+            }
+        }
+
+        // if volunteer register
+        if ($request->input('position')=='volunteer') {
+            try {
+                $committee = Committee::where('name', $request->input('committee'))->first();
+                if ($committee->director_id) {
+                    $director = User::where('id', $committee->director_id);
+                    $email = $director->email;
+                }else {
+                    $mentor = User::where('id', $committee->mentor_id);
+                    $email = $mentor->email;
+                }
+
+            } catch (JWTAuthException $e) {
+                $email = 'ieeehelwanstudentbranch@gmail.com';
+            }
+        }
+        return $email;
+    }
 }
-
-
-
