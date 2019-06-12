@@ -33,7 +33,7 @@ protected $user;
         $token = null;
         $expirationTime = env('JWT_TTL',60*24);
         if ($request->input('remember_me')== true) {
-            $expirationTime = env('JWT_TTL',60*24*30);
+            $expirationTime = env('JWT_TTL',1);
         }
 //        else{
 //            $expirationTime = env('ttl',3);
