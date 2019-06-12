@@ -35,9 +35,9 @@ protected $user;
         if ($request->input('remember_me')== true) {
             $expirationTime = env('JWT_TTL',60*24*30);
         }
-//        else{
-//            $expirationTime = env('ttl',3);
-//        }
+        // else{
+        //     $expirationTime = env('ttl',3);
+        // }
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
@@ -64,7 +64,7 @@ protected $user;
             'message' => 'You logged in successfully',
             'token' => $token,
             'expirationTime' => $expirationTime,
-            'user_id'    =>Auth::user()->id
+            'userId' => Auth::user()->id
 
         ]);
     }
