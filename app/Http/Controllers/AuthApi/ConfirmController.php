@@ -10,16 +10,18 @@ class ConfirmController extends Controller
 {
     public function confirm($confirmation_code)
     {
-        if( ! $confirmation_code)
+        if( !$confirmation_code)
         {
-            throw new InvalidConfirmationCodeException;
+//            throw new InvalidConfirmationCodeException;
+            return redirect()->back()->with('error','You have not verified account.');
         }
 
         $user = User::where('confirmation_code' ,$confirmation_code)->first();
 
-        if ( ! $user)
+        if ( !$user)
         {
-            throw new InvalidConfirmationCodeException;
+//            throw new InvalidConfirmationCodeException;
+            return redirect()->back()->with('error','You have not verified account.');
         }
 
         $user->confirmed = 1;
@@ -28,6 +30,6 @@ class ConfirmController extends Controller
 
 //        Flash::message('You have successfully verified your account.');
 
-        return redirect('/google.com');
+        return redirect('/https://www.google.com')->with('success','You have successfully verified account.');
     }
 }
