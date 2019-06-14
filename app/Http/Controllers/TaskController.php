@@ -37,9 +37,9 @@ class TaskController extends Controller
             $this->validate($request, [
                 'title' => 'required |min:3 |max:100 ',
                 'body' => 'required |min:3 |max:1000 ',
-//                'deadline' => 'required |date',
+                'deadline' => 'required |date_format:Y-m-d',
                 'files' => 'nullable| mimes:doc,pdf,docx,zip,txt,ppt,pptx,jpeg,jpg,svg,gif,ps,xls|max:10240000',
-//                'to' => 'required',
+                'to' => 'required|date_format:Y-m-d',
             ]);
 
             foreach ($request->input('to') as $to){
