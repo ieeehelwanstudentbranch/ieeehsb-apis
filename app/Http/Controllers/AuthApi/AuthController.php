@@ -31,9 +31,9 @@ protected $user;
             'password' => 'required|string|min:8|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/',
         ]);
         $token = null;
-        $expirationTime = env('JWT_TTL',60*24);
+        $expirationTime = env('JWT_TTL',60*24*30);
         if ($request->input('remember_me')== true) {
-            $expirationTime = env('JWT_TTL',1);
+            $expirationTime = env('JWT_TTL',60*24*30);
         }
         // else{
         //     $expirationTime = env('ttl',3);
