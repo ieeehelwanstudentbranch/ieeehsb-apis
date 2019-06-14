@@ -42,7 +42,7 @@ protected $user;
             'lastName' => 'required |string | max:50 | min:3',
             'faculty' => 'nullable |string | max:30 | min:3',
             'university' => 'nullable |string | max:30 | min:3',
-            'DOB' => 'nullable|date_format:m-d-Y|before:today',
+            'DOB' => 'nullable|date_format:Y-m-d|before:today',
             'email' => 'required |string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
             'password_confirmation'=>'sometimes|required_with:password',
