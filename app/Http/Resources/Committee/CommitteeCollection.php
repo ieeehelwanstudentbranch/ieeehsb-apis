@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\Committee;
 
+use App\Committee;
+use App\User;
 use Illuminate\Http\Resources\Json\Resource;
 
 class CommitteeCollection extends Resource
@@ -14,15 +16,18 @@ class CommitteeCollection extends Resource
      */
     public function toArray($request)
     {
+        $numOfVolunteers = User::where('committee_id',$this->id)->where('position','volunteer')->get();
         return [
             'id' => $this->id,
             'name' => $this->name,
             'mentor' => $this->mentor,
+            'mentor_id' => $this->mentor_id,
             'director' => $this->director,
+            'director_id' => $this->director_id,
             'hr_coordinator' => $this->hr_coordinator,
-            'href'       =>[
-                'view Committee'   =>   action('CommitteeController@view',$this->id),
-            ]
+            'hr_coordinator_id' => $this->hr_coordinator_id,
+            'numOfVolunteers'   => $numOfVolunteers->count(),
+                'href'   =>   action('CommitteeController@view',$this->id),
         ];
     }
 }

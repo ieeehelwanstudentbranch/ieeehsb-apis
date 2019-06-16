@@ -19,12 +19,7 @@ class PostCollection extends Resource
                 'body' => $this->body,
                 'created_at' => $this->created_at,
                 'post_owner' => $this->post_owner,
-                'href'       =>[
-                    'view Article' =>    action('PostController@show',$this->id)
-                ]
-
-
-
+                'href' =>    action('PostController@show',$this->id)
             ];
 
     }
