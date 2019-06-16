@@ -22,11 +22,8 @@ class PostResource extends JsonResource
             'created_at' => $this->created_at,
             'user_id' => $this->user_id,
             'comments'   => $this->comments ,
-            'href'       =>[
-                'edit'    => action('PostController@update' , $this->id ),
-                'delete'    => action('PostController@destroy' , $this->id ),
-            ]
-
+            'edit'    => action('PostController@update' , $this->id ),
+            'delete'    => action('PostController@destroy' , $this->id ),
         ];
     }
 }

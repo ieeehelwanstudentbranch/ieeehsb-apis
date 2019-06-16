@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Committee;
 use App\DeliverTask;
 use App\Http\Resources\Task\CompleteTasks;
+use App\Http\Resources\Task\MentorViewTasks;
+use App\Http\Resources\Task\MintorViewTasks;
 use App\Http\Resources\Task\PendingTasks;
 use App\Http\Resources\Task\TaskCollection;
 use App\Http\Resources\Task\TaskCollectionPanding;
 use App\SendTask;
 use App\Task;
 use App\User;
+use function GuzzleHttp\Psr7\try_fopen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -27,7 +31,7 @@ class TaskController extends Controller
             $users = User::select('id', 'firstName', 'lastName', 'position')->get();
             return response($users);
         }else{
-            return response()->json('Un Authenticated');
+            return response()->json('error','Un Authenticated');
         }
     }
 
@@ -37,9 +41,9 @@ class TaskController extends Controller
             $this->validate($request, [
                 'title' => 'required |min:3 |max:100 ',
                 'body' => 'required |min:3 |max:1000 ',
-                'deadline' => 'required |date_format:Y-m-d',
+//                'deadline' => 'required |date_format:Y-m-d',
                 'files' => 'nullable| mimes:doc,pdf,docx,zip,txt,ppt,pptx,jpeg,jpg,svg,gif,ps,xls|max:10240000',
-                'to' => 'required|date_format:Y-m-d',
+                'to' => 'required',
             ]);
 
             foreach ($request->input('to') as $to){
@@ -49,6 +53,11 @@ class TaskController extends Controller
             $task->deadline = $request->input('deadline');
             $task->from = JWTAuth::parseToken()->authenticate()->id;
             $task->to = $to;
+                try{
+                    $task->committee_id =  User::findOrFail($to)->committee_id;
+                }catch (\Exception $e){
+                    $task->committee_id =0;
+                }
 //            upload files
             if ($request->hasfile('files')) {
                 foreach ($request->file('files') as $file) {
@@ -67,17 +76,26 @@ class TaskController extends Controller
             return response()->json('success','task sent');
 
         }else{
-            return response()->json('Un Authenticated');
+            return response()->json('error','Un Authenticated');
         }
 
     }
 
 //    pending tasks
     public function pendingTasks(){
+//        $committee=Committee::id
+//        if (JWTAuth::parseToken()->authenticate()->position=='EX_com'){
+//
+//            $committee= Committee::where('mentor_id',JWTAuth::parseToken()->authenticate()->id);
+//            $committeeTasks = Task::all()->where('committee_id', $committee->id)->where('status','pending');
+//
+//            return new MentorViewTasks($committeeTasks);
+//        }
         if (Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id) || Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)){
         $tasks = Task::all();
         return new PendingTasks($tasks);
-        }else{
+        }
+        else{
             return response()->json('error','Un Authenticated');
         }
     }
