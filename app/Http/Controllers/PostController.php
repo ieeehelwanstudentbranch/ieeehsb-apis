@@ -38,12 +38,10 @@ class PostController extends Controller
     {
 
             $this->validate($request, [
-                'title' => 'required',
                 'body' => 'required',
             ]);
 
             $post = new Post;
-            $post->title = $request->input('title');
             $post->body = $request->input('body');
             $post->user_id = auth()->user()->id;
             $post->save();
@@ -70,11 +68,9 @@ class PostController extends Controller
 
         if($post->user_id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
-                'title' => 'required',
                 'body' => 'required',
             ]);
 
-            $post->title = $request->input('title');
             $post->body = $request->input('body');
             $post->update();
 
