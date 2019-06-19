@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Comment;
+use App\Http\Resources\Post\PostResource;
+use App\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -18,8 +20,8 @@ class CommentController extends Controller
             $comment->user_id = JWTAuth::parseToken()->authenticate()->id ;
             $comment->save();
         }
-
-          return redirect('api/posts/'.$id)->with('success', 'Done successfully');
+        $post = Post::findOrFail($id);
+        return new PostResource($post);
     }
 
     //delete comment
@@ -28,7 +30,8 @@ class CommentController extends Controller
         $comment = Comment::findOrFail($id);
         $pid = $comment->post_id;
         $comment->delete();
-        return redirect("/post/".$pid);
+        $post = Post::findOrFail($pid);
+        return new PostResource($post);
     }
 
 }

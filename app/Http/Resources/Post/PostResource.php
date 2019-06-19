@@ -17,10 +17,11 @@ class PostResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'body' => $this->body,
             'created_at' => $this->created_at,
-            'user_id' => $this->user_id,
-            'comments'   => $this->comments ,
+            'post_owner' => new OwnerCollection($this->user),
+            'comments'   => CommentsCollection::collection($this->comments),
             'edit'    => action('PostController@update' , $this->id ),
             'delete'    => action('PostController@destroy' , $this->id ),
         ];

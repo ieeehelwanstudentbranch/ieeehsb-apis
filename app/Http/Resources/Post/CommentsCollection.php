@@ -4,7 +4,7 @@ namespace App\Http\Resources\Post;
 
 use Illuminate\Http\Resources\Json\Resource;
 
-class PostCollection extends Resource
+class CommentsCollection extends Resource
 {
     /**
      * Transform the resource collection into an array.
@@ -14,13 +14,15 @@ class PostCollection extends Resource
      */
     public function toArray($request)
     {
+//        dd($this);
             return [
-                'id' => $this->id,
-                'body' => $this->body,
+                'comment_id' => $this->id,
+                'comment_body' => $this->comment_body,
                 'created_at' => $this->created_at,
-                'post_owner' => new OwnerCollection($this->user),
-                'href' =>    action('PostController@show',$this->id)
+                'delete'    => action('CommentController@destroyComment' , $this->id ),
+                'comment_owner' => new OwnerCollection($this->user),
             ];
+//        return parent::toArray($request);
 
     }
 }

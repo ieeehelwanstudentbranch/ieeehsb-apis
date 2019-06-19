@@ -18,12 +18,17 @@ class UserController extends Controller
 
     }
 
+    public function index($id){
+            $user = User::findOrFail($id);
+            return new UserData($user);
+    }
+
     public function updateProfilePage($id){
         if($id == JWTAuth::parseToken()->authenticate()->id) {
             $user = User::findOrFail($id);
             return new UserData($user);
         }else{
-            return response()->json('Un Authenticated');
+            return response()->json('error','Un Authenticated');
         }
     }
 

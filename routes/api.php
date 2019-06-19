@@ -52,8 +52,9 @@ Route::get('/post/{id}/destroyComment', 'CommentController@destroyComment');
 
 //User
 
-Route::get('user/{id}', 'UserController@updateProfilePage');
-Route::PUT('user/{id}', 'UserController@updateProfile');
+Route::get('update-profile/{id}', 'UserController@updateProfilePage');
+Route::PUT('update-profile/{id}', 'UserController@updateProfile');
+Route::get('user/{id}', 'UserController@index');
 
 //task
 

@@ -4,7 +4,7 @@ namespace App\Http\Resources\Post;
 
 use Illuminate\Http\Resources\Json\Resource;
 
-class PostCollection extends Resource
+class OwnerCollection extends Resource
 {
     /**
      * Transform the resource collection into an array.
@@ -15,11 +15,11 @@ class PostCollection extends Resource
     public function toArray($request)
     {
             return [
-                'id' => $this->id,
-                'body' => $this->body,
-                'created_at' => $this->created_at,
-                'post_owner' => new OwnerCollection($this->user),
-                'href' =>    action('PostController@show',$this->id)
+                'user_id' => $this->id,
+                'firstName' => $this->firstName,
+                'lasttName' => $this->lastName,
+                'position' => $this->position,
+                'href' =>    action('UserController@index',$this->id)
             ];
 
     }
