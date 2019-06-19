@@ -46,14 +46,16 @@ Route::PUT('update-post/{id}', 'PostController@update');
 Route::delete('/post/{id}', 'PostController@destroy');
 
 //comments
-Route::post('/post/{id}/addComment', 'CommentController@addComment');
+Route::post('/post/{id}/add-comment', 'CommentController@addComment');
+Route::post('/post/{id}/update-comment', 'CommentController@updateComment');
 
-Route::get('/post/{id}/destroyComment', 'CommentController@destroyComment');
+Route::get('/post/{id}/destroy-comment', 'CommentController@destroyComment');
 
 //User
 
-Route::get('user/{id}', 'UserController@updateProfilePage');
-Route::PUT('user/{id}', 'UserController@updateProfile');
+Route::get('update-profile/{id}', 'UserController@updateProfilePage');
+Route::PUT('update-profile/{id}', 'UserController@updateProfile');
+Route::get('user/{id}', 'UserController@index');
 
 //task
 

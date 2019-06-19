@@ -15,9 +15,10 @@ class PostCollection extends Resource
     public function toArray($request)
     {
             return [
+                'id' => $this->id,
                 'body' => $this->body,
                 'created_at' => $this->created_at,
-                'user_id' => $this->user_id,
+                'post_owner' => new OwnerCollection($this->user),
                 'href' =>    action('PostController@show',$this->id)
             ];
 
