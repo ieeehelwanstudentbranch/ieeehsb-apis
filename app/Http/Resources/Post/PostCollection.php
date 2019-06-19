@@ -17,7 +17,7 @@ class PostCollection extends Resource
             return [
                 'id' => $this->id,
                 'body' => $this->body,
-                'created_at' => $this->created_at,
+                'created_at' => $this->created_at->toDateTimeString(),
                 'post_owner' => new OwnerCollection($this->user),
                 'href' =>    action('PostController@show',$this->id)
             ];
