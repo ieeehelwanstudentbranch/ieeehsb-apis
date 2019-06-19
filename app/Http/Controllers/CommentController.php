@@ -14,6 +14,10 @@ class CommentController extends Controller
     // add Commment
     public function addComment(Request $request , $id ){
         if ($request->isMethod('post')){
+            $this->validate($request, [
+                'comment_body' => 'required',
+            ]);
+
             $comment = new Comment();
             $comment->comment_body = $request->input('comment_body');
             $comment->post_id = $id ;
@@ -24,8 +28,23 @@ class CommentController extends Controller
         return new PostResource($post);
     }
 
-    //delete comment
+    //update comment
+    public function updateComment(Request $request,$id){
 
+        if ($request->isMethod('post')) {
+            $this->validate($request, [
+                'comment_body' => 'required',
+            ]);
+            $comment = Comment::findOrFail($id);
+            $pid = $comment->post_id;
+            $comment->comment_body = $request->input('comment_body');
+            $comment->update();
+            $post = Post::findOrFail($pid);
+            return new PostResource($post);
+        }
+    }
+
+    //delete comment
     public function destroyComment($id){
         $comment = Comment::findOrFail($id);
         $pid = $comment->post_id;

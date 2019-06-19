@@ -46,9 +46,10 @@ Route::PUT('update-post/{id}', 'PostController@update');
 Route::delete('/post/{id}', 'PostController@destroy');
 
 //comments
-Route::post('/post/{id}/addComment', 'CommentController@addComment');
+Route::post('/post/{id}/add-comment', 'CommentController@addComment');
+Route::post('/post/{id}/update-comment', 'CommentController@updateComment');
 
-Route::get('/post/{id}/destroyComment', 'CommentController@destroyComment');
+Route::get('/post/{id}/destroy-comment', 'CommentController@destroyComment');
 
 //User
 

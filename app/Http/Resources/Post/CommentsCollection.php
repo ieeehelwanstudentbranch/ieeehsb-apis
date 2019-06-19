@@ -20,6 +20,7 @@ class CommentsCollection extends Resource
                 'comment_body' => $this->comment_body,
                 'created_at' => $this->created_at,
                 'delete'    => action('CommentController@destroyComment' , $this->id ),
+                'update'    => action('CommentController@updateComment' , $this->id ),
                 'comment_owner' => new OwnerCollection($this->user),
             ];
 //        return parent::toArray($request);
