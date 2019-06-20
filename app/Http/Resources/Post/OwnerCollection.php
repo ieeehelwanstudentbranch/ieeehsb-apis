@@ -17,7 +17,7 @@ class OwnerCollection extends Resource
             return [
                 'user_id' => $this->id,
                 'firstName' => $this->firstName,
-                'lasttName' => $this->lastName,
+                'lastName' => $this->lastName,
                 'image' => $this->image,
                 'position' => $this->position,
                 'href' =>    action('UserController@index',$this->id)
