@@ -60,7 +60,7 @@ class PostController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return PostResource
      */
     public function update(Request $request, $id)
     {
@@ -76,7 +76,7 @@ class PostController extends Controller
 
             return new PostResource($post);
         }else{
-            return response()->json('error','Un Authenticated');
+            return response()->json('Un Authenticated');
         }
     }
 
@@ -93,10 +93,10 @@ class PostController extends Controller
         if($post->user_id == JWTAuth::parseToken()->authenticate()->id) {
         Comment::where('post_id',$id)->delete();
             $post->delete();
-            return redirect('/api/posts')->with('success', 'Done successfully');
-
-        }else{
-            return response()->json('error' ,'Un Authenticated');
+            $posts = Post::orderBy('created_at', 'desc')->paginate(50);
+            return PostCollection::collection($posts);
+        } else {
+            return response()->json('Un Authenticated');
         }
     }
 
