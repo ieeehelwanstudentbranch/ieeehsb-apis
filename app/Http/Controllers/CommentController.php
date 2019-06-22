@@ -20,6 +20,7 @@ class CommentController extends Controller
 
             $comment = new Comment();
             $comment->comment_body = $request->input('comment_body');
+            $comment->created_at =now();
             $comment->post_id = $id ;
             $comment->user_id = JWTAuth::parseToken()->authenticate()->id ;
             $comment->save();

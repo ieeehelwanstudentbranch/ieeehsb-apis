@@ -43,6 +43,7 @@ class PostController extends Controller
 
             $post = new Post;
             $post->body = $request->input('body');
+            $post->created_at =now();
             $post->user_id = auth()->user()->id;
             $post->save();
 
