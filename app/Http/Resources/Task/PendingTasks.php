@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Task;
 
+use App\Committee;
 use App\DeliverTask;
 use App\Task;
 use Illuminate\Http\Resources\Json\Resource;
@@ -18,16 +19,44 @@ class PendingTasks extends Resource
      */
     public function toArray($request)
     {
+        $committees_mentor= Committee::query()->where('mentor_id',JWTAuth::parseToken()->authenticate()->id)->get();
+
+        $committees_hr_od= Committee::query()->where('hr_coordinator_id',JWTAuth::parseToken()->authenticate()->id)->get();
+
         $tasksSent = Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','pending');
         $tasksRecived = Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','pending');
-        return [
-            'committee tasks' =>$tasksSent,
 
-            'personal tasks'  =>$tasksRecived,
+        try
+        {
+            foreach ($committees_mentor as $committee)
+            {
+                $committeeTasks[] = Task::where('committee_id', $committee->id)->where('status', 'pending')->get();
+            }
 
+            return [
+                'mentoring_tasks' =>$committeeTasks,
+                'committee_tasks' =>$tasksSent,
+                'personal_tasks'  =>$tasksRecived,
+            ];
+        }catch (\Exception $e){
+            try{
+                foreach ($committees_hr_od as $committee)
+                {
+                    $committeeTask[] = Task::where('committee_id', $committee->id)->where('status', 'pending')->get();
+                }
+                return [
+                    'hr_tasks' =>$committeeTask,
+                    'committee_tasks' =>$tasksSent,
+                    'personal_tasks'  =>$tasksRecived,
+                ];
 
-        ];
-
+            }catch (\Exception $e){
+                return [
+                    'committee_tasks' =>$tasksSent,
+                    'personal_tasks'  =>$tasksRecived,
+                ];
+            }
+        }
 
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources\Task;
 
+use App\Committee;
 use App\DeliverTask;
+use App\Task;
 use Illuminate\Http\Resources\Json\Resource;
 use phpDocumentor\Reflection\Types\Parent_;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -17,15 +19,44 @@ class CompleteTasks extends Resource
      */
     public function toArray($request)
     {
-        $tasksSent = DeliverTask::all()->where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
-        $tasksRecived = DeliverTask::all()->where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
-        return [
-            'committee tasks'       =>$tasksSent,
-            'personal tasks'       => $tasksRecived,
+        $committees_mentor= Committee::query()->where('mentor_id',JWTAuth::parseToken()->authenticate()->id)->get();
 
+        $committees_hr_od= Committee::query()->where('hr_coordinator_id',JWTAuth::parseToken()->authenticate()->id)->get();
 
+        $tasksSent = Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
+        $tasksRecived = Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
 
-        ];
+        try
+        {
+            foreach ($committees_mentor as $committee)
+            {
+                $committeeTasks[] = Task::where('committee_id', $committee->id)->where('status', 'accepted')->get();
+            }
+
+            return [
+                'mentoring_tasks' =>$committeeTasks,
+                'committee_tasks' =>$tasksSent,
+                'personal_tasks'  =>$tasksRecived,
+            ];
+        }catch (\Exception $e){
+            try{
+                foreach ($committees_hr_od as $committee)
+                {
+                    $committeeTask[] = Task::where('committee_id', $committee->id)->where('status', 'accepted')->get();
+                }
+                return [
+                    'hr_tasks' =>$committeeTask,
+                    'committee_tasks' =>$tasksSent,
+                    'personal_tasks'  =>$tasksRecived
+                ];
+
+            }catch (\Exception $e){
+            return [
+                'committee_tasks' =>$tasksSent,
+                'personal_tasks'  =>$tasksRecived,
+            ];
+        }
+        }
 
     }
 }
