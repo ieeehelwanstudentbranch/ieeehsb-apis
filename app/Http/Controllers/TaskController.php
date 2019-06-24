@@ -83,30 +83,14 @@ class TaskController extends Controller
 
 //    pending tasks
     public function pendingTasks(){
-//        $committee=Committee::id
-//        if (JWTAuth::parseToken()->authenticate()->position=='EX_com'){
-//
-//            $committee= Committee::where('mentor_id',JWTAuth::parseToken()->authenticate()->id);
-//            $committeeTasks = Task::all()->where('committee_id', $committee->id)->where('status','pending');
-//
-//            return new MentorViewTasks($committeeTasks);
-//        }
-        if (Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id) || Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)){
         $tasks = Task::all();
         return new PendingTasks($tasks);
-        }
-        else{
-            return response()->json('error','Un Authenticated');
-        }
     }
+
     //    complete tasks
     public function completeTasks(){
-        if (Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id) || Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)){
-        $tasksSent = Task::all();
-        return new CompleteTasks([$tasksSent]);
-        }else{
-            return response()->json('error','Un Authenticated');
-        }
+        $tasks = Task::all();
+        return new CompleteTasks($tasks);
     }
 //    view task
     public function viewTask($id){

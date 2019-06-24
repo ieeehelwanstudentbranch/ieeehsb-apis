@@ -21,50 +21,36 @@ Route::post('/password/reset/{reset_code}', 'AuthApi\ResetPasswordController@Res
 
 //Committee
 Route::get('/committees', 'CommitteeController@index');
-
 Route::get('/committee/{id}', 'CommitteeController@view');
-
 Route::get('/addcommittee', 'CommitteeController@addPage');
-
 Route::post('/addcommittee', 'CommitteeController@add');
-
 Route::get('/updatecommittee', 'CommitteeController@updatePage');
-
-Route::post('/updatecommittee/{id}', 'CommitteeController@update');
-
+Route::put('/updatecommittee/{id}', 'CommitteeController@update');
 Route::delete('/deletecommittee/{id}', 'CommitteeController@destroy');
 
 //posts
-
 Route::get('posts', 'PostController@index');
-
 Route::get('post/{id}', 'PostController@show');
-
 Route::post('create-post', 'PostController@store');
-
-Route::PUT('update-post/{id}', 'PostController@update');
-
+Route::put('update-post/{id}', 'PostController@update');
 Route::delete('/post/{id}', 'PostController@destroy');
 
 //comments
 Route::post('/post/{id}/add-comment', 'CommentController@addComment');
-Route::post('/post/{id}/update-comment', 'CommentController@updateComment');
-
-Route::get('/post/{id}/destroy-comment', 'CommentController@destroyComment');
+Route::put('/post/{id}/update-comment', 'CommentController@updateComment');
+Route::delete('/post/{id}/destroy-comment', 'CommentController@destroyComment');
 
 //User
-
 Route::get('update-profile/{id}', 'UserController@updateProfilePage');
 Route::PUT('update-profile/{id}', 'UserController@updateProfile');
 Route::get('user/{id}', 'UserController@index');
 
 //task
-
 Route::get('create-task', 'TaskController@createPage');
 Route::post('create-task', 'TaskController@store');
-Route::get('pendingtasks', 'TaskController@pendingTasks');
-Route::get('completetasks', 'TaskController@completeTasks');
+Route::get('pending-tasks', 'TaskController@pendingTasks');
+Route::get('complete-tasks', 'TaskController@completeTasks');
 Route::get('task/{id}', 'TaskController@viewTask');
-Route::post('accepttask/{id}', 'TaskController@acceptTask');
-Route::get('refusetask/{id}', 'TaskController@refuseTask');
-Route::post('delivertask/{id}', 'TaskController@deliverTask');
+Route::post('accept-task/{id}', 'TaskController@acceptTask');
+Route::get('refuse-task/{id}', 'TaskController@refuseTask');
+Route::post('deliver-task/{id}', 'TaskController@deliverTask');
