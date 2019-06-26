@@ -21,7 +21,7 @@ class UserData extends JsonResource
             return [
                 'id' => $this->id,
                 'firstName' => $this->firstName,
-                'lasttName' => $this->lastName,
+                'lastName' => $this->lastName,
                 'email' => $this->email,
                 'faculty' => $this->faculty,
                 'university' => $this->university,
@@ -43,7 +43,7 @@ class UserData extends JsonResource
             return [
                 'id' => $this->id,
                 'firstName' => $this->firstName,
-                'lasttName' => $this->lastName,
+                'lastName' => $this->lastName,
                 'email' => $this->email,
                 'faculty' => $this->faculty,
                 'university' => $this->university,
