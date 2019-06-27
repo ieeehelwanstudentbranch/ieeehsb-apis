@@ -96,7 +96,7 @@ class UserController extends Controller
 
         if($id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
-                'profile_image' => 'image|nullable|max:10024 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
+                'profile_image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
             ]);
             $user = User::findOrFail($id);
             //upload image
