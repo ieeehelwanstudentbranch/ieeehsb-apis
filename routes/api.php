@@ -43,7 +43,7 @@ Route::delete('/post/{id}/destroy-comment', 'CommentController@destroyComment');
 //User
 Route::get('update-profile/{id}', 'UserController@updateProfilePage');
 Route::PUT('update-profile/{id}', 'UserController@updateProfile');
-Route::PUT('update-profile-image/{id}', 'UserController@updateProfileImage');
+Route::post('update-profile-image/{id}', 'UserController@updateProfileImage');
 Route::PUT('update-profile-password/{id}', 'UserController@updateProfilePassword');
 Route::get('user/{id}', 'UserController@index');
 
