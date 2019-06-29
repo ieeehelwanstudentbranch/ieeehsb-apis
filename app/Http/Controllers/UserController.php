@@ -106,7 +106,7 @@ class UserController extends Controller
                 $fileNameStoreImage = $fileName . '_' . time() . '.' . $extension;
 
                 $request->file('profile_image')->move(base_path() . '/public/uploaded/profile_images/', $fileNameStoreImage);
-                $user->profile_image = $fileNameStoreImage;
+                $user->image = $fileNameStoreImage;
             $user->update();
             return redirect('/user/'.$id)->with('success','Image Updated');
         } else {
