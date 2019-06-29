@@ -108,9 +108,9 @@ class UserController extends Controller
                 $request->file('profile_image')->move(base_path() . '/public/uploaded/profile_images/', $fileNameStoreImage);
                 $user->image = $fileNameStoreImage;
             $user->update();
-            return redirect('/user/'.$id)->with('success','Image Updated');
+            return response()->json('updated-successfully');
         } else {
-            return response()->json('error','Un Authenticated');
+            return response()->json('un-authenticated');
         }
 
     }
