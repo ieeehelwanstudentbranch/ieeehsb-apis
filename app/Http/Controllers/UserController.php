@@ -47,25 +47,20 @@ class UserController extends Controller
             ]);
 
             $user = User::findOrFail($id);
-            $user->firstName= $request->input('firstName');
-            $user->lastName= $request->input('lastName');
-            if ($request->input('faculty')){ $user->faculty= $request->input('faculty');}
-            if ($request->input('university')){$user->university= $request->input('university');}
-            if ($request->input('DOB')){ $user->DOB= $request->input('DOB');}
-            if ($request->input('phone')){ $user->phone= $request->input('phone');}
-            if ($request->input('level')){ $user->level= $request->input('level');}
-            if ($request->input('address')){ $user->address= $request->input('address');}
-            $user->email=$request->input('email');
-            if ($request->input('password')) {
-                $user->password = Hash::make($request->input('password'));
-            }
-            $user->email = $request->input('email');
 
+            $user->firstName    = $request->input('firstName');
+            $user->lastName     = $request->input('lastName');
+            $user->faculty      = $request->input('faculty')?? null;
+            $user->university   = $request->input('university')?? null;
+            $user->DOB          = $request->input('DOB')?? null;
+            $user->address      = $request->input('address')?? null;
+            $user->phone        = $request->input('phone')?? null;
+            $user->level        = $request->input('level')?? null;
+            $user->email        = $request->input('email');
             $user->update();
-            $user=User::findOrFail($id);
-              return new UserData($user);
-        }else{
-            return response()->json('error','Un Authenticated');
+            return response()->json(['success'=>'user updated'],200);
+        } else {
+            return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
@@ -83,12 +78,12 @@ class UserController extends Controller
             {
                 $user->password=app('hash')->make($request->input('new_password'));
                 $user->update();
-               return response()->json('PasswordUpdated');
+               return response()->json(['success'=>'PasswordUpdated']);
             } else {
-                return response()->json('OldPasswordInvalid');
+                return response()->json(['error'=>'OldPasswordInvalid']);
             }
         } else {
-            return response()->json('Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
@@ -108,9 +103,9 @@ class UserController extends Controller
                 $request->file('profile_image')->move(base_path() . '/public/uploaded/profile_images/', $fileNameStoreImage);
                 $user->image = $fileNameStoreImage;
             $user->update();
-            return response()->json('updated-successfully');
+            return response()->json(['success'=>'updated-successfully']);
         } else {
-            return response()->json('un-authenticated');
+            return response()->json(['error'=>'un-authenticated']);
         }
 
     }

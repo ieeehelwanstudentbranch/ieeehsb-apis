@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Committee;
 use App\DeliverTask;
 use App\Http\Resources\Task\CompleteTasks;
+use App\Http\Resources\Task\CreateTaskPage;
 use App\Http\Resources\Task\MentorViewTasks;
 use App\Http\Resources\Task\MintorViewTasks;
 use App\Http\Resources\Task\PendingTasks;
@@ -29,9 +30,9 @@ class TaskController extends Controller
     public function createPage(){
         if ( JWTAuth::parseToken()->authenticate()->position == 'EX_com' || JWTAuth::parseToken()->authenticate()->position == 'highBoard') {
             $users = User::select('id', 'firstName', 'lastName', 'position')->get();
-            return response($users);
+            return new CreateTaskPage($users);
         }else{
-            return response()->json('error','Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
