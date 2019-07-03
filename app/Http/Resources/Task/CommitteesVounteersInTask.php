@@ -10,7 +10,7 @@ use Illuminate\Http\Resources\Json\Resource;
 use phpDocumentor\Reflection\Types\Parent_;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-class CreateTaskPage extends Resource
+class CommitteesVounteersInTask extends Resource
 {
     /**
      * Transform the resource collection into an array.
@@ -20,13 +20,10 @@ class CreateTaskPage extends Resource
      */
     public function toArray($request)
     {
-        $EX_com = $this->where('position','EX_com');
-        $high_board = $this->where('position','highBoard');
-        $committees = Committee::all();
         return [
-            'EX_com'=>$EX_com,
-            'highBoard' =>$high_board,
-            'committee'=>CommitteesInTask::collection($committees),
+            'id'=>$this->id,
+            'name'=>$this->firstName.' '.$this->lastName,
+
 
         ];
     }

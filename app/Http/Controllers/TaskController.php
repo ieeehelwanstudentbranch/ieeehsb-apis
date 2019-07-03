@@ -42,7 +42,7 @@ class TaskController extends Controller
             $this->validate($request, [
                 'title' => 'required |min:3 |max:100 ',
                 'body' => 'required |min:3 |max:1000 ',
-//                'deadline' => 'required |date_format:Y-m-d',
+                'deadline' => 'required',
                 'files' => 'nullable| mimes:doc,pdf,docx,zip,txt,ppt,pptx,jpeg,jpg,svg,gif,ps,xls|max:10240000',
                 'to' => 'required',
             ]);
@@ -74,10 +74,10 @@ class TaskController extends Controller
             }
             $task->save();
         }
-            return response()->json('success','task sent');
+            return response()->json(['success'=>'task sent successfully']);
 
         }else{
-            return response()->json('error','Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
         }
 
     }
@@ -100,7 +100,7 @@ class TaskController extends Controller
         ){
         return new TaskCollectionPanding(Task::findOrFail($id));
         }else{
-            return response()->json('error','Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
@@ -128,10 +128,10 @@ class TaskController extends Controller
             }
             $task->body_deliver = $request->input('body');
             $task->update();
-            return redirect()->back()->with('success','task sent');
+            return response()->json(['success'=>'task sent successfully']);
 
         }else{
-            return response()->json('error','Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
@@ -149,9 +149,9 @@ class TaskController extends Controller
             $task->evaluation = $request->input('evaluation');
             $task->update();
 
-            return redirect()->back()->with('success','task accepted');
+            return redirect()->back()->with(['success'=>'task accepted successfully']);
         }else{
-            return response()->json('error','Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
             }
     }
 
@@ -160,9 +160,9 @@ class TaskController extends Controller
         if ($task->from == JWTAuth::parseToken()->authenticate()->id){
             $task->status = 'pending';
             $task->update();
-            return redirect()->back()->with('success','task refused');
+            return redirect()->back()->with(['success'=>'task refused']);
         }else{
-            return response()->json('error','Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
