@@ -130,7 +130,7 @@ class CommitteeController extends Controller
             }
             $committee->update();
 
-            return redirect()->action('CommitteeController@index')->with('Committee Updated');
+            return response()->json(['success'=>'Committee Updated']);
         }
 
     }

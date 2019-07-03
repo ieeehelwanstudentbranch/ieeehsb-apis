@@ -47,7 +47,7 @@ class PostController extends Controller
             $post->user_id = auth()->user()->id;
             $post->save();
 
-            return redirect('api/posts')->with('success', 'Done successfully');
+            return response()->json(['success'=>'Done successfully']);
     }
 
     public function show($id)
@@ -77,7 +77,7 @@ class PostController extends Controller
 
             return new PostResource($post);
         }else{
-            return response()->json('Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
@@ -97,7 +97,7 @@ class PostController extends Controller
             $posts = Post::orderBy('created_at', 'desc')->paginate(50);
             return PostCollection::collection($posts);
         } else {
-            return response()->json('Un Authenticated');
+            return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
