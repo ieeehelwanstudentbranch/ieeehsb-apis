@@ -43,7 +43,8 @@ class TaskController extends Controller
                 'title' => 'required |min:3 |max:100 ',
                 'body' => 'required |min:3 |max:1000 ',
                 'deadline' => 'required',
-                'files' => 'nullable| mimes:doc,pdf,docx,zip,txt,ppt,pptx,jpeg,jpg,svg,gif,ps,xls|max:10240000',
+//                'files' => 'sometimes|mimes:docx,doc,pdf,zip,txt,ppt,pptx,jpeg,jpg,svg,gif,ps,xls|max:10240000',
+                'files' => 'sometimes',
                 'to' => 'required',
             ]);
 
@@ -62,15 +63,10 @@ class TaskController extends Controller
 //            upload files
             if ($request->hasfile('files')) {
                 foreach ($request->file('files') as $file) {
-                    $filenameWithExtention = $file->getClientOriginalName();
-                    $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
-                    $extension = $file->getClientOriginalExtension();
-                    $fileNameStore = $fileName . '_' . time() . '.' . $extension;
-
-                    $file_path = $file->move(base_path() . '/public/uploaded/tasks/', $fileNameStore);
-                    $data[] = $file_path;
+                    $filename =$file->store('public/tasks/');
+                    $data[] =trim($filename,'public');
                 }
-                $task->taskFiles = json_encode($data);
+                $task->files_sent = json_encode($data);
             }
             $task->save();
         }
