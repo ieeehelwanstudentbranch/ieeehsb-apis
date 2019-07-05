@@ -95,13 +95,8 @@ class UserController extends Controller
             ]);
             $user = User::findOrFail($id);
             //upload image
-                $filenameWithExtention = $request->file('profile_image')->getClientOriginalName();
-                $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
-                $extension = $request->file('profile_image')->getClientOriginalExtension();
-                $fileNameStoreImage = $fileName . '_' . time() . '.' . $extension;
-
-                $request->file('profile_image')->move(base_path() . '/public/uploaded/profile_images/', $fileNameStoreImage);
-                $user->image = $fileNameStoreImage;
+            $filename =$request->file('profile_image')->store('public/profile_images/');
+            $user->image =trim($filename,'public');
             $user->update();
             return response()->json(['success'=>'updated-successfully']);
         } else {
