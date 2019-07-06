@@ -134,7 +134,7 @@ protected $user;
                     $user = User::findOrFail($ex->user_id);
                     $email = $user->email;
 
-                } catch (JWTAuthException $e) {
+                } catch (\Exception $e) {
                     $email = 'ieeehelwanstudentbranch@gmail.com';
                 }
             }
@@ -146,7 +146,7 @@ protected $user;
                     $mentor =User::where('id', $committee->mentor_id);
                     $email = $mentor->email;
 
-                } catch (JWTAuthException $e) {
+                } catch (\Exception $e) {
                     $email = 'ieeehelwanstudentbranch@gmail.com';
                 }
             }
@@ -155,15 +155,17 @@ protected $user;
             if ($request->input('position')=='volunteer') {
                 try {
                     $committee = Committee::where('name', $request->input('committee'))->first();
-                    if ($committee->director_id) {
+                    if ($committee->director_id != null) {
                         $director = User::where('id', $committee->director_id);
                         $email = $director->email;
-                    }else {
+                        dd(User::where('id', $committee->mentor_id));
+                    }elseif (User::where('id', $committee->mentor_id != null)) {
                         $mentor = User::where('id', $committee->mentor_id);
                         $email = $mentor->email;
+                    }else{
+                        $email = 'ieeehelwanstudentbranch@gmail.com';
                     }
-
-                } catch (JWTAuthException $e) {
+                } catch (\Exception $e) {
                     $email = 'ieeehelwanstudentbranch@gmail.com';
                 }
             }
