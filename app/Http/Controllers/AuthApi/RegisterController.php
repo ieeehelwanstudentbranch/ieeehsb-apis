@@ -40,6 +40,7 @@ protected $user;
         $this->validate($request ,[
             'firstName' => 'required |string | max:50 | min:3',
             'lastName' => 'required |string | max:50 | min:3',
+            'position' => 'required',
             'faculty' => 'nullable |string | max:30 | min:3',
             'university' => 'nullable |string | max:30 | min:3',
             'DOB' => 'nullable|date_format:Y-m-d|before:today',
@@ -131,7 +132,7 @@ protected $user;
             if ($request->input('position')=='EX_com' && ($request->input('ex_options')!='chairperson') ) {
                 try {
                     $ex = Ex_com_options::where('ex_options', 'chairperson')->first();
-                    $user = User::findOrFail($ex->user_id);
+                    $user = User::query()->findOrFail($ex->user_id);
                     $email = $user->email;
 
                 } catch (\Exception $e) {
@@ -143,7 +144,7 @@ protected $user;
             if ($request->input('position')=='highBoard') {
                 try {
                     $committee = Committee::where('name', $request->input('committee'))->first();
-                    $mentor =User::where('id', $committee->mentor_id);
+                    $mentor =User::query()->findOrFail($committee->mentor_id);
                     $email = $mentor->email;
 
                 } catch (\Exception $e) {
@@ -154,13 +155,12 @@ protected $user;
             // if volunteer register
             if ($request->input('position')=='volunteer') {
                 try {
-                    $committee = Committee::where('name', $request->input('committee'))->first();
+                    $committee = Committee::query()->where('name', $request->input('committee'))->first();
                     if ($committee->director_id != null) {
-                        $director = User::where('id', $committee->director_id);
+                        $director = User::query()->findOrFail($committee->director_id);
                         $email = $director->email;
-                        dd(User::where('id', $committee->mentor_id));
-                    }elseif (User::where('id', $committee->mentor_id != null)) {
-                        $mentor = User::where('id', $committee->mentor_id);
+                    }elseif (User::query()->findOrFail($committee->mentor_id) != null) {
+                        $mentor = User::query()->findOrFail($committee->mentor_id);
                         $email = $mentor->email;
                     }else{
                         $email = 'ieeehelwanstudentbranch@gmail.com';
@@ -169,6 +169,7 @@ protected $user;
                     $email = 'ieeehelwanstudentbranch@gmail.com';
                 }
             }
+            dd($email);
 
             return $email;
         }
