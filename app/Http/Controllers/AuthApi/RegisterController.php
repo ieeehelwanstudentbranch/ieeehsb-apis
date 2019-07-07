@@ -169,8 +169,6 @@ protected $user;
                     $email = 'ieeehelwanstudentbranch@gmail.com';
                 }
             }
-            dd($email);
-
             return $email;
         }
 }
