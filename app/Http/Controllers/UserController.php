@@ -40,7 +40,7 @@ class UserController extends Controller
                 'email' => 'required|string|email|max:255',
                 'DOB' => 'nullable',
                 'faculty' => 'nullable|string | max:30 | min:3',
-                'level' => 'nullable|numeric | max:7 | min:0',
+                'level' => 'nullable|numeric | max:30 | min:3',
                 'university' => 'nullable|string | max:30 | min:3',
                 'phone' => 'nullable|regex:/(01)[0-9]{9}/',
                 'address' => 'nullable|string | max:100 | min:3'
