@@ -21,7 +21,8 @@ class PendingTasks extends Resource
     {
         $committees_mentor= Committee::query()->where('mentor_id',JWTAuth::parseToken()->authenticate()->id)->get();
 
-        $committees_hr_od= Committee::all()->where('hr_coordinator_id',JWTAuth::parseToken()->authenticate()->id);
+        $committees_hr_od= Committee::query()->where('hr_coordinator_id',JWTAuth::parseToken()->authenticate()->id)->get();
+
 
         $tasksSent = Task::where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','pending')->get();
         $tasksRecived = Task::where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','pending')->get();
@@ -34,7 +35,7 @@ class PendingTasks extends Resource
             }
 
             return [
-                'mentoring_tasks' =>DataInTask::collection($committeeTasks),
+                'mentoring_tasks' =>$committeeTasks,
                 'committee_tasks' =>DataInTask::collection($tasksSent),
                 'personal_tasks'  =>DataInTask::collection($tasksRecived),
             ];
@@ -42,14 +43,12 @@ class PendingTasks extends Resource
             try{
                 foreach ($committees_hr_od as $committee)
                 {
-                    $committeeTask[] = Task::query()->where('committee_id', $committee->id)->where('status', 'pending');
-//                    dd($committeeTask);
+                    $committeeTask[] = Task::query()->where('committee_id', $committee->id)->where('status', 'pending')->get();
                 }
-
                 return [
-                    'hr_coordinating_tasks' =>  DataInTask::collection($committeeTask),
-//                    'committee_tasks' =>DataInTask::collection($tasksSent),
-//                    'personal_tasks'  =>DataInTask::collection($tasksRecived),
+                    'hr_coordinating_tasks' => $committeeTask,
+                    'committee_tasks' =>DataInTask::collection($tasksSent),
+                    'personal_tasks'  =>DataInTask::collection($tasksRecived),
                 ];
 
             }catch (\Exception $e){
