@@ -23,8 +23,8 @@ class CompleteTasks extends Resource
 
         $committees_hr_od= Committee::query()->where('hr_coordinator_id',JWTAuth::parseToken()->authenticate()->id)->get();
 
-        $tasksSent = Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
-        $tasksRecived = Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
+        $tasksSent = Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
+        $tasksRecived = Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
 
         try
         {
