@@ -23,8 +23,9 @@ class CompleteTasks extends Resource
 
         $committees_hr_od= Committee::query()->where('hr_coordinator_id',JWTAuth::parseToken()->authenticate()->id)->get();
 
-        $tasksSent = Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
-        $tasksRecived = Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted');
+
+        $tasksSent = Task::where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted')->get();
+        $tasksRecived = Task::where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted')->get();
 
         try
         {
@@ -32,30 +33,29 @@ class CompleteTasks extends Resource
             {
                 $committeeTasks[] = Task::where('committee_id', $committee->id)->where('status', 'accepted')->get();
             }
-
             return [
                 'mentoring_tasks' =>$committeeTasks,
-                'committee_tasks' =>$tasksSent,
-                'personal_tasks'  =>$tasksRecived,
+                'committee_tasks' =>DataInTask::collection($tasksSent),
+                'personal_tasks'  =>DataInTask::collection($tasksRecived),
             ];
         }catch (\Exception $e){
             try{
                 foreach ($committees_hr_od as $committee)
                 {
-                    $committeeTask[] = Task::where('committee_id', $committee->id)->where('status', 'accepted')->get();
+                    $committeeTask[] = Task::query()->where('committee_id', $committee->id)->where('status', 'accepted')->get();
                 }
                 return [
-                    'hr_tasks' =>$committeeTask,
-                    'committee_tasks' =>$tasksSent,
-                    'personal_tasks'  =>$tasksRecived
+                    'hr_coordinating_tasks' => $committeeTask,
+                    'committee_tasks' =>DataInTask::collection($tasksSent),
+                    'personal_tasks'  =>DataInTask::collection($tasksRecived),
                 ];
 
             }catch (\Exception $e){
-            return [
-                'committee_tasks' =>$tasksSent,
-                'personal_tasks'  =>$tasksRecived,
-            ];
-        }
+                return [
+                    'committee_tasks' => DataInTask::collection($tasksSent),
+                    'personal_tasks'  =>DataInTask::collection($tasksRecived),
+                ];
+            }
         }
 
     }
