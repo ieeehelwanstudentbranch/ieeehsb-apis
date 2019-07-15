@@ -20,23 +20,22 @@ class TaskCollectionPanding extends Resource
     public function toArray($request)
     {
         if ($this->from == JWTAuth::parseToken()->authenticate()->id){
-        return [
+            return [
 
-            'task name' => $this->title,
-            'task deadline' => $this->deadline,
-//            'task from' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->from)->get(),
-            'task to' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->to)->get(),
-            'task details' => $this->body_sent,
-            'task files sent' => $this->files_sent,
-            'task deliver description' => $this->body_deliver,
-            'task deliver files' => $this->files_deliver,
-            'deliver at' =>$this->updated_at ,
-            'create at' =>$this->created_at ,
-             'accept' => action('TaskController@acceptTask',$this->id),
-             'refuse' => action('TaskController@refuseTask',$this->id),
-        ];
+                'task name' => $this->title,
+                'task deadline' => $this->deadline,
+                // 'task from' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->from)->get(),
+                'task to' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->to)->get(),
+                'task details' => $this->body_sent,
+                'task files sent' => $this->files_sent,
+                'task deliver description' => $this->body_deliver,
+                'task deliver files' => $this->files_deliver,
+                'deliver at' =>$this->updated_at ,
+                'create at' =>$this->created_at ,
+                'accept' => action('TaskController@acceptTask',$this->id),
+                'refuse' => action('TaskController@refuseTask',$this->id),
+            ];
         }elseif($this->to == JWTAuth::parseToken()->authenticate()->id){
-
             return [
 
                 'task name' => $this->title,
@@ -44,7 +43,7 @@ class TaskCollectionPanding extends Resource
                 'task from' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->from)->get(),
                 'task details' => $this->body_sent,
                 'task files sent' => $this->files_sent,
-                 'deliver' => action('TaskController@deliverTask',$this->id)
+                'deliver' => action('TaskController@deliverTask',$this->id)
             ];
         }else{
             return 'error';
