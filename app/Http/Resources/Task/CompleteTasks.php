@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Resources\Task;
-
 use App\Committee;
 use App\DeliverTask;
 use App\Task;
@@ -17,25 +15,20 @@ class CompleteTasks extends Resource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    public function toArray($request)
-    {
+    public function toArray($request){
         $committees_mentor= Committee::query()->where('mentor_id',JWTAuth::parseToken()->authenticate()->id)->get();
-
         $committees_hr_od= Committee::query()->where('hr_coordinator_id',JWTAuth::parseToken()->authenticate()->id)->get();
-
-
         $tasksSent = Task::where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted')->get();
         $tasksRecived = Task::where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted')->get();
 
-        try
-        {
+        try {
             foreach ($committees_mentor as $committee)
             {
                 $committeeTasks[] = Task::where('committee_id', $committee->id)->where('status', 'accepted')->get();
             }
             return [
                 'mentoring_tasks' =>$committeeTasks,
-                'committee_tasks' =>DataInTask::collection($tasksSent),
+                'sent_tasks' =>DataInTask::collection($tasksSent),
                 'personal_tasks'  =>DataInTask::collection($tasksRecived),
             ];
         }catch (\Exception $e){
@@ -45,18 +38,16 @@ class CompleteTasks extends Resource
                     $committeeTask[] = Task::query()->where('committee_id', $committee->id)->where('status', 'accepted')->get();
                 }
                 return [
-                    'hr_coordinating_tasks' => $committeeTask,
-                    'committee_tasks' =>DataInTask::collection($tasksSent),
+                    'coordinating_tasks' => $committeeTask,
+                    'sent_tasks' =>DataInTask::collection($tasksSent),
                     'personal_tasks'  =>DataInTask::collection($tasksRecived),
                 ];
-
             }catch (\Exception $e){
                 return [
-                    'committee_tasks' => DataInTask::collection($tasksSent),
+                    'sent_tasks' => DataInTask::collection($tasksSent),
                     'personal_tasks'  =>DataInTask::collection($tasksRecived),
                 ];
             }
         }
-
     }
 }
