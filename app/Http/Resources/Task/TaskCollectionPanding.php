@@ -21,29 +21,25 @@ class TaskCollectionPanding extends Resource
     {
         if ($this->from == JWTAuth::parseToken()->authenticate()->id){
             return [
-
-                'task name' => $this->title,
-                'task deadline' => $this->deadline,
+                'title' => $this->title,
+                'deadline' => $this->deadline,
                 // 'task from' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->from)->get(),
-                'task to' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->to)->get(),
-                'task details' => $this->body_sent,
-                'task files sent' => $this->files_sent,
-                'task deliver description' => $this->body_deliver,
-                'task deliver files' => $this->files_deliver,
-                'deliver at' =>$this->updated_at ,
-                'create at' =>$this->created_at ,
-                'accept' => action('TaskController@acceptTask',$this->id),
-                'refuse' => action('TaskController@refuseTask',$this->id),
+                'receiver_info' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->to)->get(),
+                'details' => $this->body_sent,
+                'sent_files' => $this->files_sent,
+                'delivered_details' => $this->body_deliver,
+                'delivered_files' => $this->files_deliver,
+                'delivered_at' =>$this->updated_at,
+                'created_at' =>$this->created_at,
             ];
         }elseif($this->to == JWTAuth::parseToken()->authenticate()->id){
             return [
-
-                'task name' => $this->title,
-                'task deadline' => $this->deadline,
-                'task from' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->from)->get(),
-                'task details' => $this->body_sent,
-                'task files sent' => $this->files_sent,
-                'deliver' => action('TaskController@deliverTask',$this->id)
+                'title' => $this->title,
+                'deadline' => $this->deadline,
+                'created_at' =>$this->created_at,
+                'sender_info' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->from)->get(),
+                'details' => $this->body_sent,
+                'sent_files' => $this->files_sent
             ];
         }else{
             return 'error';
