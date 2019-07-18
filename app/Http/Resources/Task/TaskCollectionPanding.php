@@ -23,8 +23,8 @@ class TaskCollectionPanding extends Resource
             return [
                 'title' => $this->title,
                 'deadline' => $this->deadline,
-                // 'task from' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->from)->get(),
-                'receiver_info' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->to)->get(),
+                'sender_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->from)->get(),                'receiver_info' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->to)->get(),
+                'receiver_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->to)->get(),
                 'details' => $this->body_sent,
                 'sent_files' => $this->files_sent,
                 'delivered_details' => $this->body_deliver,
@@ -37,7 +37,8 @@ class TaskCollectionPanding extends Resource
                 'title' => $this->title,
                 'deadline' => $this->deadline,
                 'created_at' =>$this->created_at,
-                'sender_info' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->from)->get(),
+                'receiver_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->to)->get(),
+                'sender_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->from)->get(),
                 'details' => $this->body_sent,
                 'sent_files' => $this->files_sent
             ];
