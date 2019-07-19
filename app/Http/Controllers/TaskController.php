@@ -62,8 +62,12 @@ class TaskController extends Controller
 //            upload files
             if ($request->hasfile('files')) {
                 foreach ($request->file('files') as $file) {
-                    $filename =$file->store('public/tasks/');
-                    $data[] =trim($filename,'public');
+                    $filenameWithExtention = $file->getClientOriginalName();
+                    $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $fileNameStore = $fileName . '_' . time() . '.' . $extension;
+                    $file->move(base_path() . '/storage/app/public/tasks_sent', $fileNameStore);
+                    $data[] = $fileNameStore;
                 }
                 $task->files_sent = json_encode($data);
             }
@@ -106,7 +110,11 @@ class TaskController extends Controller
         if ($task->to == JWTAuth::parseToken()->authenticate()->id){
             $this->validate($request, [
                 'body' => 'required |min:1|max:1000',
-                'files' => 'nullable| mimes:doc,pdf,docx,zip,txt,ppt,pptx,jpeg,jpg,svg,gif,ps,xls|max:10240000',
+                'files.*' => 'sometimes|file|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
+                [
+                    'files.*.mimes' => 'Only docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip files are allowed',
+                    'files.*.max' => 'Sorry! Maximum allowed size for an one file is 500MB',
+                ],
             ]);
             //            upload files
             if ($request->hasfile('files')) {
@@ -115,9 +123,8 @@ class TaskController extends Controller
                     $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
                     $extension = $file->getClientOriginalExtension();
                     $fileNameStore = $fileName . '_' . time() . '.' . $extension;
-
-                    $file_path = $file->move(base_path() . '/public/uploaded/tasks/', $fileNameStore);
-                    $data[] = $file_path;
+                    $file->move(base_path() . '/storage/app/public/tasks_delivered', $fileNameStore);
+                    $data[] = $fileNameStore;
                 }
                 $task->files_deliver = json_encode($data);
             }
