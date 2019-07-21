@@ -21,9 +21,7 @@ class CommitteeData extends JsonResource
             'mentor' => $this->mentor,
             'director' => $this->director,
             'hr_coordinator' => $this->hr_coordinator,
-            'members'      =>User::where('committee_id' ,$this->id)->get(),
-
-//            'href'       =>[
+            'members'      =>User::query()->select('id','firstName','lastName','image','position')->where('committee_id' ,$this->id)->get(),
 //                'members'      =>[User::where('committee_id' ,$this->id)->get(),
 //                'view user'   =>   action('CommitteeController@viewUser',User::where('committee_id', $this->id)->pluck('id')),
 //

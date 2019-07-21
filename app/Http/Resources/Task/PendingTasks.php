@@ -22,7 +22,7 @@ class PendingTasks extends Resource
         $tasksRecived = Task::where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','pending')->get();
         try{
             foreach ($committees_mentor as $committee){
-                $committeeTasks[] = Task::where('committee_id', $committee->id)->where('status', 'pending')->get();
+                $committeeTasks[] = Task::query()->where('committee_id', $committee->id)->where('status', 'pending')->get();
             }
             return [
                 'mentoring_tasks' =>$committeeTasks,
