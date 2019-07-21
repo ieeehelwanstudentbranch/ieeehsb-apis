@@ -83,8 +83,9 @@ protected $user;
 
         if ($request->input('position')=='highBoard' || $request->input('position')== 'volunteer'){
 //            $user->committee = $request->input('committee');
-            $committee = Committee::where('name', $request->input('committee'))->first();
-            $user->committee_id = $committee->id;
+//            $committee = Committee::where('name', $request->input('committee'))->first();
+//            $committee = Committee::query()->findOrFail($request->input('committee'));
+            $user->committee_id = $request->input('committee');
         }
 
         if (($request->input('position')=='highBoard') && ($request->input('committee')=='RAS'|| $request->input('committee')== 'PES' || $request->input('committee')=='WIE') ){
