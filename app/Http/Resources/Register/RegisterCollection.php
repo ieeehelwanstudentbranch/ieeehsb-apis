@@ -17,7 +17,7 @@ class RegisterCollection extends Resource
     {
             return [
 
-                'committees' =>Committee::all()->pluck('name'),
+                'committees' =>Committee::query()->select('id','name')->get(),
 
             ];
 

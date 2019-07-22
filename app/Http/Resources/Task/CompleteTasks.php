@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Http\Resources\Task;
+
 use App\Committee;
 use App\DeliverTask;
 use App\Task;
@@ -12,40 +14,38 @@ class CompleteTasks extends Resource
     /**
      * Transform the resource collection into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array
      */
-    public function toArray($request){
-        $committees_mentor= Committee::query()->where('mentor_id',JWTAuth::parseToken()->authenticate()->id)->get();
-        $committees_hr_od= Committee::query()->where('hr_coordinator_id',JWTAuth::parseToken()->authenticate()->id)->get();
-        $tasksSent = Task::where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted')->get();
-        $tasksRecived = Task::where('to', JWTAuth::parseToken()->authenticate()->id)->where('status','accepted')->get();
-
+    public function toArray($request)
+    {
+        $committees_mentor = Committee::query()->where('mentor_id', JWTAuth::parseToken()->authenticate()->id)->get();
+        $committees_hr_od = Committee::query()->where('hr_coordinator_id', JWTAuth::parseToken()->authenticate()->id)->get();
+        $tasksSent = Task::where('from', JWTAuth::parseToken()->authenticate()->id)->where('status', 'accepted')->get();
+        $tasksRecived = Task::where('to', JWTAuth::parseToken()->authenticate()->id)->where('status', 'accepted')->get();
         try {
-            foreach ($committees_mentor as $committee)
-            {
-                $committeeTasks[] = Task::where('committee_id', $committee->id)->where('status', 'accepted')->get();
+            foreach ($committees_mentor as $committee) {
+                $committeeTasks[] = DataInTask::collection(Task::query()->where('committee_id', $committee->id)->where('status', 'accepted')->get());
             }
             return [
-                'mentoring_tasks' =>$committeeTasks,
-                'sent_tasks' =>DataInTask::collection($tasksSent),
-                'personal_tasks'  =>DataInTask::collection($tasksRecived),
+                'mentoring_tasks' => $committeeTasks,
+                'sent_tasks' => DataInTask::collection($tasksSent),
+                'personal_tasks' => DataInTask::collection($tasksRecived),
             ];
-        }catch (\Exception $e){
-            try{
-                foreach ($committees_hr_od as $committee)
-                {
-                    $committeeTask[] = Task::query()->where('committee_id', $committee->id)->where('status', 'accepted')->get();
+        } catch (\Exception $e) {
+            try {
+                foreach ($committees_hr_od as $committee) {
+                    $committeeTask[] = DataInTask::collection(Task::query()->where('committee_id', $committee->id)->where('status', 'accepted')->get());
                 }
                 return [
                     'coordinating_tasks' => $committeeTask,
-                    'sent_tasks' =>DataInTask::collection($tasksSent),
-                    'personal_tasks'  =>DataInTask::collection($tasksRecived),
+                    'sent_tasks' => DataInTask::collection($tasksSent),
+                    'personal_tasks' => DataInTask::collection($tasksRecived),
                 ];
-            }catch (\Exception $e){
+            } catch (\Exception $e) {
                 return [
                     'sent_tasks' => DataInTask::collection($tasksSent),
-                    'personal_tasks'  =>DataInTask::collection($tasksRecived),
+                    'personal_tasks' => DataInTask::collection($tasksRecived),
                 ];
             }
         }
