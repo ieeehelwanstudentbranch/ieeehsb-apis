@@ -47,7 +47,6 @@ class UserController extends Controller
             ]);
 
             $user = User::findOrFail($id);
-
             $user->firstName    = $request->input('firstName');
             $user->lastName     = $request->input('lastName');
             $user->faculty      = $request->input('faculty')?? null;

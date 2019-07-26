@@ -23,8 +23,6 @@ class CommitteesVounteersInTask extends Resource
         return [
             'id'=>$this->id,
             'name'=>$this->firstName.' '.$this->lastName,
-
-
         ];
     }
 }

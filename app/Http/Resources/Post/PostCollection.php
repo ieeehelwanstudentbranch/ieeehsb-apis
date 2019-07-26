@@ -14,13 +14,11 @@ class PostCollection extends Resource
      */
     public function toArray($request)
     {
-            return [
-                'id' => $this->id,
-                'body' => $this->body,
-                'created_at' => $this->created_at->toDateTimeString(),
-                'post_owner' => new OwnerCollection($this->user),
-                'href' =>    action('PostController@show',$this->id)
-            ];
-
+        return [
+            'id' => $this->id,
+            'body' => $this->body,
+            'created_at' => $this->created_at->toDateTimeString(),
+            'post_owner' => new OwnerCollection($this->user),
+        ];
     }
 }

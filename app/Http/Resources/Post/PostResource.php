@@ -22,8 +22,6 @@ class PostResource extends JsonResource
             'created_at' => $this->created_at->toDateTimeString(),
             'post_owner' => new OwnerCollection($this->user),
             'comments'   => CommentsCollection::collection($this->comments),
-            'edit'    => action('PostController@update' , $this->id ),
-            'delete'    => action('PostController@destroy' , $this->id ),
         ];
     }
 }

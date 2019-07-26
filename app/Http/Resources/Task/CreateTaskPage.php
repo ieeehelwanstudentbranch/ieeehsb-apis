@@ -27,7 +27,6 @@ class CreateTaskPage extends Resource
             'EX_com'=>$EX_com,
             'highBoard' =>$high_board,
             'committee'=>CommitteesInTask::collection($committees),
-
         ];
     }
 }

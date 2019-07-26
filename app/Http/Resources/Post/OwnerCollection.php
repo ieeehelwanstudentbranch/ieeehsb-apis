@@ -15,12 +15,11 @@ class OwnerCollection extends Resource
     public function toArray($request)
     {
             return [
-                'user_id' => $this->id,
+                'id' => $this->id,
                 'firstName' => $this->firstName,
                 'lastName' => $this->lastName,
                 'image' => $this->image,
                 'position' => $this->position,
-                'href' =>    action('UserController@index',$this->id)
             ];
 
     }

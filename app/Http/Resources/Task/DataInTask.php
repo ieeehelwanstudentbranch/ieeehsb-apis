@@ -22,7 +22,6 @@ class DataInTask extends Resource
     public function toArray($request)
     {
         try{
-
             return [
                 'id' => $this->id,
                 'title' => $this->title,
