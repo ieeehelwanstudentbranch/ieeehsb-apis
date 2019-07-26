@@ -21,7 +21,7 @@ class PostResource extends JsonResource
             'body' => $this->body,
             'created_at' => $this->created_at->toDateTimeString(),
             'post_owner' => new OwnerCollection($this->user),
-            'comments'   => CommentsCollection::collection($this->comments),
+//            'comments'   => CommentsCollection::collection($this->comments),
         ];
     }
 }
