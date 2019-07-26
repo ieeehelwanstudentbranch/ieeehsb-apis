@@ -36,13 +36,11 @@ class TaskController extends Controller
     }
 
     public function store(Request $request){
-
         if ( JWTAuth::parseToken()->authenticate()->position == 'EX_com' || JWTAuth::parseToken()->authenticate()->position == 'highBoard') {
             $this->validate($request, [
                 'title' => 'required |min:3 |max:100 ',
                 'body' => 'required |min:3 |max:1000 ',
                 'deadline' => 'required',
-
                 'files.*' => 'sometimes|file|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
                 [
                     'files.*.mimes' => 'Only docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip files are allowed',
@@ -59,40 +57,39 @@ class TaskController extends Controller
                 $task->from = JWTAuth::parseToken()->authenticate()->id;
                 $task->to = $to;
                 $task->committee_id = User::findOrFail($to)->committee_id;
-//            upload files
-            if ($request->hasfile('files')) {
-                foreach ($request->file('files') as $file) {
-                    $filenameWithExtention = $file->getClientOriginalName();
-                    $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
-                    $extension = $file->getClientOriginalExtension();
-                    $fileNameStore = $fileName . '_' . time() . '.' . $extension;
-                    $file->move(base_path() . '/storage/app/public/tasks_sent', $fileNameStore);
-                    $data[] = $fileNameStore;
+                // pload files
+                if ($request->hasfile('files')) {
+                    foreach ($request->file('files') as $file) {
+                        $filenameWithExtention = $file->getClientOriginalName();
+                        $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
+                        $extension = $file->getClientOriginalExtension();
+                        $fileNameStore = $fileName . '_' . time() . '.' . $extension;
+                        $file->move(base_path() . '/storage/app/public/tasks_sent', $fileNameStore);
+                        $data[] = $fileNameStore;
+                    }
+                    $task->files_sent = json_encode($data);
                 }
-                $task->files_sent = json_encode($data);
+                $task->save();
             }
-            $task->save();
-        }
             return response()->json(['success'=>'task sent successfully']);
-
-        }else{
+        } else {
             return response()->json(['error'=>'Un Authenticated']);
         }
-
     }
 
-//    pending tasks
+    // pending tasks
     public function pendingTasks(){
         $tasks = Task::all();
         return new PendingTasks($tasks);
     }
-
-    //    complete tasks
+    
+    // complete tasks
     public function completeTasks(){
         $tasks = Task::all();
         return new CompleteTasks($tasks);
     }
-//    view task
+    
+    // view task
     public function viewTask($id){
         if (Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id) || Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)
         ||(Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id))
@@ -102,9 +99,8 @@ class TaskController extends Controller
             return response()->json(['error'=>'Un Authenticated']);
         }
     }
-
-//    deliver task
-
+    
+    // deliver task
     public function deliverTask(Request $request ,$id){
         $task = Task::findOrFail($id);
         if ($task->to == JWTAuth::parseToken()->authenticate()->id){
@@ -116,7 +112,7 @@ class TaskController extends Controller
                     'files.*.max' => 'Sorry! Maximum allowed size for an one file is 500MB',
                 ],
             ]);
-            //            upload files
+            // upload files
             if ($request->hasfile('files')) {
                 foreach ($request->file('files') as $file) {
                     $filenameWithExtention = $file->getClientOriginalName();
@@ -132,7 +128,7 @@ class TaskController extends Controller
             $task->update();
             return response()->json(['success'=>'task sent successfully']);
 
-        }else{
+        } else {
             return response()->json(['error'=>'Un Authenticated']);
         }
     }
@@ -145,16 +141,14 @@ class TaskController extends Controller
                 'rate' => 'required|numeric |min:1|max:100',
                 'evaluation' => 'required |min:3 |max:1000',
             ]);
-
             $task->status = 'accepted';
             $task->rate = $request->input('rate');
             $task->evaluation = $request->input('evaluation');
             $task->update();
-
             return redirect()->back()->with(['success'=>'task accepted successfully']);
         }else{
             return response()->json(['error'=>'Un Authenticated']);
-            }
+        }
     }
 
     public function refuseTask($id){
@@ -167,6 +161,4 @@ class TaskController extends Controller
             return response()->json(['error'=>'Un Authenticated']);
         }
     }
-
 }
-

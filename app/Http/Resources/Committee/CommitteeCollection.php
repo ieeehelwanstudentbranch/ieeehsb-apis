@@ -26,8 +26,7 @@ class CommitteeCollection extends Resource
             'director_id' => $this->director_id,
             'hr_coordinator' => $this->hr_coordinator,
             'hr_coordinator_id' => $this->hr_coordinator_id,
-            'numOfVolunteers'   => $numOfVolunteers->count(),
-                'href'   =>   action('CommitteeController@view',$this->id),
+            'numOfVolunteers' => $numOfVolunteers->count(),
         ];
     }
 }

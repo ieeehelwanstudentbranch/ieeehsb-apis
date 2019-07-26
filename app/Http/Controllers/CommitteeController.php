@@ -19,39 +19,34 @@ class CommitteeController extends Controller
     {
         $this->middleware('jwt.auth');
     }
-
-//    index
+    
+    // index
     public function index()
     {
         $committees = Committee::orderBy('id', 'DESC')->paginate(100);
         return CommitteeCollection::collection($committees);
     }
-
-//    view committee
+    
+    // view committee
     public function view($id)
     {
         $committees = Committee::findOrFail($id);
         return new CommitteeData($committees);
     }
 
-//    add committee
+    // add committee
     public function addPage()
     {
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
-
             $committee = Committee::where('name','hr_od')->get();
             if (count($committee)>=1) {
                 return CommitteeResource::collection($committee);
             }else{
                 return new CommitteeResource(true);
             }
-
-
-
         } else {
             return response()->json('error');
         }
-
     }
 
     public function add(Request $request)
@@ -66,7 +61,6 @@ class CommitteeController extends Controller
 
             $committee = new Committee();
             $committee->name = $request->input('name');
-
             $mentor = User::findOrFail($request->input('mentor'));
             $committee->mentor = $mentor->firstName . ' ' . $mentor->lastName;
             $committee->mentor_id = $mentor->id;
@@ -75,15 +69,14 @@ class CommitteeController extends Controller
                 $director = User::findOrFail($request->input('director'));
                 $committee->director = $director->firstName . ' ' . $director->lastName;
                 $committee->director_id = $director->id;
-               }
+            }
 
-               if ($request->input('hr_coordinator')) {
-                   $hr_coordinator = User::findOrFail($request->input('hr_coordinator'));
-                   $committee->hr_coordinator = $hr_coordinator->firstName . ' ' . $hr_coordinator->lastName;
-                   $committee->hr_coordinator_id = $hr_coordinator->id;
-               }
+            if ($request->input('hr_coordinator')) {
+                $hr_coordinator = User::findOrFail($request->input('hr_coordinator'));
+                $committee->hr_coordinator = $hr_coordinator->firstName . ' ' . $hr_coordinator->lastName;
+                $committee->hr_coordinator_id = $hr_coordinator->id;
+            }
             $committee->save();
-
             return redirect()->action('CommitteeController@index')->with('Committee Added');
         }
 
@@ -93,11 +86,9 @@ class CommitteeController extends Controller
     public function updatePage()
     {
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
-
             $committee = Committee::where('name','hr_od')->get();
             return CommitteeResource::collection($committee);
         }
-
     }
 
     public function update(Request $request , $id)
@@ -109,10 +100,8 @@ class CommitteeController extends Controller
                 'director' => 'nullable |string | max:100 | min:1',
                 'hr_coordinator' => 'nullable |string | max:100 | min:1',
             ]);
-
             $committee = Committee::findOrFail($id);
             $committee->name = $request->input('name');
-
             $mentor = User::findOrFail($request->input('mentor'));
             $committee->mentor = $mentor->firstName . ' ' . $mentor->lastName;
             $committee->mentor_id = $mentor->id;
@@ -129,17 +118,14 @@ class CommitteeController extends Controller
                 $committee->hr_coordinator_id = $hr_coordinator->id;
             }
             $committee->update();
-
             return response()->json(['success'=>'Committee Updated']);
         }
 
     }
-
-//    delete
+    // delete
     public function destroy($id)
     {
         if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
-
             $committee = Committee::findOrFail($id);
             $user = User::where('committee_id', $id);
             if ($user){
@@ -153,10 +139,8 @@ class CommitteeController extends Controller
             }
             $user->delete();
             $committee->delete();
-
             $committees = Committee::all();
             return CommitteeCollection::collection($committees);
         }
     }
-
 }

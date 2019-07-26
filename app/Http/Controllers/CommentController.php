@@ -17,7 +17,6 @@ class CommentController extends Controller
             $this->validate($request, [
                 'comment_body' => 'required',
             ]);
-
             $comment = new Comment();
             $comment->comment_body = $request->input('comment_body');
             $comment->created_at =now();
@@ -31,7 +30,6 @@ class CommentController extends Controller
 
     //update comment
     public function updateComment(Request $request,$id){
-
         if ($request->isMethod('post')) {
             $this->validate($request, [
                 'comment_body' => 'required',
@@ -53,5 +51,4 @@ class CommentController extends Controller
         $post = Post::findOrFail($pid);
         return new PostResource($post);
     }
-
 }

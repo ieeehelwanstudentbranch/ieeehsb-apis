@@ -15,11 +15,8 @@ class RegisterCollection extends Resource
      */
     public function toArray($request)
     {
-            return [
-
-                'committees' =>Committee::query()->select('id','name')->get(),
-
-            ];
-
+        return [
+            'committees' =>Committee::query()->select('id','name')->get(),
+        ];
     }
 }

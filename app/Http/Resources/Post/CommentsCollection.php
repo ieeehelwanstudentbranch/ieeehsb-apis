@@ -14,16 +14,15 @@ class CommentsCollection extends Resource
      */
     public function toArray($request)
     {
-//        dd($this);
-            return [
-                'comment_id' => $this->id,
-                'comment_body' => $this->comment_body,
-                'created_at' => $this->created_at,
-                'delete'    => action('CommentController@destroyComment' , $this->id ),
-                'update'    => action('CommentController@updateComment' , $this->id ),
-                'comment_owner' => new OwnerCollection($this->user),
-            ];
-//        return parent::toArray($request);
-
+        // dd($this);
+        return [
+            'id' => $this->id,
+            'body' => $this->comment_body,
+            'created_at' => $this->created_at,
+            'delete'    => action('CommentController@destroyComment' , $this->id ),
+            'update'    => action('CommentController@updateComment' , $this->id ),
+            'comment_owner' => new OwnerCollection($this->user),
+        ];
+        // return parent::toArray($request);
     }
 }

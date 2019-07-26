@@ -37,17 +37,17 @@ class PostController extends Controller
     public function store(Request $request)
     {
 
-            $this->validate($request, [
-                'body' => 'required',
-            ]);
+        $this->validate($request, [
+            'body' => 'required',
+        ]);
 
-            $post = new Post;
-            $post->body = $request->input('body');
-            $post->created_at =now();
-            $post->user_id = auth()->user()->id;
-            $post->save();
+        $post = new Post;
+        $post->body = $request->input('body');
+        $post->created_at =now();
+        $post->user_id = auth()->user()->id;
+        $post->save();
 
-            return response()->json(['success'=>'Done successfully']);
+        return response()->json(['success'=>'Done successfully']);
     }
 
     public function show($id)
@@ -71,10 +71,8 @@ class PostController extends Controller
             $this->validate($request, [
                 'body' => 'required',
             ]);
-
             $post->body = $request->input('body');
             $post->update();
-
             return new PostResource($post);
         }else{
             return response()->json(['error'=>'Un Authenticated']);
