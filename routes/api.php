@@ -36,9 +36,10 @@ Route::put('update-post/{id}', 'PostController@update');
 Route::delete('/post/{id}', 'PostController@destroy');
 
 //comments
+Route::get('/post/{id}/comments', 'CommentController@index');
 Route::post('/post/{id}/add-comment', 'CommentController@addComment');
-Route::put('/post/{id}/update-comment', 'CommentController@updateComment');
-Route::delete('/post/{id}/destroy-comment', 'CommentController@destroyComment');
+Route::put('/update-comment/{id}', 'CommentController@updateComment');
+Route::delete('/destroy-comment/{id}', 'CommentController@destroyComment');
 
 //User
 Route::get('update-profile/{id}', 'UserController@updateProfilePage');

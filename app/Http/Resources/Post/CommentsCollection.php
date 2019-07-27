@@ -14,7 +14,6 @@ class CommentsCollection extends Resource
      */
     public function toArray($request)
     {
-        // dd($this);
         return [
             'id' => $this->id,
             'body' => $this->comment_body,
