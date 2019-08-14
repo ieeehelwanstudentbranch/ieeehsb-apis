@@ -45,7 +45,7 @@ class CommitteeController extends Controller
                 return new CommitteeResource(true);
             }
         } else {
-            return response()->json('error');
+            return response()->json(['error' => 'Un Authenticated']);
         }
     }
 
@@ -77,7 +77,9 @@ class CommitteeController extends Controller
                 $committee->hr_coordinator_id = $hr_coordinator->id;
             }
             $committee->save();
-            return redirect()->action('CommitteeController@index')->with('Committee Added');
+            return response()->json(['success' => 'Committee Added Successfully']);
+        } else {
+            return response()->json(['error' => 'Un Authenticated']);
         }
 
     }
@@ -88,6 +90,8 @@ class CommitteeController extends Controller
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
             $committee = Committee::where('name','hr_od')->get();
             return CommitteeResource::collection($committee);
+        } else {
+            return response()->json(['error' => 'Un Authenticated']);
         }
     }
 
@@ -119,6 +123,8 @@ class CommitteeController extends Controller
             }
             $committee->update();
             return response()->json(['success'=>'Committee Updated']);
+        } else {
+            return response()->json(['error' => 'Un Authenticated']);
         }
 
     }
@@ -141,6 +147,8 @@ class CommitteeController extends Controller
             $committee->delete();
             $committees = Committee::all();
             return CommitteeCollection::collection($committees);
+        } else {
+            return response()->json(['error' => 'Un Authenticated']);
         }
     }
 }

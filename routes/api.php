@@ -55,5 +55,5 @@ Route::get('pending-tasks', 'TaskController@pendingTasks');
 Route::get('complete-tasks', 'TaskController@completeTasks');
 Route::get('task/{id}', 'TaskController@viewTask');
 Route::post('accept-task/{id}', 'TaskController@acceptTask');
-Route::get('refuse-task/{id}', 'TaskController@refuseTask');
+Route::post('refuse-task/{id}', 'TaskController@refuseTask');
 Route::post('deliver-task/{id}', 'TaskController@deliverTask');
