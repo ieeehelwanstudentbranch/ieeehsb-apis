@@ -34,6 +34,7 @@ class DataInTask extends Resource
                 // 'deliver_description' => $this->body_deliver,
                 // 'deliver_files' => $this->files_deliver,
                 'task_status' =>$this->status,
+                'task_rate' =>$this->rate,
                 'create_at' =>$this->created_at->toDateTimeString() ,
                 'deliver_at' =>$this->updated_at->toDateTimeString() ,
             ];
@@ -50,6 +51,7 @@ class DataInTask extends Resource
                 // 'deliver_description' => $this->body_deliver,
                 // 'deliver_files' => $this->files_deliver,
                 'task_status' =>$this->status,
+                'task_rate' =>$this->rate,
                 'create_at' =>$this->created_at->toDateTimeString() ,
                 'deliver_at' =>$this->updated_at->toDateTimeString() ,
             ];

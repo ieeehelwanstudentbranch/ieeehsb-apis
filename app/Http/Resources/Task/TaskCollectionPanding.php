@@ -29,6 +29,8 @@ class TaskCollectionPanding extends Resource
                 'sent_files' => json_decode($this->files_sent),
                 'delivered_details' => $this->body_deliver,
                 'delivered_files' => json_decode($this->files_deliver),
+                'rate' =>$this->rate,
+                'evaluation' =>$this->evaluation,
                 'delivered_at' =>$this->updated_at,
                 'created_at' =>$this->created_at,
             ];
@@ -42,6 +44,8 @@ class TaskCollectionPanding extends Resource
                 'sent_files' => json_decode($this->files_sent),
                 'delivered_details' => $this->body_deliver,
                 'delivered_files' => json_decode($this->files_deliver),
+                'rate' =>$this->rate,
+                'evaluation' =>$this->evaluation,
                 'delivered_at' =>$this->updated_at,
                 'created_at' =>$this->created_at,
             ];
