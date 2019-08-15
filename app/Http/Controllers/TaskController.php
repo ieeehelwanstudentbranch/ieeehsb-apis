@@ -125,6 +125,7 @@ class TaskController extends Controller
                 $task->files_deliver = json_encode($data);
             }
             $task->body_deliver = $request->input('body');
+            $task->status = 'deliver';
             $task->update();
             return response()->json(['success'=>'task sent successfully']);
 
@@ -138,14 +139,14 @@ class TaskController extends Controller
 
         if ($task->from == JWTAuth::parseToken()->authenticate()->id){
             $this->validate($request, [
-                'rate' => 'required|numeric |min:1|max:100',
-                'evaluation' => 'required |min:3 |max:1000',
+                'rate' => 'required|numeric|min:1|max:100',
+                'evaluation' => 'required|min:3 |max:1000',
             ]);
             $task->status = 'accepted';
             $task->rate = $request->input('rate');
             $task->evaluation = $request->input('evaluation');
             $task->update();
-            return redirect()->back()->with(['success'=>'task accepted successfully']);
+            return response()->json(['success'=>'task accepted successfully']);
         }else{
             return response()->json(['error'=>'Un Authenticated']);
         }
@@ -156,7 +157,7 @@ class TaskController extends Controller
         if ($task->from == JWTAuth::parseToken()->authenticate()->id){
             $task->status = 'pending';
             $task->update();
-            return redirect()->back()->with(['success'=>'task refused']);
+            return response()->json(['success'=>'task refused']);
         }else{
             return response()->json(['error'=>'Un Authenticated']);
         }
