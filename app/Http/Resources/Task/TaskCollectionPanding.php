@@ -23,7 +23,7 @@ class TaskCollectionPanding extends Resource
             return [
                 'title' => $this->title,
                 'deadline' => $this->deadline,
-                'sender_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->from)->get(),                'receiver_info' => User::select('id','firstName','lastName' , 'position','email')->where('id', $this->to)->get(),
+                'sender_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->from)->get(),
                 'receiver_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->to)->get(),
                 'details' => $this->body_sent,
                 'sent_files' => json_decode($this->files_sent),
@@ -36,14 +36,17 @@ class TaskCollectionPanding extends Resource
             return [
                 'title' => $this->title,
                 'deadline' => $this->deadline,
-                'created_at' =>$this->created_at,
-                'receiver_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->to)->get(),
                 'sender_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->from)->get(),
+                'receiver_info' => User::select('id', 'image', 'firstName', 'lastName', 'position', 'email')->where('id', $this->to)->get(),
                 'details' => $this->body_sent,
-                'sent_files' => json_decode($this->files_sent)
+                'sent_files' => json_decode($this->files_sent),
+                'delivered_details' => $this->body_deliver,
+                'delivered_files' => json_decode($this->files_deliver),
+                'delivered_at' =>$this->updated_at,
+                'created_at' =>$this->created_at,
             ];
         }else{
-            return ['error'=>'error'];
+            return ['error'=>'You are not authorized to access task.'];
         }
     }
 }
