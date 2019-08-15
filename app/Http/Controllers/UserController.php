@@ -17,24 +17,27 @@ class UserController extends Controller
         $this->middleware('jwt.auth');
     }
 
-    public function index($id){
-            $user = User::findOrFail($id);
-            return new UserData($user);
+    public function index($id)
+    {
+        $user = User::findOrFail($id);
+        return new UserData($user);
     }
 
-    public function updateProfilePage($id){
-        if($id == JWTAuth::parseToken()->authenticate()->id) {
+    public function updateProfilePage($id)
+    {
+        if ($id == JWTAuth::parseToken()->authenticate()->id) {
             $user = User::findOrFail($id);
             return new UserData($user);
-        }else{
-            return response()->json('error','Un Authenticated');
+        } else {
+            return response()->json('error', 'Un Authenticated');
         }
     }
 
-    public function updateProfile(Request $request , $id){
+    public function updateProfile(Request $request, $id)
+    {
 
-        if($id == JWTAuth::parseToken()->authenticate()->id) {
-            $this->validate($request ,[
+        if ($id == JWTAuth::parseToken()->authenticate()->id) {
+            $this->validate($request, [
                 'firstName' => 'required|string | max:50 | min:3',
                 'lastName' => 'required|string | max:50 | min:3',
                 'email' => 'required|string|email|max:255',
@@ -47,59 +50,59 @@ class UserController extends Controller
             ]);
 
             $user = User::findOrFail($id);
-            $user->firstName    = $request->input('firstName');
-            $user->lastName     = $request->input('lastName');
-            $user->faculty      = $request->input('faculty')?? null;
-            $user->university   = $request->input('university')?? null;
-            $user->DOB          = $request->input('DOB')?? null;
-            $user->address      = $request->input('address')?? null;
-            $user->phone        = $request->input('phone')?? null;
-            $user->level        = $request->input('level')?? null;
-            $user->email        = $request->input('email');
+            $user->firstName = $request->input('firstName');
+            $user->lastName = $request->input('lastName');
+            $user->faculty = $request->input('faculty') ?? null;
+            $user->university = $request->input('university') ?? null;
+            $user->DOB = $request->input('DOB') ?? null;
+            $user->address = $request->input('address') ?? null;
+            $user->phone = $request->input('phone') ?? null;
+            $user->level = $request->input('level') ?? null;
+            $user->email = $request->input('email');
             $user->update();
-            return response()->json(['success'=>'user updated'],200);
+            return response()->json(['success' => 'user updated'], 200);
         } else {
-            return response()->json(['error'=>'Un Authenticated']);
+            return response()->json(['error' => 'Un Authenticated']);
         }
     }
 
-    public function updateProfilePassword(Request $request , $id)
+    public function updateProfilePassword(Request $request, $id)
     {
         if ($id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
                 'old_password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
                 'new_password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
-                'new_password_confirmation'=>'sometimes|required_with:new_password'
+                'new_password_confirmation' => 'sometimes|required_with:new_password'
             ]);
             $user = User::findOrFail($id);
 
-            if (Hash::check($request->input('old_password'),$user->password))
-            {
-                $user->password=app('hash')->make($request->input('new_password'));
+            if (Hash::check($request->input('old_password'), $user->password)) {
+                $user->password = app('hash')->make($request->input('new_password'));
                 $user->update();
-               return response()->json(['success'=>'PasswordUpdated']);
+                return response()->json(['success' => 'PasswordUpdated']);
             } else {
-                return response()->json(['error'=>'OldPasswordInvalid']);
+                return response()->json(['error' => 'OldPasswordInvalid']);
             }
         } else {
-            return response()->json(['error'=>'Un Authenticated']);
+            return response()->json(['error' => 'Un Authenticated']);
         }
     }
 
-    public function updateProfileImage(Request $request , $id){
+    public function updateProfileImage(Request $request, $id)
+    {
 
-        if($id == JWTAuth::parseToken()->authenticate()->id) {
+        if ($id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
                 'profile_image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
             ]);
             $user = User::findOrFail($id);
             //upload image
-            $filename =$request->file('profile_image')->store('public/profile_images/');
-            $user->image =trim($filename,'public');
+            $filename = $request->file('profile_image')->store('public/profile_images/');
+            $user->image = trim($filename, 'public');
             $user->update();
-            return response()->json(['success'=>'updated-successfully']);
+            return response()->json(['success' => 'updated-successfully']);
         } else {
-            return response()->json(['error'=>'un-authenticated']);
+            return response()->json(['error' => 'un-authenticated']);
         }
 
     }
