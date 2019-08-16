@@ -39,7 +39,7 @@ class TaskController extends Controller
         if ( JWTAuth::parseToken()->authenticate()->position == 'EX_com' || JWTAuth::parseToken()->authenticate()->position == 'highBoard') {
             $this->validate($request, [
                 'title' => 'required |min:3 |max:100 ',
-                'body' => 'required |min:3 |max:1000 ',
+                'body' => 'required |min:3',
                 'deadline' => 'required',
                 'files.*' => 'sometimes|file|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
                 [
@@ -105,7 +105,7 @@ class TaskController extends Controller
         $task = Task::findOrFail($id);
         if ($task->to == JWTAuth::parseToken()->authenticate()->id){
             $this->validate($request, [
-                'body' => 'required |min:1|max:1000',
+                'body' => 'required |min:1',
                 'files.*' => 'sometimes|file|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
                 [
                     'files.*.mimes' => 'Only docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip files are allowed',
@@ -140,7 +140,7 @@ class TaskController extends Controller
         if ($task->from == JWTAuth::parseToken()->authenticate()->id){
             $this->validate($request, [
                 'rate' => 'required|numeric|min:1|max:100',
-                'evaluation' => 'required|min:3 |max:1000',
+                'evaluation' => 'required|min:3',
             ]);
             $task->status = 'accepted';
             $task->rate = $request->input('rate');
