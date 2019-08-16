@@ -33,6 +33,7 @@ class TaskCollectionPanding extends Resource
                 'evaluation' =>$this->evaluation,
                 'delivered_at' =>$this->updated_at,
                 'created_at' =>$this->created_at,
+                'status' => $this->status
             ];
         }elseif($this->to == JWTAuth::parseToken()->authenticate()->id){
             return [
@@ -48,6 +49,7 @@ class TaskCollectionPanding extends Resource
                 'evaluation' =>$this->evaluation,
                 'delivered_at' =>$this->updated_at,
                 'created_at' =>$this->created_at,
+                'status' => $this->status
             ];
         }else{
             return ['error'=>'You are not authorized to access task.'];
