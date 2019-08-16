@@ -24,7 +24,7 @@
         <h2>Please verify This email address</h2>
         <div>
             Please follow the link below to verify the applicant email
-            address {{ URL::to('api/register/verify/' . $confirmation_code) }}.<br/>
+            address <a href="{{ URL::to('api/register/verify/' . $confirmation_code) }}" target="_blank">Active This Account</a>.<br/>
             User Data is
             <table>
                 <thead>

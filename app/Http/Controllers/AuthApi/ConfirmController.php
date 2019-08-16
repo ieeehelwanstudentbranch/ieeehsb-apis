@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AuthApi;
 
 use App\User;
+use http\Message;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller as Controller;
 
@@ -28,8 +29,9 @@ class ConfirmController extends Controller
         $user->confirmation_code = null;
         $user->update();
 
+
 //        Flash::message('You have successfully verified your account.');
 
-        return redirect('/https://www.google.com')->with('success','You have successfully verified account.');
+        return redirect('/api/posts')->with('success','You have successfully verified account.');
     }
 }
