@@ -41,7 +41,7 @@
                             <th>Committee</th>
                         @endif
 
-                        @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))
+                        @if($user->position == 'highBoard' && ($user->committee == 'RAS' ||$user->committee == 'PES' || $user->committee =='WIE'))
                             <th>HB Options</th>
                         @endif
                     </tr>
@@ -61,7 +61,7 @@
                            <td>{{$user->committee->name}}</td>
                         @endif
 
-                        @if($user->position == 'highBoard' && ($user->committee == 'RAS' || 'PES' || 'WIE'))
+                        @if($user->position == 'highBoard' && ($user->committee == 'RAS' ||$user->committee == 'PES' || $user->committee =='WIE'))
                             <td>{{$user->high_board_option->HB_options}}</td>
                         @endif
                     </tr>
