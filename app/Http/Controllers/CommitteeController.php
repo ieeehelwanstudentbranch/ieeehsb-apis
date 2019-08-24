@@ -38,7 +38,7 @@ class CommitteeController extends Controller
     public function addPage()
     {
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
-            $committee = Committee::where('name','hr_od')->get();
+            $committee = Committee::where('name','HR_OD')->get();
             if (count($committee)>=1) {
                 return CommitteeResource::collection($committee);
             }else{
@@ -54,16 +54,19 @@ class CommitteeController extends Controller
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')) {
             $this->validate($request, [
                 'name' => 'required |string | unique:committees| max:50 | min:2',
-                'mentor' => 'required |numeric | min:0 | max:20000',
+                'mentor' => 'nullable |numeric | min:0 | max:20000',
                 'director' => 'nullable |numeric | min:1 | max:20000',
                 'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
             ]);
 
             $committee = new Committee();
-            $committee->name = $request->input('name');
-            $mentor = User::findOrFail($request->input('mentor'));
-            $committee->mentor = $mentor->firstName . ' ' . $mentor->lastName;
-            $committee->mentor_id = $mentor->id;
+            $committee->name = strtoupper($request->input('name'));
+
+            if ($request->input('mentor')) {
+                $mentor = User::findOrFail($request->input('mentor'));
+                $committee->mentor = $mentor->firstName . ' ' . $mentor->lastName;
+                $committee->mentor_id = $mentor->id;
+            }
 
             if ($request->input('director')){
                 $director = User::findOrFail($request->input('director'));
@@ -88,7 +91,7 @@ class CommitteeController extends Controller
     public function updatePage()
     {
         if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
-            $committee = Committee::where('name','hr_od')->get();
+            $committee = Committee::where('name','HR_OD')->get();
             return CommitteeResource::collection($committee);
         } else {
             return response()->json(['error' => 'Un Authenticated']);

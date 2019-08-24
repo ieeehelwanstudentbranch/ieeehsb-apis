@@ -13,25 +13,20 @@ class ConfirmController extends Controller
     {
         if( !$confirmation_code)
         {
-//            throw new InvalidConfirmationCodeException;
-            return redirect()->back()->with('error','You have not verified account.');
+            return response()->json(['error' => 'You have not verified account.'],0);
         }
 
         $user = User::where('confirmation_code' ,$confirmation_code)->first();
 
         if ( !$user)
         {
-//            throw new InvalidConfirmationCodeException;
-            return redirect()->back()->with('error','You have not verified account.');
+            return response()->json(['error' => 'You have not verified account.'],0);
         }
 
         $user->confirmed = 1;
         $user->confirmation_code = null;
         $user->update();
 
-
-//        Flash::message('You have successfully verified your account.');
-
-        return redirect('/api/posts')->with('success','You have successfully verified account.');
+        return response()->json(['success' => 'you had activated this account successfully.'],1);
     }
 }

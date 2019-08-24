@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Committee;
 use App\Http\Resources\User\UserData;
 use App\User;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('jwt.auth');
+        $this->middleware('jwt.auth')->except('deleteUser');
     }
 
     public function index($id)
@@ -104,7 +105,30 @@ class UserController extends Controller
         } else {
             return response()->json(['error' => 'un-authenticated']);
         }
+    }
 
+    public function deleteUser($id)
+    {
+        $user_id = decrypt($id);
+        try{
+        $user = User::query()->findOrFail($user_id);
+        if ($user->position == 'highBoard' && !($user->committee->name == 'RAS' ||$user->committee->name == 'PES' || $user->committee->name =='WIE'))
+        {
+        $user->committee->director_id = null;
+        $user->committee->director = null;
+        $user->committee->update();
+        }
+        if ($user->position == 'EX_com')
+        {
+            $user->ex_com_option->delete();
+        }
+
+        $user->delete();
+        return response()->json(['success' => 'Deleted Successfully']);
+        } catch (\Exception $e)
+        {
+            return response()->json(['error' => 'User Not Found']);
+        }
     }
 
 }
