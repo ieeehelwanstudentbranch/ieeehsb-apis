@@ -27,6 +27,6 @@ class ConfirmController extends Controller
         $user->confirmation_code = null;
         $user->update();
 
-        return response()->json(['success' => 'You have successfully verified account.'],0);
+        return response()->json(['success' => 'you had activated this account successfully.'],1);
     }
 }
