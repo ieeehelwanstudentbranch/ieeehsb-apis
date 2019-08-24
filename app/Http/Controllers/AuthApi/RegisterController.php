@@ -51,10 +51,6 @@ protected $user;
          //if position EX-com
         if ($request->input('position')=='EX_com') {$this->validate($request, ['ex_options' => 'required']);}
 
-        //if position High board and the committee was chosen RAS, PES, WIE:
-        if ($request->input('position')=='highBoard' && ($request->input('committee')== 'RAS' || $request->input('committee')==  'PES' || $request->input('committee')==  'WIE'))
-        {$this->validate($request, ['highBoardOptions' => 'required']);}
-
         $confirmation_code = str_random(30);
 
         $user= new User();
@@ -77,32 +73,33 @@ protected $user;
                 $ex->user_id = $user->id;
                 $ex->save();
             }else{
-                return response()->json('error');
+                return response()->json(['error'=>'Ex Options Required']);
             }
         }
 
-        if ($request->input('position')=='highBoard' || $request->input('position')== 'volunteer'){
-//            $user->committee = $request->input('committee');
-//            $committee = Committee::where('name', $request->input('committee'))->first();
-//            $committee = Committee::query()->findOrFail($request->input('committee'));
+        if ($request->input('position')== 'volunteer'){
+
             $user->committee_id = $request->input('committee');
         }
 
-        if (($request->input('position')=='highBoard') && ($request->input('committee')=='RAS'|| $request->input('committee')== 'PES' || $request->input('committee')=='WIE') ){
-            $hb = new HighBoardOptions();
-            $hb->HB_options = $request->input('highBoardOptions');
-            if ($hb->HB_options != null){
-                $user->save();
-                $hb->user_id = $user->id;
-                $hb->save();
+        if ($request->input('position')=='highBoard')
+        {
+            $committee = Committee::query()->findOrFail($request->input('committee'));
+            if ($committee->director_id)
+            {
+                return response()->json(['error'=>'This Committee Already Have Director. If You Already The Right Director For This Committee Contact With EX COM']);
             } else {
-                return response()->json('error');
+                $user->committee_id = $request->input('committee');
             }
         }
 
-        if ( $request->input('position')!='EX_com' && ($request->input('position') =='highBoard' && ($request->input('committee') != 'RAS'|| $request->input('committee') != 'PES' || $request->input('committee') != 'WIE' )))
+        if ( $request->input('position')!='EX_com' && ($request->input('position') =='highBoard'))
         {
             $user->save();
+            $user->refresh();
+            $committee->director_id = $user->id;
+            $committee->director = $user->firstName . ' ' . $user->lastName;
+            $committee->update();
         }
 
         if ($request->input('position')=='volunteer'){$user->save();}
