@@ -11,8 +11,10 @@ use App\Http\Resources\Task\MintorViewTasks;
 use App\Http\Resources\Task\PendingTasks;
 use App\Http\Resources\Task\TaskCollection;
 use App\Http\Resources\Task\TaskCollectionPanding;
+use App\Notification;
 use App\SendTask;
 use App\Task;
+use App\Events\TaskEvent;
 use App\User;
 use function GuzzleHttp\Psr7\try_fopen;
 use Illuminate\Http\Request;
@@ -70,6 +72,7 @@ class TaskController extends Controller
                     $task->files_sent = json_encode($data);
                 }
                 $task->save();
+                event(new TaskEvent($task));
             }
             return response()->json(['success'=>'task sent successfully']);
         } else {
