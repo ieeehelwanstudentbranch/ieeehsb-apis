@@ -12,7 +12,7 @@ Route::get('register', 'AuthApi\RegisterController@registerPage');
 
 Route::Post('register', 'AuthApi\RegisterController@register');
 
-Route::get('register/verify/{confirmationCode}' ,  'AuthApi\ConfirmController@confirm');
+Route::get('register/verify/{confirmationCode}', 'AuthApi\ConfirmController@confirm');
 
 Route::post('/password/reset', 'AuthApi\ResetPasswordController@recover')->name('password.reset');
 
