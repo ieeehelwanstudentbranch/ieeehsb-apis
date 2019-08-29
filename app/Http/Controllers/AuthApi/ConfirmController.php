@@ -13,20 +13,20 @@ class ConfirmController extends Controller
     {
         if( !$confirmation_code)
         {
-            return response()->json(['error' => 'You have not verified account.'],0);
+            return response()->json(['error' => 'You have not verified account.']);
         }
 
         $user = User::where('confirmation_code' ,$confirmation_code)->first();
 
         if ( !$user)
         {
-            return response()->json(['error' => 'You have not verified account.'],0);
+            return response()->json(['error' => 'You have not verified account.']);
         }
 
         $user->confirmed = 1;
         $user->confirmation_code = null;
         $user->update();
 
-        return response()->json(['success' => 'you had activated this account successfully.'],1);
+        return response()->json(['success' => 'you had activated this account successfully.']);
     }
 }
