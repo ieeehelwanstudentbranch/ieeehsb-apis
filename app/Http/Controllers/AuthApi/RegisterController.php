@@ -133,6 +133,7 @@ protected $user;
                     $user = User::query()->findOrFail($ex->user_id);
                     $email = $user->email;
 
+
                 } catch (\Exception $e) {
                     $email = 'ieeehelwanstudentbranch@gmail.com';
                 }
@@ -141,7 +142,7 @@ protected $user;
             // if High Board register
             if ($request->input('position')=='highBoard') {
                 try {
-                    $committee = Committee::where('name', $request->input('committee'))->first();
+                    $committee = Committee::query()->findOrFail($request->input('committee'));
                     $mentor =User::query()->findOrFail($committee->mentor_id);
                     $email = $mentor->email;
 
@@ -153,7 +154,7 @@ protected $user;
             // if volunteer register
             if ($request->input('position')=='volunteer') {
                 try {
-                    $committee = Committee::query()->where('name', $request->input('committee'))->first();
+                    $committee = Committee::query()->findOrFail($request->input('committee'));
                     if ($committee->director_id != null) {
                         $director = User::query()->findOrFail($committee->director_id);
                         $email = $director->email;
