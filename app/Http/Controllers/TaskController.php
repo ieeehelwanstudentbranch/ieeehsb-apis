@@ -43,9 +43,9 @@ class TaskController extends Controller
                 'title' => 'required |min:3 |max:100 ',
                 'body' => 'required |min:3',
                 'deadline' => 'required',
-                'files.*' => 'sometimes|file|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
+                'files.*' => 'nullable|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
                 [
-                    'files.*.mimes' => 'Only docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip files are allowed',
+                    'files.*.mimes' => 'Only docx, doc, txt, csv, xls, xlsx, ppt, pptx, pdf, jpeg, jpg, png, svg, gif, ps, xd, ai, zip files are allowed',
                     'files.*.max' => 'Sorry! Maximum allowed size for an one file is 500MB',
                 ],
                 'to' => 'required',
