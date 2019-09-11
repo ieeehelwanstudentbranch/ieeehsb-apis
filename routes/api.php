@@ -58,3 +58,6 @@ Route::get('task/{id}', 'TaskController@viewTask');
 Route::post('accept-task/{id}', 'TaskController@acceptTask');
 Route::post('refuse-task/{id}', 'TaskController@refuseTask');
 Route::post('deliver-task/{id}', 'TaskController@deliverTask');
+
+//Notification
+Route::get('/notification', 'NotificationController@getNotification');
