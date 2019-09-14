@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\PostEvent;
 use App\Events\TaskEvent;
+use App\Listeners\NotifyUserForPost;
 use App\Listeners\NotifyUserForTask;
 use App\Notification;
 use Illuminate\Support\Facades\Event;
@@ -23,6 +25,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         TaskEvent::class => [
             NotifyUserForTask::class,
+        ],
+        PostEvent::class => [
+            NotifyUserForPost::class,
         ],
     ];
 

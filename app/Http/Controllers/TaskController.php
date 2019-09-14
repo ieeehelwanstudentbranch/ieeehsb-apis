@@ -72,7 +72,7 @@ class TaskController extends Controller
                     $task->files_sent = json_encode($data);
                 }
                 $task->save();
-                event(new TaskEvent($task));
+                event(new TaskEvent($task , 'send'));
             }
             return response()->json(['success'=>'task sent successfully']);
         } else {
@@ -130,6 +130,7 @@ class TaskController extends Controller
             $task->body_deliver = $request->input('body');
             $task->status = 'deliver';
             $task->update();
+            event(new TaskEvent($task , 'deliver'));
             return response()->json(['success'=>'task sent successfully']);
 
         } else {
@@ -149,6 +150,7 @@ class TaskController extends Controller
             $task->rate = $request->input('rate');
             $task->evaluation = $request->input('evaluation');
             $task->update();
+            event(new TaskEvent($task , 'accept-task'));
             return response()->json(['success'=>'task accepted successfully']);
         }else{
             return response()->json(['error'=>'Un Authenticated']);
@@ -160,6 +162,7 @@ class TaskController extends Controller
         if ($task->from == JWTAuth::parseToken()->authenticate()->id){
             $task->status = 'pending';
             $task->update();
+            event(new TaskEvent($task , 'refuse-task'));
             return response()->json(['success'=>'task refused']);
         }else{
             return response()->json(['error'=>'Un Authenticated']);
