@@ -30,16 +30,47 @@ class NotifyUserForTask
     public function handle(TaskEvent $event)
     {
         $notification = new Notification();
-        $from = User::query()->findOrFail($event->message->from);
-        $from_name = $from->firstName .' '.$from->firstName;
+        if ($event->key == 'send')
+        {
+            $from = User::query()->findOrFail($event->task->from);
+            $from_name = $from->firstName .' '.$from->firstName;
 
 //        foreach ($event->to as $to_user)
 //            $to[] = $to_user;
 
-        $notification->from = $event->message->from;
-        $notification->to = $event->message->to;
-        $notification->content = 'You received task from '.$from_name .' ' . $event->message->created_at;
-        $notification->link_to_view = action('TaskController@viewTask', $event->message->id);
-        $notification->save();
+            $notification->from = $event->task->from;
+            $notification->to = $event->task->to;
+            $notification->content = 'You have received task from '.$from_name .' at ' .  now();
+            $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
+            $notification->save();
+        } elseif ($event->key == 'deliver')
+        {
+            $from = User::query()->findOrFail($event->task->to);
+            $from_name = $from->firstName .' '.$from->firstName;
+            $notification->from = $event->task->to;
+            $notification->to = $event->task->from;
+            $notification->content = $from_name . ' deliver task ' . ' at ' . now();
+            $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
+            $notification->save();
+        } elseif ($event->key == 'refuse-task')
+        {
+            $from = User::query()->findOrFail($event->task->from);
+            $from_name = $from->firstName .' '.$from->firstName;
+            $notification->from = $event->task->from;
+            $notification->to = $event->task->to;
+            $notification->content = 'Your task ' . $event->task->title . ' refused by '. $from_name . ' at ' .now();
+            $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
+            $notification->save();
+        } elseif ($event->key == 'accept-task')
+        {
+            $from = User::query()->findOrFail($event->task->from);
+            $from_name = $from->firstName .' '.$from->firstName;
+            $notification->from = $event->task->from;
+            $notification->to = $event->task->to;
+            $notification->content = 'Your task ' . $event->task->title . ' accepted by '. $from_name . ' at ' .now();
+            $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
+            $notification->save();
+        }
+
     }
 }

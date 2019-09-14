@@ -1,22 +1,21 @@
 <?php
 namespace  App\Events;
 
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class TaskEvent implements ShouldBroadcast
+class PostEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $task;
-    public $key;
+    public $post;
 
-    public function __construct($task , $key)
+    public function __construct($post)
     {
-        $this->task = $task;
-        $this->key = $key;
+        $this->post = $post;
     }
 
     public function broadcastOn()
