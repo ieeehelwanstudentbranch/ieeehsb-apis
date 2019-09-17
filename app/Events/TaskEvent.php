@@ -1,6 +1,7 @@
 <?php
 namespace  App\Events;
 
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -21,7 +22,7 @@ class TaskEvent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return ['notification'];
+        return new PrivateChannel('notification');
     }
 
     public function broadcastAs()
