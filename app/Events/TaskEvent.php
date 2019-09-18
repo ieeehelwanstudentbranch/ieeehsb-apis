@@ -22,7 +22,7 @@ class TaskEvent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('notification');
+        return 'notification';
     }
 
     public function broadcastAs()
