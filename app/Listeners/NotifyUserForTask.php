@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\TaskEvent;
+use App\Lib\RealTime\Pusher\PusherHandler;
 use App\Notification;
 use Pusher\Pusher;
 use App\User;
@@ -71,6 +72,6 @@ class NotifyUserForTask
             $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
             $notification->save();
         }
-
+        PusherHandler::send($notification ,'notification' ,'task-created');
     }
 }

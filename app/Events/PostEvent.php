@@ -20,7 +20,7 @@ class PostEvent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return ['notification'];
+        return new PrivateChannel('notification');
     }
 
     public function broadcastAs()

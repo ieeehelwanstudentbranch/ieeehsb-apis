@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\PostEvent;
 use App\Events\TaskEvent;
+use App\Lib\RealTime\Pusher\PusherHandler;
 use App\Notification;
 use Monolog\Handler\PushoverHandler;
 use Pusher\Pusher;
@@ -40,5 +41,6 @@ class NotifyUserForPost
         $notification->content = $from_name .' added a new post at ' .  now();
         $notification->link_to_view = action('PostController@show', $event->post->id);
         $notification->save();
+        PusherHandler::send($notification,'notification','post-created');
     }
 }
