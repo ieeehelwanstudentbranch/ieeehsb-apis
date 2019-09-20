@@ -25,6 +25,6 @@ class PostEvent implements ShouldBroadcast
 
     public function broadcastAs()
     {
-        return 'notification';
+        return 'post-created';
     }
 }

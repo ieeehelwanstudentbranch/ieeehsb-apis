@@ -34,6 +34,9 @@ class PusherHandler
                 $event,
                 $data
             );
+            Log::info(  $channels.
+                $event.
+                $data);
         }catch (\Exception $e){
            Log::info($e->getMessage());
         }
