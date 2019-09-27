@@ -27,6 +27,6 @@ class TaskEvent implements ShouldBroadcast
 
     public function broadcastAs()
     {
-        return 'task-created';
+        return 'notification';
     }
 }

@@ -43,6 +43,8 @@ class NotifyUserForTask
             $notification->to = $event->task->to;
             $notification->content = 'You have received task from '.$from_name .' at ' .  now();
             $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
+            $notification->parent_id = $event->task->id;
+            $notification->sender_image = $from->image;
             $notification->save();
         } elseif ($event->key == 'deliver')
         {
@@ -52,6 +54,8 @@ class NotifyUserForTask
             $notification->to = $event->task->from;
             $notification->content = $from_name . ' deliver task ' . ' at ' . now();
             $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
+            $notification->parent_id = $event->task->id;
+            $notification->sender_image = $from->image;
             $notification->save();
         } elseif ($event->key == 'refuse-task')
         {
@@ -61,6 +65,8 @@ class NotifyUserForTask
             $notification->to = $event->task->to;
             $notification->content = 'Your task ' . $event->task->title . ' refused by '. $from_name . ' at ' .now();
             $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
+            $notification->parent_id = $event->task->id;
+            $notification->sender_image = $from->image;
             $notification->save();
         } elseif ($event->key == 'accept-task')
         {
@@ -70,6 +76,8 @@ class NotifyUserForTask
             $notification->to = $event->task->to;
             $notification->content = 'Your task ' . $event->task->title . ' accepted by '. $from_name . ' at ' .now();
             $notification->link_to_view = action('TaskController@viewTask', $event->task->id);
+            $notification->parent_id = $event->task->id;
+            $notification->sender_image = $from->image;
             $notification->save();
         }
         PusherHandler::send($notification ,'notification' ,'task-created');

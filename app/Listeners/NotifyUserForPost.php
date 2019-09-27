@@ -40,6 +40,8 @@ class NotifyUserForPost
         $notification->to = null;
         $notification->content = $from_name .' added a new post at ' .  now();
         $notification->link_to_view = action('PostController@show', $event->post->id);
+        $notification->parent_id = $event->post->id;
+        $notification->sender_image = $from->image;
         $notification->save();
         PusherHandler::send($notification,'notification','post-created');
     }
