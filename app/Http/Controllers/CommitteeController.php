@@ -19,14 +19,14 @@ class CommitteeController extends Controller
     {
         $this->middleware('jwt.auth');
     }
-    
+
     // index
     public function index()
     {
         $committees = Committee::orderBy('id', 'DESC')->paginate(100);
         return CommitteeCollection::collection($committees);
     }
-    
+
     // view committee
     public function view($id)
     {
@@ -37,21 +37,26 @@ class CommitteeController extends Controller
     // add committee
     public function addPage()
     {
-        if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
-            $committee = Committee::where('name','HR_OD')->get();
-            if (count($committee)>=1) {
-                return CommitteeResource::collection($committee);
-            }else{
-                return new CommitteeResource(true);
+        if (auth()->user()->ex_com_option) {
+            if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
+                $committee = Committee::where('name', 'HR_OD')->get();
+                if (count($committee) >= 1) {
+                    return CommitteeResource::collection($committee);
+                } else {
+                    return new CommitteeResource(true);
+                }
+            } else {
+                return response()->json(['error' => 'Un Authenticated']);
             }
         } else {
             return response()->json(['error' => 'Un Authenticated']);
         }
+
     }
 
     public function add(Request $request)
     {
-        if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')) {
+        if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
             $this->validate($request, [
                 'name' => 'required |string | unique:committees| max:50 | min:2',
                 'mentor' => 'nullable |numeric | min:0 | max:20000',
@@ -68,7 +73,7 @@ class CommitteeController extends Controller
                 $committee->mentor_id = $mentor->id;
             }
 
-            if ($request->input('director')){
+            if ($request->input('director')) {
                 $director = User::findOrFail($request->input('director'));
                 $committee->director = $director->firstName . ' ' . $director->lastName;
                 $committee->director_id = $director->id;
@@ -90,19 +95,19 @@ class CommitteeController extends Controller
     //Edit Committee
     public function updatePage()
     {
-        if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
-            $committee = Committee::where('name','HR_OD')->get();
+        if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
+            $committee = Committee::where('name', 'HR_OD')->get();
             return CommitteeResource::collection($committee);
         } else {
             return response()->json(['error' => 'Un Authenticated']);
         }
     }
 
-    public function update(Request $request , $id)
+    public function update(Request $request, $id)
     {
-        if(auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options=='chairperson' || auth()->user()->ex_com_option->ex_options =='vice-chairperson')){
-            $this->validate($request ,[
-                'name' => ['required',Rule::unique('committees')->ignore($id) ],
+        if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
+            $this->validate($request, [
+                'name' => ['required', Rule::unique('committees')->ignore($id)],
                 'mentor' => 'required |string | max:100 | min:1',
                 'director' => 'nullable |string | max:100 | min:1',
                 'hr_coordinator' => 'nullable |string | max:100 | min:1',
@@ -113,7 +118,7 @@ class CommitteeController extends Controller
             $committee->mentor = $mentor->firstName . ' ' . $mentor->lastName;
             $committee->mentor_id = $mentor->id;
 
-            if ($request->input('director')){
+            if ($request->input('director')) {
                 $director = User::findOrFail($request->input('director'));
                 $committee->director = $director->firstName . ' ' . $director->lastName;
                 $committee->director_id = $director->id;
@@ -125,25 +130,30 @@ class CommitteeController extends Controller
                 $committee->hr_coordinator_id = $hr_coordinator->id;
             }
             $committee->update();
-            return response()->json(['success'=>'Committee Updated']);
+            return response()->json(['success' => 'Committee Updated']);
         } else {
             return response()->json(['error' => 'Un Authenticated']);
         }
 
     }
+
     // delete
     public function destroy($id)
     {
         if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
             $committee = Committee::findOrFail($id);
             $user = User::where('committee_id', $id);
-            if ($user){
+            if ($user) {
                 $user_id = User::where('committee_id', $id)->pluck('id');
                 if (count($user_id) > 0) {
                     $ex_option = Ex_com_options::where('user_id', $user_id);
                     $hb_option = HighBoardOptions::where('user_id', $user_id);
-                    if ($ex_option){$ex_option->delete();}
-                    if ($hb_option){$hb_option->delete();}
+                    if ($ex_option) {
+                        $ex_option->delete();
+                    }
+                    if ($hb_option) {
+                        $hb_option->delete();
+                    }
                 }
             }
             $user->delete();
