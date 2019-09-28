@@ -16,16 +16,13 @@ class NotificationController extends Controller
 
     public function getNotification()
     {
-        $notifications  = Notification::query()->where(function ($q) {
-            $q->where('to',JWTAuth::parseToken()->authenticate()->id)
+        $notifications = Notification::query()->where(function ($q) {
+            $q->where('to', JWTAuth::parseToken()->authenticate()->id)
                 ->orWhere('to', null);
         })->get();
-        $notification_temp=[];
-        if (count($notifications) > 0)
-        {
-            foreach ($notifications as $notification) {
-                $notification_temp[] = new NotificatiosCollection($notification);
-            }
+        $notification_temp = [];
+        foreach ($notifications as $notification) {
+            $notification_temp[] = new NotificatiosCollection($notification);
         }
 
         return $notification_temp;
