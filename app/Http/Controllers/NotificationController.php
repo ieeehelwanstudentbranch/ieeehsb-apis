@@ -20,9 +20,14 @@ class NotificationController extends Controller
             $q->where('to',JWTAuth::parseToken()->authenticate()->id)
                 ->orWhere('to', null);
         })->get();
-        foreach ($notifications as $notification) {
-            $notification_temp[] = new NotificatiosCollection($notification);
+        $notification_temp=[];
+        if (count($notifications) > 0)
+        {
+            foreach ($notifications as $notification) {
+                $notification_temp[] = new NotificatiosCollection($notification);
+            }
         }
+
         return $notification_temp;
 
     }

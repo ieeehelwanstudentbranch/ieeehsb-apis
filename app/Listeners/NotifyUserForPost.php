@@ -34,14 +34,18 @@ class NotifyUserForPost
     {
         $notification = new Notification();
 
-        $from = $event->post->user;
-        $from_name = $from->firstName .' '.$from->firstName;
-        $notification->from = $from->id;
+        $user = $event->post->user;
+        $from_data = [
+            'id' => $user->id ,
+            'first_name' => $user->firstName,
+            'last_name' => $user->lastName ,
+            'image' => $user->image ,
+        ];
+        $notification->from = $from_data;
         $notification->to = null;
-        $notification->content = $from_name .' added a new post at ' .  now();
+        $notification->content ='added a new post';
         $notification->link_to_view = action('PostController@show', $event->post->id);
         $notification->parent_id = $event->post->id;
-        $notification->sender_image = $from->image;
         $notification->save();
         PusherHandler::send($notification,'notification','post-created');
     }
