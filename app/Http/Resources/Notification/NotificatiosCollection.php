@@ -19,6 +19,7 @@ class NotificatiosCollection extends Resource
             'id' => $this->id,
             'content' => $this->content,
             'view' => $this->link_to_view,
+            'parent_id' => $this->parent_id,
             'created_at' => $this->created_at->diffForHumans(),
             'from' => new NotificationUserCollection($this->user),
         ];
