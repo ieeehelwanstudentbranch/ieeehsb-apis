@@ -5,7 +5,7 @@ namespace App\Http\Resources\Notification;
 use App\Notification;
 use Illuminate\Http\Resources\Json\Resource;
 
-class NotificatiosCollection extends Resource
+class NotificationUserCollection extends Resource
 {
     /**
      * Transform the resource collection into an array.
@@ -17,13 +17,9 @@ class NotificatiosCollection extends Resource
     {
         return [
             'id' => $this->id,
-            'from' => new NotificationUserCollection($this->user),
-            'to' => $this->to,
-            'content' => $this->content,
-            'view' => $this->link_to_view,
-            'parent_id' => $this->parent_id,
-            'created_at' => $this->created_at->diffForHumans(),
-
+            'first_name' => $this->firstName,
+            'last_name' => $this->lastName,
+            'image' => $this->image,
         ];
     }
 }
