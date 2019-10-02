@@ -22,7 +22,7 @@ class NotificatiosCollection extends Resource
             'content' => $this->content,
             'view' => $this->link_to_view,
             'parent_id' => $this->parent_id,
-            'created_at' => $this->created_at->diffForHumans(),
+            'created_at' => $this->created_at->toDateTimeString(),
 
         ];
     }
