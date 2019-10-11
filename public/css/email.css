@@ -1,3 +1,7 @@
+.emailHeader{
+    background-image: url("../images/network.png");
+    background-size: cover;
+}
 table{
     width: 95%;
     border: 1px solid #000;
