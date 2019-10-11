@@ -20,13 +20,10 @@ class CreateTaskPage extends Resource
      */
     public function toArray($request)
     {
-        $EX_com = $this->where('position','EX_com');
-        $high_board = $this->where('position','highBoard');
-        $committees = Committee::all();
         return [
-            'EX_com'=>$EX_com,
-            'highBoard' =>$high_board,
-            'committee'=>CommitteesInTask::collection($committees),
+            'EX_com'=>$this->where('position','EX_com'),
+            'highBoard' =>$this->where('position','highBoard'),
+            'committee'=>CommitteesInTask::collection(Committee::all()),
         ];
     }
 }
