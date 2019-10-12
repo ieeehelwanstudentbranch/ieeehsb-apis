@@ -59,7 +59,7 @@ class TaskController extends Controller
                 $task->from = JWTAuth::parseToken()->authenticate()->id;
                 $task->to = $to;
                 $task->committee_id = User::findOrFail($to)->committee_id;
-                // pload files
+                // upload files
                 if ($request->hasfile('files')) {
                     foreach ($request->file('files') as $file) {
                         $filenameWithExtention = $file->getClientOriginalName();
