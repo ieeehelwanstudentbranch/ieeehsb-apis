@@ -61,3 +61,6 @@ Route::post('deliver-task/{id}', 'TaskController@deliverTask');
 
 //Notification
 Route::get('/notification', 'NotificationController@getNotification');
+
+//check token
+Route::get('/check-token/{user_id}/{token}', 'AuthApi\AuthController@checkToken');
