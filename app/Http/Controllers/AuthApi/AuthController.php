@@ -99,7 +99,7 @@ class AuthController extends Controller
             $user = $user->first();
             if ($user->remember_token == $token) {
                 return response()->json([
-                    'success' => true,
+                    'response' => 'Success',
                     'message' => 'You logged in Successfully'
                 ]);
             } else {
