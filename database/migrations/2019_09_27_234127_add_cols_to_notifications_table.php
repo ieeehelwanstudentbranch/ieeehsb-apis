@@ -26,9 +26,5 @@ class AddColsToNotificationsTable extends Migration
      */
     public function down()
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            $table->dropColumn('parent_id');
-            $table->dropColumn('sender_image');
-        });
     }
 }
