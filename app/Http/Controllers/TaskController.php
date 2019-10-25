@@ -131,10 +131,15 @@ class TaskController extends Controller
             $task->status = 'deliver';
             $task->update();
             event(new TaskEvent($task , 'deliver'));
-            return response()->json(['success'=>'task sent successfully']);
-
+            return response()->json([
+                'response' => 'Success',
+                'message' => 'Congratulations, You had delivered this task successfully, Keep Going.',
+            ]);
         } else {
-            return response()->json(['error'=>'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Sorry, You are Not Authorized to access or deliver this task.',
+            ]);
         }
     }
 
@@ -151,9 +156,15 @@ class TaskController extends Controller
             $task->evaluation = $request->input('evaluation');
             $task->update();
             event(new TaskEvent($task , 'accept-task'));
-            return response()->json(['success'=>'task accepted successfully']);
+            return response()->json([
+                'response' => 'Success',
+                'message' => 'Evaluating tasks done successfullty',
+            ]);
         }else{
-            return response()->json(['error'=>'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Sorry, You are Not Authorized to Evaluate this task.',
+            ]);
         }
     }
 
@@ -163,9 +174,15 @@ class TaskController extends Controller
             $task->status = 'pending';
             $task->update();
             event(new TaskEvent($task , 'refuse-task'));
-            return response()->json(['success'=>'task refused']);
+            return response()->json([
+                'response' => 'Success',
+                'message' => 'The task has been refused successfully',
+            ]);
         }else{
-            return response()->json(['error'=>'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Sorry, You are Not Authorized to refuse this task.',
+            ]);
         }
     }
 }

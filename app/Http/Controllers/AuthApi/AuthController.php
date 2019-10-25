@@ -68,7 +68,6 @@ class AuthController extends Controller
             'token' => $token,
             'expirationTime' => $expirationTime,
             'userId' => Auth::user()->id
-
         ]);
     }
 
