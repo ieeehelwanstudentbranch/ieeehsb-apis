@@ -73,7 +73,7 @@ protected $user;
                 $ex->user_id = $user->id;
                 $ex->save();
             }else{
-                return response()->json(['error'=>'Ex Options Required']);
+                return response()->json(['message'=>'Ex Options Required']);
             }
         }
 
@@ -87,7 +87,7 @@ protected $user;
             $committee = Committee::query()->findOrFail($request->input('committee'));
             if ($committee->director_id)
             {
-                return response()->json(['error'=>'This Committee Already Have Director. If You Already The Right Director For This Committee Contact With EX COM']);
+                return response()->json(['message'=>'This Committee Already Have Director. If You Already The Right Director For This Committee Contact With the chairperson']);
             } else {
                 $user->committee_id = $request->input('committee');
             }
@@ -103,74 +103,68 @@ protected $user;
         }
 
         if ($request->input('position')=='volunteer'){$user->save();}
-//        send activation email
+        // send activation email
         Mail::send('/emails.verify', compact(['user','confirmation_code']), function($message) use ($req) {
-            $message->to($this->MailTarget($req), 'user')->subject('Verify your email address');
+            $message->to($this->MailTarget($req), 'user')->subject('Verify an email address');
         });
         if ($user->id) {
-            return response()->json(['status' => 'success', 'message' => 'Registration is Successful, please wait until your account being activated']);
+            return response()->json(['response' => 'success', 'message' => 'Registration is Successful, please wait until your account being activated']);
         }else{
-            return response()->json(['status' => 'fail', 'message' => 'Registration is Fail, please check your data again!']);
-
+            return response()->json(['response' => 'failed', 'message' => 'Registration has failed, please check your data again!']);
         }
     }
 
 
-        //  mail target
-        public function MailTarget(Request $request)
-        {
-            $email =  'ieeehelwanstudentbranch@gmail.com';
+    //  mail target
+    public function MailTarget(Request $request)
+    {
+        $email =  'ieeehelwanstudentbranch@gmail.com';
 
-            // if Ex-com(Chairperson) register
-            if ($request->input('position')=='EX_com' && ($request->input('ex_options')=='chairperson') ){
+        // if Ex-com(Chairperson) register
+        if ($request->input('position')=='EX_com' && ($request->input('ex_options')=='chairperson') ){
+            $email = 'ieeehelwanstudentbranch@gmail.com';
+        }
+
+        // if Ex-com(!Chairperson) register
+        if ($request->input('position')=='EX_com' && ($request->input('ex_options')!='chairperson') ) {
+            try {
+                $ex = Ex_com_options::where('ex_options', 'chairperson')->first();
+                $user = User::query()->findOrFail($ex->user_id);
+                $email = $user->email;
+            } catch (\Exception $e) {
                 $email = 'ieeehelwanstudentbranch@gmail.com';
             }
-
-            // if Ex-com(!Chairperson) register
-            if ($request->input('position')=='EX_com' && ($request->input('ex_options')!='chairperson') ) {
-                try {
-                    $ex = Ex_com_options::where('ex_options', 'chairperson')->first();
-                    $user = User::query()->findOrFail($ex->user_id);
-                    $email = $user->email;
-
-
-                } catch (\Exception $e) {
-                    $email = 'ieeehelwanstudentbranch@gmail.com';
-                }
-            }
-
-            // if High Board register
-            if ($request->input('position')=='highBoard') {
-                try {
-                    $committee = Committee::query()->findOrFail($request->input('committee'));
-                    $mentor =User::query()->findOrFail($committee->mentor_id);
-                    $email = $mentor->email;
-
-                } catch (\Exception $e) {
-                    $email = 'ieeehelwanstudentbranch@gmail.com';
-                }
-            }
-
-            // if volunteer register
-            if ($request->input('position')=='volunteer') {
-                try {
-                    $committee = Committee::query()->findOrFail($request->input('committee'));
-                    if ($committee->director_id != null) {
-                        $director = User::query()->findOrFail($committee->director_id);
-                        $email = $director->email;
-                    }elseif (User::query()->findOrFail($committee->mentor_id) != null) {
-                        $mentor = User::query()->findOrFail($committee->mentor_id);
-                        $email = $mentor->email;
-                    }else{
-                        $email = 'ieeehelwanstudentbranch@gmail.com';
-                    }
-                } catch (\Exception $e) {
-                    $email = 'ieeehelwanstudentbranch@gmail.com';
-                }
-            }
-            return $email;
         }
+
+        // if High Board register
+        if ($request->input('position')=='highBoard') {
+            try {
+                $committee = Committee::query()->findOrFail($request->input('committee'));
+                $mentor =User::query()->findOrFail($committee->mentor_id);
+                $email = $mentor->email;
+
+            } catch (\Exception $e) {
+                $email = 'ieeehelwanstudentbranch@gmail.com';
+            }
+        }
+
+        // if volunteer register
+        if ($request->input('position')=='volunteer') {
+            try {
+                $committee = Committee::query()->findOrFail($request->input('committee'));
+                if ($committee->director_id != null) {
+                    $director = User::query()->findOrFail($committee->director_id);
+                    $email = $director->email;
+                }elseif (User::query()->findOrFail($committee->mentor_id) != null) {
+                    $mentor = User::query()->findOrFail($committee->mentor_id);
+                    $email = $mentor->email;
+                }else{
+                    $email = 'ieeehelwanstudentbranch@gmail.com';
+                }
+            } catch (\Exception $e) {
+                $email = 'ieeehelwanstudentbranch@gmail.com';
+            }
+        }
+        return $email;
+    }
 }
-
-
-

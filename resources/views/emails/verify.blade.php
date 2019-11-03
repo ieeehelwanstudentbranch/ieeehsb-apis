@@ -2,8 +2,6 @@
 <html lang="en-US">
 <head>
     <meta charset="utf-8">
-
-    {{-- <link rel="stylesheet" type="text/css" href="{{asset('/css/email.css')}}"> --}}
     <style>
         .emailContainer{
             background-color: #ccc;

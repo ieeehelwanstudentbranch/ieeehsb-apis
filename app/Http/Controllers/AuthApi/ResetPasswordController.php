@@ -17,7 +17,10 @@ class ResetPasswordController extends Controller
         $user = User::where('email', $request->email)->first();
         if (!$user) {
             $error_message = "Your email address was not found.";
-            return response()->json(['success' => false, 'error' => ['email'=> $error_message]], 401);
+            return response()->json([
+                'response' => 'failed',
+                'error' => $error_message
+            ],404);
         }
         try {
             $reset_code = str_random(30);
@@ -26,26 +29,24 @@ class ResetPasswordController extends Controller
 
 
             Mail::send('emails.auth.reminder', compact(['reset_code','user']), function($message) use  ($request) {
-                $message->to($request->email, 'user')->subject('Verify your email address');
+                $message->to($request->email, 'user')->subject('Reset your email password');
             });
 
         } catch (\Exception $e) {
             $error_message = $e->getMessage();
-            return response()->json(['success' => false, 'error' => $error_message], 401);
+            return response()->json(['response' => 'failed', 'error' => $error_message], 404);
         }
         return response()->json([
-            'success' => true, 'data'=> ['message'=> 'A reset email has been sent! Please check your email.']
+            'response' => 'success',
+            'message'=> 'A reset email has been sent! Please check your email.'
         ]);
     }
-
-
 
     public function Reset(Request $request ,$reset_code)
     {
         $this->validate($request, [
             'password' => 'required|min:6|confirmed',
         ]);
-
 
         if( ! $reset_code)
         {
@@ -62,10 +63,7 @@ class ResetPasswordController extends Controller
         $user->password=app('hash')->make($request->input('password'));
         $user->token = null;
         $user->update();
-
-//        Flash::message('You have successfully verified your account. You can now login.');
-
-        return response()->json(['status' =>'success','Your Password Reset']);
+        // Flash::message('You have successfully verified your account. You can now login.');
+        return response()->json(['response' =>'success','message'=>'Your password was reset successfully']);
     }
-
 }
