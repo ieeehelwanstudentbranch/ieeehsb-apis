@@ -48,16 +48,15 @@ class ResetPasswordController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        if( ! $reset_code)
-        {
-            return Redirect::home();
+        if( ! $reset_code){
+            return response()->json(['response' =>'Failed','error'=>'there is no reset code provider'], 401);
         }
 
         $user = User::where('token' , $reset_code)->first();
 
         if ( ! $user)
         {
-            return Redirect::home();
+            return response()->json(['response' =>'Failed','error'=>'Sorry, you don\'t have a valid reset code.'], 404);
         }
 
         $user->password=app('hash')->make($request->input('password'));
