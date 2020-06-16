@@ -14,7 +14,13 @@ class CreateVolunteersTable extends Migration
     public function up()
     {
         Schema::create('volunteers', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade');
+            $table->unsignedBigInteger('position_id');
+            $table->foreign('position_id')->references('id')->on('positions')->onUpdate('cascade');
+            $table->unsignedBigInteger('status_id');
+            $table->foreign('status_id')->references('id')->on('statuses')->onUpdate('cascade');
             $table->timestamps();
         });
     }

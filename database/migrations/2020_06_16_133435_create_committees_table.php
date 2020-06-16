@@ -16,9 +16,9 @@ class CreateCommitteesTable extends Migration
         Schema::create('committees', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name',200);
-            $table->string('name',1000);
-            $table->unsignedBigInteger('post_id');
-            $table->foreign('post_id')->references('id')->on('posts')->onUpdate('cascade');
+            $table->string('description',1000);
+            $table->unsignedBigInteger('chapter_id');
+            $table->foreign('chapter_id')->references('id')->on('chapters')->onUpdate('cascade');
             $table->timestamps();
         });
     }

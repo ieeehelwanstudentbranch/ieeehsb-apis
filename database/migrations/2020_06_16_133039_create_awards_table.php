@@ -16,7 +16,7 @@ class CreateAwardsTable extends Migration
         Schema::create('awards', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name',200);
-            $table->string('information' 1000);
+            $table->string('information' ,1000);
             $table->date('date');
             $table->timestamps();
         });

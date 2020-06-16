@@ -13,9 +13,16 @@ class CreateVolunteersCommentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('vol_comments', function (Blueprint $table) {
-            //
-        });
+      Schema::create('vol_comments', function(Blueprint $table)
+   {
+       $table->bigIncrements('id');
+       $table->unsignedBigInteger('vol_id');
+       $table->foreign('vol_id')->references('id')->on('volunteers');
+       $table->unsignedBigInteger('comment_id');
+       $table->foreign('comment_id')->references('id')->on('comments');
+       $table->timestamps();
+
+   });
     }
 
     /**
@@ -23,10 +30,9 @@ class CreateVolunteersCommentsTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        Schema::table('vol_comments', function (Blueprint $table) {
-            //
-        });
-    }
+     public function down()
+     {
+         Schema::dropIfExists('vol_comments');
+     }
+
 }

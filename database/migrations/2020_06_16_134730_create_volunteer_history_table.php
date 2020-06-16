@@ -13,9 +13,19 @@ class CreateVolunteerHistoryTable extends Migration
      */
     public function up()
     {
-        Schema::table('vol_history', function (Blueprint $table) {
-            //
-        });
+      Schema::create('vol_history', function (Blueprint $table) {
+          $table->bigIncrements('id');
+          $table->unsignedBigInteger('vol_id');
+          $table->foreign('vol_id')->references('id')->on('volunteers');
+          $table->unsignedBigInteger('season_id');
+          $table->foreign('season_id')->references('id')->on('seasons');
+          $table->unsignedBigInteger('position_id');
+          $table->foreign('position_id')->references('id')->on('positions');
+          $table->string('achievments',2000);
+          $table->string('skills',2000);
+          $table->string('courses',2000);
+          $table->timestamps();
+      });
     }
 
     /**
@@ -23,10 +33,9 @@ class CreateVolunteerHistoryTable extends Migration
      *
      * @return void
      */
-    public function down()
-    {
-        Schema::table('vol_history', function (Blueprint $table) {
-            //
-        });
-    }
+     public function down()
+     {
+           Schema::dropIfExists('vol_history');
+     }
+
 }

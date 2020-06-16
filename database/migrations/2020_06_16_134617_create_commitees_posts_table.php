@@ -13,9 +13,16 @@ class CreateCommiteesPostsTable extends Migration
      */
     public function up()
     {
-        Schema::table('committee_posts', function (Blueprint $table) {
-            //
-        });
+      Schema::create('committee_posts', function(Blueprint $table)
+   {
+       $table->bigIncrements('id');
+       $table->unsignedBigInteger('comm_id');
+       $table->foreign('comm_id')->references('id')->on('committees');
+       $table->unsignedBigInteger('post_id');
+       $table->foreign('post_id')->references('id')->on('posts');
+       $table->timestamps();
+   });
+
     }
 
     /**
@@ -25,8 +32,6 @@ class CreateCommiteesPostsTable extends Migration
      */
     public function down()
     {
-        Schema::table('committee_posts', function (Blueprint $table) {
-            //
-        });
+          Schema::dropIfExists('committee_posts');
     }
 }

@@ -13,9 +13,16 @@ class CreateVolunteerCommitteeTable extends Migration
      */
     public function up()
     {
-        Schema::table('vol_committee', function (Blueprint $table) {
-            //
-        });
+      Schema::create('vol_committees', function (Blueprint $table) {
+          $table->bigIncrements('id');
+          $table->unsignedBigInteger('vol_id');
+          $table->foreign('vol_id')->references('id')->on('volunteers');
+          $table->unsignedBigInteger('committee_id');
+          $table->foreign('committee_id')->references('id')->on('committees');
+          $table->unsignedBigInteger('position_id');
+          $table->foreign('position_id')->references('id')->on('positions');
+          $table->timestamps();
+      });
     }
 
     /**
