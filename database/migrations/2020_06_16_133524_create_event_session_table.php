@@ -14,7 +14,12 @@ class CreateEventSessionTable extends Migration
     public function up()
     {
         Schema::create('event_session', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
+            $table->string('name',200);
+            $table->unsignedBigInteger('event_id');
+            $table->foreign('event_id')->references('id')->on('events');
+            $table->string('information',500);
+            $table->dateTime('date');
             $table->timestamps();
         });
     }
