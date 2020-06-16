@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddColsToNotificationsTable extends Migration
+class CreateVolunteersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AddColsToNotificationsTable extends Migration
      */
     public function up()
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            $table->integer('parent_id')->after('to');
-            $table->string('sender_image')->nullable()->after('link_to_view');
+        Schema::create('volunteers', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps();
         });
     }
 
@@ -26,5 +26,6 @@ class AddColsToNotificationsTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('volunteers');
     }
 }
