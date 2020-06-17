@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\AuthApi;
 
-use App\Ex_com_options;
-use App\HighBoardOptions;
+
 use Illuminate\Http\Request;
-//use App\Http\Controllers\Controller;
 use App\Http\Controllers\Controller as Controller;
 use App\Http\Requests;
 use Illuminate\Support\Facades\Mail;
@@ -15,6 +13,8 @@ use JWTAuthException;
 use App\User;
 use App\Post;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
 
 class AuthController extends Controller
 {
@@ -28,10 +28,14 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
-        $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'email' => 'required',
-            'password' => 'required|string|min:8|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/',
+            'password' => 'required|string',
+            // min:8|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/'
         ]);
+        if ($validator->fails()) {
+          return response()->json(['errors'=>$validator->errors()]);
+        }
         $token = null;
         $expirationTime = env('JWT_TTL', 60 * 24 * 30);
         if ($request->input('remember_me') == true) {

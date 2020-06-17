@@ -27,7 +27,7 @@ class CommentController extends Controller
     }
 
     // add Commment
-    public function addComment(Request $request, $id)
+    public function store(Request $request, $id)
     {
         if ($request->isMethod('post')) {
             $this->validate($request, [
@@ -45,10 +45,10 @@ class CommentController extends Controller
         }
     }
 
-    //update comment
-    public function updateComment(Request $request, $id)
+    //updateComment
+    public function update(Request $request,Comment $comment)
     {
-        $comment = Comment::findOrFail($id);
+        // $comment = Comment::findOrFail($id);
         if ($request->isMethod('PUT') && $comment->user_id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
                 'comment_body' => 'required',
@@ -62,9 +62,9 @@ class CommentController extends Controller
     }
 
     //delete comment
-    public function destroyComment($id)
+    public function destroy(Comment $comment)
     {
-        $comment = Comment::findOrFail($id);
+        // $comment = Comment::findOrFail($id);
         if ($comment->user_id == JWTAuth::parseToken()->authenticate()->id) {
             $comment->delete();
             return response()->json(['success' => 'Comment Deleted Successfully']);

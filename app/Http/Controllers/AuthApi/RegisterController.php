@@ -32,8 +32,9 @@ protected $user;
     }
 
     public function registerPage(){
-        $committee = Committee::all();
-        return new RegisterCollection($committee);
+        // $committee = Committee::all();
+        // return new RegisterCollection($committee);
+        return response()->json('Hello in reg');
     }
 
     public function register(Request $request)
@@ -116,21 +117,21 @@ protected $user;
             } else {
             $vol->position_id = Position::where('name','Director')->value('id');
             $vol->save();
-            // $volComm = DB::table('vol_committees')->insertGetId(
-            //   [
-            //     'vol_id' => $vol->id,
-            //     'committee_id' => $committee->id,
-            //     'season_id' => $seasonId,
-            //   ]
-            // );
-            //
-            // $volHis = DB::table('vol_history')->insertGetId(
-            //   [
-            //     'vol_id' =>$vol->id,
-            //     'season_id' =>$seasonId,
-            //     'position_id' => Position::where('name','Director')->value('id'),
-            //   ]
-            // );
+            $volComm = DB::table('vol_committees')->insertGetId(
+              [
+                'vol_id' => $vol->id,
+                'committee_id' => $committee->id,
+                'season_id' => $seasonId,
+              ]
+            );
+
+            $volHis = DB::table('vol_history')->insertGetId(
+              [
+                'vol_id' =>$vol->id,
+                'season_id' =>$seasonId,
+                'position_id' => Position::where('name','Director')->value('id'),
+              ]
+            );
             }
         }
 
@@ -146,18 +147,26 @@ protected $user;
         if ($request->input('role')=='volunteer')
         {
           $seasonId = Season::where('isActive',1)->value('id');
+          $committee = Committee::query()->findOrFail($request->input('committee'));
           $vol = new Volunteer;
           $user->save();
           $vol->position_id = Position::where('name','Volunteer')->value('id');
           $vol->status_id = Status::where('name','deactivated')->value('id');
           $vol->save();
-          // $volComm = DB::table('vol_history')->insertGetId(
-          //   [
-          //     'vol_id'=>$vol->id,
-          //     'season_id' =>$seasonId,
-          //     'position_id' = > Position::where('name','Volunteer')->value('id'),
-          //   ]
-          // );
+          $volHis = DB::table('vol_history')->insertGetId(
+            [
+              'vol_id'=>$vol->id,
+              'season_id' =>$seasonId,
+              'position_id' = > Position::where('name','Volunteer')->value('id'),
+            ]
+          );
+          $volComm = DB::table('vol_committees')->insertGetId(
+            [
+              'vol_id' => $vol->id,
+              'committee_id' => $committee->id,
+              'season_id' => $seasonId,
+            ]
+          );
         }
         $us = $vol;
       }
