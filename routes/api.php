@@ -18,6 +18,8 @@ Route::post('/password/reset', 'AuthApi\ResetPasswordController@recover')->name(
 
 Route::post('/password/reset/{reset_code}', 'AuthApi\ResetPasswordController@Reset')->name('password.reset');
 
+//check token
+Route::get('/check-token/{user_id}/{token}', 'AuthApi\AuthController@checkToken');
 
 //Committee
 Route::get('/committees', 'CommitteeController@index');
@@ -29,17 +31,20 @@ Route::put('/updatecommittee/{id}', 'CommitteeController@update');
 Route::delete('/deletecommittee/{id}', 'CommitteeController@destroy');
 
 //posts
-Route::get('posts', 'PostController@index');
-Route::get('post/{id}', 'PostController@show');
-Route::post('create-post', 'PostController@store');
-Route::put('update-post/{id}', 'PostController@update');
-Route::delete('/post/{id}', 'PostController@destroy');
+Route::resource('post','PostController');
+// Route::get('posts', 'PostController@index');
+// Route::get('post/{id}', 'PostController@show');
+// Route::post('create-post', 'PostController@store');
+// Route::put('update-post/{id}', 'PostController@update');
+// Route::delete('/post/{id}', 'PostController@destroy');
 
 //comments
-Route::get('/post/{id}/comments', 'CommentController@index');
-Route::post('/post/{id}/add-comment', 'CommentController@addComment');
-Route::put('/update-comment/{id}', 'CommentController@updateComment');
-Route::delete('/destroy-comment/{id}', 'CommentController@destroyComment');
+Route::resource('comment','CommentController');
+
+// Route::get('/post/{id}/comments', 'CommentController@index');
+// Route::post('/post/{id}/add-comment', 'CommentController@addComment');
+// Route::put('/update-comment/{id}', 'CommentController@updateComment');
+// Route::delete('/destroy-comment/{id}', 'CommentController@destroyComment');
 
 //User
 Route::get('update-profile/{id}', 'UserController@updateProfilePage');
@@ -61,6 +66,3 @@ Route::post('deliver-task/{id}', 'TaskController@deliverTask');
 
 //Notification
 Route::get('/notification', 'NotificationController@getNotification');
-
-//check token
-Route::get('/check-token/{user_id}/{token}', 'AuthApi\AuthController@checkToken');
