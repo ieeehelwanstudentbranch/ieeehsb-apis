@@ -74,28 +74,32 @@
                     <tr>
                         <th>Name</th>
                         <th>E-Mail</th>
+                        @if($type == 'volunteer')
                         <th>Position</th>
-                        @if($user->position=='EX_com')
+                        @if($req->role=='EX_com')
                             <th>EX Options</th>
                         @endif
-                        @if($user->position != 'EX_com')
+                        @if($req->role != 'EX_com')
                             <th>Committee</th>
                         @endif
+                      @endif
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>{{$user->firstName .' ' .$user->lastName }}</td>
                         <td>{{$user->email}}</td>
-                        <td>{{$user->position}}</td>
+                        @if($type == 'volunteer')
+                        <td>{{$req->role}}</td>
 
-                        @if($user->position == 'EX_com')
-                            <td>{{$user->ex_com_option->ex_options}}</td>
+                        @if($req->role == 'EX_com')
+                            <td>{{$req->ex_options}}</td>
                         @endif
 
-                        @if($user->position != 'EX_com')
-                            <td>{{$user->committee->name}}</td>
+                        @if($req->role != 'EX_com')
+                            <td>{{$req->committee}}</td>
                         @endif
+                      @endif
                     </tr>
                 </tbody>
             </table>
