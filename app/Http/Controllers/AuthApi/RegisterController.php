@@ -76,16 +76,26 @@ protected $user;
         $user->password=app('hash')->make($request->input('password'));
 
         if ($request->input('type')== 'volunteer'){
+          $seasonId = Season::where('isActive',1)->value('id');
+           $stat    = Status::where('name','deactivated')->value('id');
           if ($request->input('role')=='EX_com'){
 
             $vol = new Volunteer();
             $user->save();
             $vol->user_id = $user->id;
-            $vol->status_id = Status::where('name','deactivated')->value('id');
+            $vol->status_id = $stat;
+
             if($request->input('ex_options') != null)
             {
               $vol->position_id = Position::where('name',$request->input('ex_options'))->value('id');
               $vol->save();
+              $volHis = DB::table('vol_history')->insertGetId(
+                [
+                  'vol_id' =>$vol->id,
+                  'season_id' =>$seasonId,
+                  'position_id' => Position::where('name',$request->input('ex_options'))->value('id'),
+                ]
+              );
             }
             else {
               return response()->json(['message'=>'Ex Options Required']);
@@ -98,12 +108,11 @@ protected $user;
           $vol = new Volunteer;
           $user->save();
           $vol->user_id = $user->id;
-          $vol->status_id = Status::where('name','deactivated')->value('id');
+          $vol->status_id = $stat;
           $committee = Committee::query()->findOrFail($request->input('committee'));
           // dircetor of this committee of that season which is active exists
           // volunteer =>position director => of this commitee  => where this season is active
 
-          $seasonId = Season::where('isActive',1)->value('id');
           $director = DB::table('vol_committees')
             ->join('volunteers', function ($join) {
             $join->on( 'vol_committees.vol_id', '=', 'volunteers.id')
@@ -116,6 +125,7 @@ protected $user;
                 return response()->json(['message'=>'This Committee Already Have Director. If You Already The Right Director For This Committee Contact With the chairperson']);
             } else {
             $vol->position_id = Position::where('name','Director')->value('id');
+            $vol->status_id = $stat;
             $vol->save();
             $volComm = DB::table('vol_committees')->insertGetId(
               [
@@ -146,12 +156,11 @@ protected $user;
 
         if ($request->input('role')=='volunteer')
         {
-          $seasonId = Season::where('isActive',1)->value('id');
           $committee = Committee::query()->findOrFail($request->input('committee'));
           $vol = new Volunteer;
           $user->save();
           $vol->position_id = Position::where('name','Volunteer')->value('id');
-          $vol->status_id = Status::where('name','deactivated')->value('id');
+          $vol->status_id = $stat;
           $vol->save();
           $volHis = DB::table('vol_history')->insertGetId(
             [

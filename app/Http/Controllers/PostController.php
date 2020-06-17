@@ -52,9 +52,9 @@ class PostController extends Controller
         return response()->json(['success' => 'Done successfully']);
     }
 
-    public function show($id)
+    public function show(Post $post)
     {
-        $post = Post::findOrFail($id);
+        // $post = Post::findOrFail($id);
         return new PostResource($post);
     }
 
@@ -65,9 +65,9 @@ class PostController extends Controller
      * @param int $id
      * @return PostResource
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Post $post)
     {
-        $post = Post::findOrFail($id);
+        // $post = Post::findOrFail($id);
 
         if ($post->user_id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
@@ -87,9 +87,9 @@ class PostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy( Post $post)
     {
-        $post = Post::findOrFail($id);
+        // $post = Post::findOrFail($id);
 
         if ($post->user_id == JWTAuth::parseToken()->authenticate()->id) {
             Comment::where('post_id', $id)->delete();
