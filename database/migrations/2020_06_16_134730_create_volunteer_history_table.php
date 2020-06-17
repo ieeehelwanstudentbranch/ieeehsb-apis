@@ -21,9 +21,9 @@ class CreateVolunteerHistoryTable extends Migration
           $table->foreign('season_id')->references('id')->on('seasons');
           $table->unsignedBigInteger('position_id');
           $table->foreign('position_id')->references('id')->on('positions');
-          $table->string('achievments',2000);
-          $table->string('skills',2000);
-          $table->string('courses',2000);
+          $table->string('achievments',2000)->nullable();
+          $table->string('skills',2000)->nullable();
+          $table->string('courses',2000)->nullable();
           $table->timestamps();
       });
     }

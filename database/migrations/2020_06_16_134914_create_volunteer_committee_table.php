@@ -19,8 +19,10 @@ class CreateVolunteerCommitteeTable extends Migration
           $table->foreign('vol_id')->references('id')->on('volunteers');
           $table->unsignedBigInteger('committee_id');
           $table->foreign('committee_id')->references('id')->on('committees');
-          $table->unsignedBigInteger('position_id');
-          $table->foreign('position_id')->references('id')->on('positions');
+          // $table->unsignedBigInteger('position_id');
+          // $table->foreign('position_id')->references('id')->on('positions');
+          $table->unsignedBigInteger('season_id');
+          $table->foreign('season_id')->references('id')->on('seasons');
           $table->timestamps();
       });
     }
