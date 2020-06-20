@@ -47,11 +47,12 @@ Route::resource('comment','CommentController');
 // Route::delete('/destroy-comment/{id}', 'CommentController@destroyComment');
 
 //User
-Route::get('update-profile/{id}', 'UserController@updateProfilePage');
-Route::PUT('update-profile/{id}', 'UserController@updateProfile');
+Route::resource('user','UserController');
+// Route::get('update-profile/{id}', 'UserController@updateProfilePage');
+// Route::PUT('update-profile/{id}', 'UserController@updateProfile');
 Route::post('update-profile-image/{id}', 'UserController@updateProfileImage');
 Route::PUT('update-profile-password/{id}', 'UserController@updateProfilePassword');
-Route::get('user/{id}', 'UserController@index');
+// Route::get('user/', 'UserController@index');
 Route::delete('delete-user/{id}', 'UserController@deleteUser');
 
 //task

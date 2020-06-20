@@ -18,26 +18,26 @@ class UserController extends Controller
         $this->middleware('jwt.auth')->except('deleteUser');
     }
 
-    public function index($id)
+    public function show(User $user)
     {
-        $user = User::findOrFail($id);
+        // $user = User::findOrFail($id);
         return new UserData($user);
     }
 
-    public function updateProfilePage($id)
+    public function edit(User $user)
     {
         if ($id == JWTAuth::parseToken()->authenticate()->id) {
-            $user = User::findOrFail($id);
+            // $user = User::findOrFail($id);
             return new UserData($user);
         } else {
             return response()->json('error', 'Un Authenticated');
         }
     }
 
-    public function updateProfile(Request $request, $id)
+    public function update(Request $request, User $user)
     {
 
-        if ($id == JWTAuth::parseToken()->authenticate()->id) {
+        if ($user->id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
                 'firstName' => 'required|string | max:50 | min:3',
                 'lastName' => 'required|string | max:50 | min:3',

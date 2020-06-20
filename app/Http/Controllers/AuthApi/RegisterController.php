@@ -5,6 +5,8 @@ namespace App\Http\Controllers\AuthApi;
 use App\User;
 use App\Committee;
 use App\Status;
+use App\Season;
+
 use App\Position;
 use App\Volunteer;
 use App\Participant;
@@ -55,14 +57,18 @@ protected $user;
             'type' =>'required|string',
         ]);
 
-        if ($validator->fails()) {
-          return response()->json(['errors'=>$validator->errors()]);
-        }
+
+        if ($request->input('type')=='volunteer')
+        {$validator = Validator::make($request->all(), ['role' => 'required']);}
+
+       if ($request->input('role')=='EX_com')
+       {$validator = Validator::make($request->all(), ['ex_options' => 'required']);}
+
+       if ($validator->fails()) {
+
+         return response()->json(['errors'=>$validator->errors()]);
+       }
          //if position EX-com
-         if ($request->input('type')=='volunteer') {Validator::make($request->all(), ['role' => 'required']);}
-
-        if ($request->input('role')=='EX_com') { Validator::make($request->all(), ['ex_options' => 'required']);}
-
         $confirmation_code = str_random(30);
         $user= new User();
         $user->firstName= $request->input('firstName');
@@ -81,6 +87,7 @@ protected $user;
           if ($request->input('role')=='EX_com'){
 
             $vol = new Volunteer();
+            $user->type = 1;
             $user->save();
             $vol->user_id = $user->id;
             $vol->status_id = $stat;
@@ -89,6 +96,7 @@ protected $user;
             {
               $vol->position_id = Position::where('name',$request->input('ex_options'))->value('id');
               $vol->save();
+              $us = $vol;
               $volHis = DB::table('vol_history')->insertGetId(
                 [
                   'vol_id' =>$vol->id,
@@ -106,6 +114,7 @@ protected $user;
         if ($request->input('role')=='highBoard')
         {
           $vol = new Volunteer;
+          $user->type = 1;
           $user->save();
           $vol->user_id = $user->id;
           $vol->status_id = $stat;
@@ -127,6 +136,7 @@ protected $user;
             $vol->position_id = Position::where('name','Director')->value('id');
             $vol->status_id = $stat;
             $vol->save();
+            $us = $vol;
             $volComm = DB::table('vol_committees')->insertGetId(
               [
                 'vol_id' => $vol->id,
@@ -158,15 +168,17 @@ protected $user;
         {
           $committee = Committee::query()->findOrFail($request->input('committee'));
           $vol = new Volunteer;
+          $user->type = 1;
           $user->save();
           $vol->position_id = Position::where('name','Volunteer')->value('id');
           $vol->status_id = $stat;
           $vol->save();
+          $us = $vol;
           $volHis = DB::table('vol_history')->insertGetId(
             [
               'vol_id'=>$vol->id,
               'season_id' =>$seasonId,
-              'position_id' = > Position::where('name','Volunteer')->value('id'),
+              'position_id' => Position::where('name','volunteer')->value('id'),
             ]
           );
           $volComm = DB::table('vol_committees')->insertGetId(
@@ -177,20 +189,20 @@ protected $user;
             ]
           );
         }
-        $us = $vol;
       }
       else {
         $par = new Participant();
+        $user->type = 2;
         $user->save();
         $par->user_id = $user->id;
         $par->save();
         $us = $par;
       }
         // send activation email
+        Mail::send('/emails.verify', compact(['type', 'req', 'user','confirmation_code']), function($message) use ($req,$us) {
+            $message->to($this->MailTarget($req,$us), 'user')->subject('Verify an email address');
+        });
 
-          Mail::send('/emails.verify', compact(['type', 'req', 'user','confirmation_code']), function($message) use ($req,$us) {
-              $message->to($this->MailTarget($req,$us), 'user')->subject('Verify an email address');
-          });
         if ($user->id) {
             return response()->json(['response' => 'success', 'message' => 'Registration is Successful, please wait until your account being activated']);
         }else{
@@ -202,7 +214,7 @@ protected $user;
     //  mail target
     public function MailTarget(Request $request, $us)
     {
-        $email =  'ieeehelwanstudentbranch@gmail.com';
+        // $email =  'ieeehelwanstudentbranch@gmail.com';
 
         // if Ex-com(Chairperson) register
         if ($request->input('type') == 'participant') {
@@ -212,7 +224,7 @@ protected $user;
       elseif($request->input('type') == 'volunteer')
         {
         if ($request->input('role')=='EX_com' && ($request->input('ex_options')=='chairperson') ){
-            $email = 'ieeehelwanstudentbranch@gmail.com';
+            $email = 'zeka.bolbol@gmail.com';
         }
 
         // if Ex-com(!Chairperson) register
@@ -220,7 +232,7 @@ protected $user;
             try {
               // user id of the volunteer who is chairperson of the season which is active
               $seasonId = Season::where('isActive',1)->value('id');
-              $pos = Position::where('name','Chairperson')->value('id');
+              $pos = Position::where('name','chairperson')->value('id');
               $chairperson = DB::table('volunteers')
               ->join('vol_history', function ($join) {
             $join->on('volunteers.id', '=', 'vol_history.vol_id')

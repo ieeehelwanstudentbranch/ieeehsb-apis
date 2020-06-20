@@ -41,6 +41,19 @@ class User extends Authenticatable implements JWTSubject
             {
                 return [];
             }
+    public function ptype()
+            {
+                switch ($this->type) {
+                    case '1':
+                        return $this->hasOne('App\Volunteer','user_id');
+                        break;
+                    case '2':
+                        return $this->hasOne('App\Participant','user_id');
+                        break;
+
+                    }
+            }
+
     public function ex_com_option(){
         return $this->hasOne(Ex_com_options::class);
     }

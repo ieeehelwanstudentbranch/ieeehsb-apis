@@ -32,6 +32,7 @@ class CreateUsersTable extends Migration {
 			$table->string('password', 191);
 			$table->char('api_token', 60)->nullable();
 			$table->string('remember_token', 100)->nullable();
+			$table->tinyInteger('type');
 			$table->timestamps();
 		});
 	}

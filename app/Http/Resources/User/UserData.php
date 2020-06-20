@@ -29,13 +29,13 @@ class UserData extends JsonResource
                 'address' => $this->address,
                 'phone' => $this->phone,
                 'level' => $this->level,
-                'status' => $this->status,
+                // 'status' => $this->status,
                 'image' => $this->image,
-                'position' => $this->position,
-                'ex_options' => $this->position ? Ex_com_options::query()->where('user_id', $this->id)->select('ex_options')->get() : null,
+                // 'position' => $this->position,
+                // 'ex_options' => $this->position ? Ex_com_options::query()->where('user_id', $this->id)->select('ex_options')->get() : null,
                 'created_at' => $this->created_at->toDateTimeString(),
-                'committee' => $this->committee_id ? Committee::query()->findOrFail($this->committee_id) : null,
-                'update' => action('UserController@updateProfile', $this->id),
+                // 'committee' => $this->committee_id ? Committee::query()->findOrFail($this->committee_id) : null,
+                'update' => action('UserController@update', $this->id),
                 'update_image' => action('UserController@updateProfileImage', $this->id),
                 'update_password' => action('UserController@updateProfilePassword', $this->id)
             ];
