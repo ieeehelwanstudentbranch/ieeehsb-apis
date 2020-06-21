@@ -3,13 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Committee;
+use App\Volunteer;
 use App\Http\Resources\User\UserData;
+use App\Participant;
 use App\User;
+use App\Season;
+use App\Position;
+use App\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\DB;
+
 
 class UserController extends Controller
 {
@@ -20,13 +27,12 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        // $user = User::findOrFail($id);
         return new UserData($user);
     }
 
     public function edit(User $user)
     {
-        if ($id == JWTAuth::parseToken()->authenticate()->id) {
+        if ($user->id == JWTAuth::parseToken()->authenticate()->id) {
             // $user = User::findOrFail($id);
             return new UserData($user);
         } else {
@@ -109,24 +115,28 @@ class UserController extends Controller
 
     public function deleteUser($id)
     {
-        $user_id = decrypt($id);
+        $user_id = $id;
+        $user = User::findOrFail($user_id);
         try{
-        $user = User::query()->findOrFail($user_id);
-        if ($user->position == 'highBoard' && !($user->committee->name == 'RAS' ||$user->committee->name == 'PES' || $user->committee->name =='WIE'))
-        {
-        $user->committee->director_id = null;
-        $user->committee->director = null;
-        $user->committee->update();
-        }
-        if ($user->position == 'EX_com')
-        {
-            $user->ex_com_option->delete();
-        }
+          $par = Participant::where('user_id',$user->id)->get();
+          if($par->count() >0)
+          {
+            Participant::where('user_id',$user->id)->delete();
 
-        $user->delete();
+          }
+          else {
+            $vol = Volunteer::where('user_id',$user->id)->value('id');
+            $seasonId = Season::where('isActive',1)->value('id');
+            DB::table('vol_history')->where('vol_id',$vol)->where('season_id',$seasonId)->delete();
+            DB::table('vol_committees')->where('season_id',$seasonId)->where('vol_id',$vol)->delete();
+            Volunteer::findOrFail($vol)->delete();
+          }
+          $user->delete();
         return response()->json(['success' => 'Deleted Successfully']);
+    
         } catch (\Exception $e)
         {
+
             return response()->json(['error' => 'User Not Found']);
         }
     }

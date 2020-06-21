@@ -6,7 +6,6 @@ use App\User;
 use App\Committee;
 use App\Status;
 use App\Season;
-
 use App\Position;
 use App\Volunteer;
 use App\Participant;
@@ -47,12 +46,11 @@ protected $user;
         $validator = Validator::make($request->all(), [
             'firstName' => 'required |string | max:50 | min:3',
             'lastName' => 'required |string | max:50 | min:3',
-            // 'faculty' => 'nullable |string | max:30 |   min:3',
-            // 'university' => 'nullable |string | max:30 | min:3',
-            // 'DOB' => 'nullable|date_format:Y-m-d|before:today',
+            'faculty' => 'nullable |string | max:30 |   min:3',
+            'university' => 'nullable |string | max:30 | min:3',
+            'DOB' => 'nullable|date_format:Y-m-d|before:today',
             'email' => 'required |string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            // |regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/'
+            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
             'password_confirmation'=>'sometimes|required_with:password',
             'type' =>'required|string',
         ]);
@@ -63,6 +61,9 @@ protected $user;
 
        if ($request->input('role')=='EX_com')
        {$validator = Validator::make($request->all(), ['ex_options' => 'required']);}
+
+       if ($request->input('role')!='EX_com')
+       {$validator = Validator::make($request->all(), ['committee' => 'required']);}
 
        if ($validator->fails()) {
 
@@ -96,7 +97,6 @@ protected $user;
             {
               $vol->position_id = Position::where('name',$request->input('ex_options'))->value('id');
               $vol->save();
-              $us = $vol;
               $volHis = DB::table('vol_history')->insertGetId(
                 [
                   'vol_id' =>$vol->id,
@@ -111,37 +111,40 @@ protected $user;
             }
         }
 
-        if ($request->input('role')=='highBoard')
+        if ($request->input('role')=='highboard')
         {
           $vol = new Volunteer;
           $user->type = 1;
-          $user->save();
-          $vol->user_id = $user->id;
-          $vol->status_id = $stat;
-          $committee = Committee::query()->findOrFail($request->input('committee'));
+
+          $seasonId = Season::where('isActive',1)->value('id');
+          $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
+          $dirPos = Position::where('name','director')->value('id');
+          $status = Status::where('name','activated')->value('id');
           // dircetor of this committee of that season which is active exists
           // volunteer =>position director => of this commitee  => where this season is active
 
           $director = DB::table('vol_committees')
-            ->join('volunteers', function ($join) {
-            $join->on( 'vol_committees.vol_id', '=', 'volunteers.id')
-                 ->where('vol_committees.season_id', '=', $seasonId)
-                 ->where('committee_id','=',$committee->id);
-        })->get();
-
-            if ($director)
+            ->join('volunteers', 'vol_committees.vol_id', '=', 'volunteers.id')
+                 ->where('vol_committees.season_id', '=',  $seasonId)
+                 ->where('vol_committees.committee_id','=',$committee)
+                 ->where('vol_committees.position_id','=',$dirPos )
+                 ->where('volunteers.status_id' ,'=',$status)->first();
+            if ($director != null)
             {
                 return response()->json(['message'=>'This Committee Already Have Director. If You Already The Right Director For This Committee Contact With the chairperson']);
             } else {
+              $user->save();
+              $vol->user_id = $user->id;
+              $vol->status_id = $stat;
             $vol->position_id = Position::where('name','Director')->value('id');
             $vol->status_id = $stat;
             $vol->save();
-            $us = $vol;
             $volComm = DB::table('vol_committees')->insertGetId(
               [
                 'vol_id' => $vol->id,
-                'committee_id' => $committee->id,
+                'committee_id' => $committee,
                 'season_id' => $seasonId,
+                'position_id' => $dirPos
               ]
             );
 
@@ -155,25 +158,16 @@ protected $user;
             }
         }
 
-        // if ( $request->input('position')!='EX_com' && ($request->input('position') =='highBoard'))
-        // {
-        //     $user->save();
-        //     $user->refresh();
-        //     $committee->director_id = $user->id;
-        //     $committee->director = $user->firstName . ' ' . $user->lastName;
-        //     $committee->update();
-        // }
-
         if ($request->input('role')=='volunteer')
         {
-          $committee = Committee::query()->findOrFail($request->input('committee'));
+          $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
           $vol = new Volunteer;
           $user->type = 1;
           $user->save();
-          $vol->position_id = Position::where('name','Volunteer')->value('id');
+          $vol->user_id = $user->id;
+          $vol->position_id = Position::where('name','volunteer')->value('id');
           $vol->status_id = $stat;
           $vol->save();
-          $us = $vol;
           $volHis = DB::table('vol_history')->insertGetId(
             [
               'vol_id'=>$vol->id,
@@ -184,11 +178,13 @@ protected $user;
           $volComm = DB::table('vol_committees')->insertGetId(
             [
               'vol_id' => $vol->id,
-              'committee_id' => $committee->id,
+              'committee_id' => $committee,
               'season_id' => $seasonId,
+              'position_id' => Position::where('name','volunteer')->value('id'),
             ]
           );
         }
+        $us = "";
       }
       else {
         $par = new Participant();
@@ -214,7 +210,7 @@ protected $user;
     //  mail target
     public function MailTarget(Request $request, $us)
     {
-        // $email =  'ieeehelwanstudentbranch@gmail.com';
+        $email =  'engMarina97@gmail.com';
 
         // if Ex-com(Chairperson) register
         if ($request->input('type') == 'participant') {
@@ -223,65 +219,82 @@ protected $user;
         }
       elseif($request->input('type') == 'volunteer')
         {
+          // $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
+
+
+
         if ($request->input('role')=='EX_com' && ($request->input('ex_options')=='chairperson') ){
             $email = 'zeka.bolbol@gmail.com';
         }
 
         // if Ex-com(!Chairperson) register
         if ($request->input('role')=='EX_com' && ($request->input('ex_options')!='chairperson') ) {
+          $seasonId = Season::where('isActive',1)->value('id');
+
             try {
               // user id of the volunteer who is chairperson of the season which is active
-              $seasonId = Season::where('isActive',1)->value('id');
-              $pos = Position::where('name','chairperson')->value('id');
               $chairperson = DB::table('volunteers')
-              ->join('vol_history', function ($join) {
-            $join->on('volunteers.id', '=', 'vol_history.vol_id')
-            ->where('vol_history.season_id',$seasonId)
-            ->where('volunteers.position_id', $pos);
-        })->get();
+                           ->join('vol_history', function ($join) {
+                           $join->on('volunteers.id', '=', 'vol_history.vol_id')
+                            ->where('vol_history.season_id',$seasonId)
+                            ->where('volunteers.position_id',  Position::where('name','chairperson')->value('id'));
+                           })->get();
+
                 $user = User::query()->findOrFail($chairperson->user_id);
                 $email = $user->email;
             } catch (\Exception $e) {
-                $email = 'ieeehelwanstudentbranch@gmail.com';
+                $email = 'zeka.bolbol@gmail.com';
             }
         }
 
         // if High Board register
         if ($request->input('role')=='highBoard') {
+          $seasonId = Season::where('isActive',1)->value('id');
+          $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
+          $ment = DB::table('volunteers')
+                  ->join('vol_committees', function ($join) {
+                  $join->on('volunteers.id', '=', 'vol_committees.vol_id')
+                  ->where('vol_committees.season_id',Season::where('isActive',1)->value('id'))
+                  ->where('vol_committees.committee_id', $committee)
+                  ->where('volunteers.position_id', Position::where('name','mentor')->value('id'));
+                })->get();
+          $dir = DB::table('volunteers')
+               ->join('vol_committees', function ($join) {
+                $join->on('volunteers.id', '=', 'vol_committees.vol_id')
+                ->where('vol_committees.season_id',$seasonId)
+                ->where('vol_committees.committee_id', $committee)
+                ->where('volunteers.position_id', Position::where('name','director')->value('id'));
+               })->get();
             try {
-                $committee = Committee::query()->findOrFail($request->input('committee'));
-                $pos = Position::where('name','Mentor')->value('id');
-                $mentor = DB::table('volunteers')
-                ->join('vol_committees', function ($join) {
-              $join->on('volunteers.id', '=', 'vol_committees.vol_id')
-              ->where('vol_committees.season_id',$seasonId)
-              ->where('vol_committees.committee_id', $committee->id)
-              ->where('volunteers.position_id', $pos);
-          })->get();
 
-                $mentor =User::query()->findOrFail($mentor->user_id);
+                $mentor =User::query()->findOrFail($ment->user_id);
                 $email = $mentor->email;
 
             } catch (\Exception $e) {
-                $email = 'ieeehelwanstudentbranch@gmail.com';
+                // $email = 'ieeehelwanstudentbranch@gmail.com';
+                 $email = 'engMarina97@gmail.com';
+
             }
         }
 
         // if volunteer register
         if ($request->input('role')=='volunteer') {
+
             try {
-                $committee = Committee::query()->findOrFail($request->input('committee'));
-                if ($committee->director_id != null) {
-                    $director = User::query()->findOrFail($committee->director_id);
+                if (User::query()->findOrFail($dir->user_id) != null) {
+                    $director = User::query()->findOrFail($dir->user_id);
                     $email = $director->email;
-                }elseif (User::query()->findOrFail($committee->mentor_id) != null) {
-                    $mentor = User::query()->findOrFail($committee->mentor_id);
+                }
+
+
+                elseif (User::query()->findOrFail($ment->user_id) != null) {
+                    $mentor = User::query()->findOrFail($ment->user_id);
                     $email = $mentor->email;
                 }else{
-                    $email = 'ieeehelwanstudentbranch@gmail.com';
+                    $email = 'engMarina97@gmail.com';
                 }
             } catch (\Exception $e) {
-                $email = 'ieeehelwanstudentbranch@gmail.com';
+                $email = 'engMarina97@gmail.com';
             }
         }
       }

@@ -27,15 +27,16 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+      // dd($request->all());
         $credentials = $request->only('email', 'password');
         $validator = Validator::make($request->all(), [
             'email' => 'required',
-            'password' => 'required|string',
-            // min:8|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/'
+            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
         ]);
         if ($validator->fails()) {
           return response()->json(['errors'=>$validator->errors()]);
         }
+        // dd($request->all());
         $token = null;
         $expirationTime = env('JWT_TTL', 60 * 24 * 30);
         if ($request->input('remember_me') == true) {

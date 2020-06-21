@@ -52,7 +52,6 @@ Route::resource('user','UserController');
 // Route::PUT('update-profile/{id}', 'UserController@updateProfile');
 Route::post('update-profile-image/{id}', 'UserController@updateProfileImage');
 Route::PUT('update-profile-password/{id}', 'UserController@updateProfilePassword');
-// Route::get('user/', 'UserController@index');
 Route::delete('delete-user/{id}', 'UserController@deleteUser');
 
 //task
