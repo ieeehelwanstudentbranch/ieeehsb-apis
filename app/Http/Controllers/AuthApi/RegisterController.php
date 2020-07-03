@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
- 
+
 protected $user;
     public function __construct(User $user)
     {
@@ -55,95 +55,95 @@ protected $user;
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="firstName",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="string",     
+     *          required=true,
+     *          type="string",
      *     ),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="lastName",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="string",    
+     *          required=true,
+     *          type="string",
      *     ),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="facutly",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="string",    
+     *          required=true,
+     *          type="string",
      *     ),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="university",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="string",    
+     *          required=true,
+     *          type="string",
      *     ),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="DOB",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="string",    
+     *          required=true,
+     *          type="string",
      *     ),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="email",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="string",      
+     *          required=true,
+     *          type="string",
      *     ),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="type",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="integer",    
+     *          required=true,
+     *          type="integer",
      *     ),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="password",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="string",    
+     *          required=true,
+     *          type="string",
      *     ),
-     @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="password_confirmation",
      *          in="query",
      *      description="testing data",
-     *          required=true, 
-     *          type="string",    
+     *          required=true,
+     *          type="string",
      *     ),
-      @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="role",
      *          in="query",
      *      description="testing data",
-     *          required=false, 
-     *          type="string",    
+     *          required=false,
+     *          type="string",
      *     ),
-      @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="committee",
      *          in="query",
      *      description="testing data",
-     *          required=false, 
-     *          type="string",    
+     *          required=false,
+     *          type="string",
      *     ),
-      @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="ex_options",
      *          in="query",
      *      description="testing data",
-     *          required=false, 
-     *          type="string",    
+     *          required=false,
+     *          type="string",
      *     ),
 
 
      *   )
 
-     
+
      *
      */
     public function register(Request $request)
@@ -156,7 +156,7 @@ protected $user;
             'lastName' => 'required |string | max:50 | min:3',
             'faculty' => 'nullable |string | max:30 |   min:3',
             'university' => 'nullable |string | max:30 | min:3',
-            'DOB' => 'nullable|date_format:Y-m-d|before:today',
+            'DOB' => 'nullable|date_format:d-m-Y|before:today',
             'email' => 'required |string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'password_confirmation'=>'sometimes|required_with:password',
@@ -167,7 +167,7 @@ protected $user;
         if ($request->input('type')=='volunteer')
         {$validator = Validator::make($request->all(), ['role' => 'required']);}
 
-       if ($request->input('role')=='EX_com')
+       if ($request->input('role')=='ex_com')
        {$validator = Validator::make($request->all(), ['ex_options' => 'required']);}
 
 
@@ -175,34 +175,34 @@ protected $user;
 
          return response()->json(['errors'=>$validator->errors()]);
        }
-       if ($request->input('role')!=='EX_com')
-       {$validat = Validator::make($request->all(), ['committee' => 'required']);
-      if ($validat->fails()) {
 
-         return response()->json(['errors'=>$validat->errors()]);
-       }
-
-   }
          //if position EX-com
         $confirmation_code = str_random(30);
         $user= new User();
         $user->firstName= $request->input('firstName');
         $user->lastName= $request->input('lastName');
-        // $user->image= 'default.jpg';
-        // $user->faculty= $request->input('faculty');
-        // $user->university= $request->input('university');
-        // $user->DOB= $request->input('DOB');
+        $user->image= 'default.jpg';
+        $user->faculty= $request->input('faculty');
+        $user->university= $request->input('university');
+        $user->DOB= $request->input('DOB');
         $user->email=$request->input('email');
         $user->confirmation_code  = $confirmation_code ;
         $user->password=app('hash')->make($request->input('password'));
 
         if ($request->input('type')== 'volunteer'){
+          if ($request->input('role')!=='ex_com')
+          {$validat = Validator::make($request->all(), ['committee' => 'required']);
+         if ($validat->fails()) {
+
+            return response()->json(['errors'=>$validat->errors()]);
+          }
+        }
           $seasonId = Season::where('isActive',1)->value('id');
            $stat    = Status::where('name','deactivated')->value('id');
           if ($request->input('role')=='EX_com'){
 
             $vol = new Volunteer();
-            $user->type = 1;
+            $user->type = "volunteer";
             $user->save();
             $vol->user_id = $user->id;
             $vol->status_id = $stat;
@@ -228,7 +228,7 @@ protected $user;
         if ($request->input('role')=='highboard')
         {
           $vol = new Volunteer;
-          $user->type = 1;
+          $user->type = "volunteer";
 
           $seasonId = Season::where('isActive',1)->value('id');
           $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
@@ -276,7 +276,7 @@ protected $user;
         {
           $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
           $vol = new Volunteer;
-          $user->type = 1;
+          $user->type = "volunteer";
           $user->save();
           $vol->user_id = $user->id;
           $vol->position_id = Position::where('name','volunteer')->value('id');

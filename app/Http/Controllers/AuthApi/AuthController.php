@@ -36,22 +36,22 @@ class AuthController extends Controller
      *          name="email",
      *          in="query",
      *           description="testing data",
-     *          required=true, 
-     *          type="string",     
+     *          required=true,
+     *          type="string",
      *     ),
-      @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="password",
      *          in="query",
      *           description="testing data",
-     *          required=true, 
-     *          type="string",     
+     *          required=true,
+     *          type="string",
      *     ),
-      @SWG\Parameter(
+     *@SWG\Parameter(
      *          name="password_confirmation",
      *          in="query",
      *           description="testing data",
-     *          required=true, 
-     *          type="string",     
+     *          required=true,
+     *          type="string",
      *     ),
      *   )
      **/
@@ -61,7 +61,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         $validator = Validator::make($request->all(), [
             'email' => 'required',
-            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
+            'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
         ]);
         if ($validator->fails()) {
           return response()->json(['errors'=>$validator->errors()]);
@@ -119,8 +119,8 @@ class AuthController extends Controller
      *          name="token",
      *          in="path",
      *           description="jwt token",
-     *          required=true, 
-     *          type="string",     
+     *          required=true,
+     *          type="string",
      *     ),
      *)
      **/

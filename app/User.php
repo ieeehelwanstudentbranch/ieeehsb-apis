@@ -37,10 +37,10 @@ class User extends Authenticatable implements JWTSubject
     public function ptype()
             {
                 switch ($this->type) {
-                    case '1':
+                    case 'volunteer':
                         return $this->hasOne('App\Volunteer','user_id');
                         break;
-                    case '2':
+                    case 'participant':
                         return $this->hasOne('App\Participant','user_id');
                         break;
 
