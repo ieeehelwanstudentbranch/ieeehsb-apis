@@ -24,14 +24,44 @@ class AuthController extends Controller
     {
         $this->user = $user;
     }
-
+    /**
+     * @SWG\Post(
+     *   path="/api/login/",
+     *   summary="login",
+     *   operationId="register",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     * @SWG\Parameter(
+     *          name="email",
+     *          in="query",
+     *           description="testing data",
+     *          required=true, 
+     *          type="string",     
+     *     ),
+      @SWG\Parameter(
+     *          name="password",
+     *          in="query",
+     *           description="testing data",
+     *          required=true, 
+     *          type="string",     
+     *     ),
+      @SWG\Parameter(
+     *          name="password_confirmation",
+     *          in="query",
+     *           description="testing data",
+     *          required=true, 
+     *          type="string",     
+     *     ),
+     *   )
+     **/
     public function login(Request $request)
     {
       // dd($request->all());
         $credentials = $request->only('email', 'password');
         $validator = Validator::make($request->all(), [
             'email' => 'required',
-            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
+            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
         ]);
         if ($validator->fails()) {
           return response()->json(['errors'=>$validator->errors()]);
@@ -77,6 +107,23 @@ class AuthController extends Controller
     }
 
     // Logout
+     /**
+     * @SWG\Post(
+     *   path="/api/logout/",
+     *   summary="login",
+     *   operationId="register",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     * @SWG\Parameter(
+     *          name="token",
+     *          in="path",
+     *           description="jwt token",
+     *          required=true, 
+     *          type="string",     
+     *     ),
+     *)
+     **/
     public function logout(Request $request)
     {
         $this->validate($request, [

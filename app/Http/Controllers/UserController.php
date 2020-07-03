@@ -25,6 +25,34 @@ class UserController extends Controller
         $this->middleware('jwt.auth')->except('deleteUser');
     }
 
+// eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9sb2dpbiIsImlhdCI6MTU5Mzc4NDQ3MywiZXhwIjoxNTkzNzg4MDczLCJuYmYiOjE1OTM3ODQ0NzMsImp0aSI6IlBnVjk4R3BLYVRaeGM1UDIiLCJzdWIiOjU1LCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.RF_ncsFdPSaOpI9A2XLWJ6HZmfqt_179HjhUc07gny8
+
+    /**
+     * @SWG\Get(
+     *   path="/api/user/{id}",
+     *   summary="User Profile",
+     *   operationId="profile",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     @SWG\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="user id",
+     *          required=true, 
+     *          type="integer",     
+     *     ),
+     @SWG\Parameter(
+     *          name="Authorization",
+     *          in="header",
+     *          required=true, 
+     *          type="string",
+     *          schema="Bearer",
+     *          format="JWT",
+     *     ),
+
+     *   )
+     **/
     public function show(User $user)
     {
         return new UserData($user);

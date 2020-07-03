@@ -32,7 +32,16 @@ protected $user;
     {
         // $this->user = $user;
     }
-
+/**
+     * @SWG\Get(
+     *   path="/api/register/",
+     *   summary="Registeration Form View",
+     *   operationId="register",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *)
+     **/
     public function registerPage(){
         // $committee = Committee::all();
         // return new RegisterCollection($committee);
@@ -41,14 +50,98 @@ protected $user;
  /**
      * @SWG\Post(
      *   path="/api/register/",
-     *   summary="Store Registeration",
+     *   summary="Add new user",
      *   operationId="register",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
-   
-    
+     @SWG\Parameter(
+     *          name="firstName",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="string",     
      *     ),
+     @SWG\Parameter(
+     *          name="lastName",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="string",    
+     *     ),
+     @SWG\Parameter(
+     *          name="facutly",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="string",    
+     *     ),
+     @SWG\Parameter(
+     *          name="university",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="string",    
+     *     ),
+     @SWG\Parameter(
+     *          name="DOB",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="string",    
+     *     ),
+     @SWG\Parameter(
+     *          name="email",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="string",      
+     *     ),
+     @SWG\Parameter(
+     *          name="type",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="integer",    
+     *     ),
+     @SWG\Parameter(
+     *          name="password",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="string",    
+     *     ),
+     @SWG\Parameter(
+     *          name="password_confirmation",
+     *          in="query",
+     *      description="testing data",
+     *          required=true, 
+     *          type="string",    
+     *     ),
+      @SWG\Parameter(
+     *          name="role",
+     *          in="query",
+     *      description="testing data",
+     *          required=false, 
+     *          type="string",    
+     *     ),
+      @SWG\Parameter(
+     *          name="committee",
+     *          in="query",
+     *      description="testing data",
+     *          required=false, 
+     *          type="string",    
+     *     ),
+      @SWG\Parameter(
+     *          name="ex_options",
+     *          in="query",
+     *      description="testing data",
+     *          required=false, 
+     *          type="string",    
+     *     ),
+
+
+     *   )
 
      
      *
@@ -60,12 +153,12 @@ protected $user;
         Input::merge(array_map('trim', Input::all()));
         $validator = Validator::make($request->all(), [
             'firstName' => 'required |string | max:50 | min:3',
-            // 'lastName' => 'required |string | max:50 | min:3',
-            // 'faculty' => 'nullable |string | max:30 |   min:3',
-            // 'university' => 'nullable |string | max:30 | min:3',
-            // 'DOB' => 'nullable|date_format:Y-m-d|before:today',
+            'lastName' => 'required |string | max:50 | min:3',
+            'faculty' => 'nullable |string | max:30 |   min:3',
+            'university' => 'nullable |string | max:30 | min:3',
+            'DOB' => 'nullable|date_format:Y-m-d|before:today',
             'email' => 'required |string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
+            'password' => 'required|string|min:6|confirmed',
             'password_confirmation'=>'sometimes|required_with:password',
             'type' =>'required|string',
         ]);
