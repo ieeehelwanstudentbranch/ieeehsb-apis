@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
+ 
 protected $user;
     public function __construct(User $user)
     {
@@ -37,7 +38,21 @@ protected $user;
         // return new RegisterCollection($committee);
         return response()->json('Hello in reg');
     }
+ /**
+     * @SWG\Post(
+     *   path="/api/register/",
+     *   summary="Store Registeration",
+     *   operationId="register",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+   
+    
+     *     ),
 
+     
+     *
+     */
     public function register(Request $request)
     {
         $req = $request;
@@ -45,10 +60,10 @@ protected $user;
         Input::merge(array_map('trim', Input::all()));
         $validator = Validator::make($request->all(), [
             'firstName' => 'required |string | max:50 | min:3',
-            'lastName' => 'required |string | max:50 | min:3',
-            'faculty' => 'nullable |string | max:30 |   min:3',
-            'university' => 'nullable |string | max:30 | min:3',
-            'DOB' => 'nullable|date_format:Y-m-d|before:today',
+            // 'lastName' => 'required |string | max:50 | min:3',
+            // 'faculty' => 'nullable |string | max:30 |   min:3',
+            // 'university' => 'nullable |string | max:30 | min:3',
+            // 'DOB' => 'nullable|date_format:Y-m-d|before:today',
             'email' => 'required |string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
             'password_confirmation'=>'sometimes|required_with:password',
@@ -62,13 +77,19 @@ protected $user;
        if ($request->input('role')=='EX_com')
        {$validator = Validator::make($request->all(), ['ex_options' => 'required']);}
 
-       if ($request->input('role')!='EX_com')
-       {$validator = Validator::make($request->all(), ['committee' => 'required']);}
 
        if ($validator->fails()) {
 
          return response()->json(['errors'=>$validator->errors()]);
        }
+       if ($request->input('role')!=='EX_com')
+       {$validat = Validator::make($request->all(), ['committee' => 'required']);
+      if ($validat->fails()) {
+
+         return response()->json(['errors'=>$validat->errors()]);
+       }
+
+   }
          //if position EX-com
         $confirmation_code = str_random(30);
         $user= new User();
