@@ -52,7 +52,7 @@ Route::resource('user','UserController');
 // Route::PUT('update-profile/{id}', 'UserController@updateProfile');
 Route::post('update-profile-image/{id}', 'UserController@updateProfileImage');
 Route::PUT('update-profile-password/{id}', 'UserController@updateProfilePassword');
-Route::delete('delete-user/{id}', 'UserController@deleteUser');
+Route::delete('change-user/{id}', 'UserController@changeUser');
 
 //task
 Route::get('create-task', 'TaskController@createPage');

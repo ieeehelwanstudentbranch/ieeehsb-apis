@@ -25,8 +25,6 @@ class UserController extends Controller
         $this->middleware('jwt.auth')->except('deleteUser');
     }
 
-// eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9sb2dpbiIsImlhdCI6MTU5Mzc4NDQ3MywiZXhwIjoxNTkzNzg4MDczLCJuYmYiOjE1OTM3ODQ0NzMsImp0aSI6IlBnVjk4R3BLYVRaeGM1UDIiLCJzdWIiOjU1LCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.RF_ncsFdPSaOpI9A2XLWJ6HZmfqt_179HjhUc07gny8
-
     /**
      * @SWG\Get(
      *   path="/api/user/{id}",
@@ -141,25 +139,37 @@ class UserController extends Controller
         }
     }
 
-    public function deleteUser($id)
+    public function changeUser($id)
     {
-        $user_id = $id;
-        $user = User::findOrFail($user_id);
-        try{
-          $par = Participant::where('user_id',$user->id)->get();
-          if($par->count() >0)
-          {
-            Participant::where('user_id',$user->id)->delete();
 
-          }
+        $user_id =decrypt($id);
+        try{
+        $user = User::findOrFail($user_id);
+        if($user->type == "particiapnt")
+        {
+            Participant::where('user_id',$user->id)->delete();
+            $user->delete();
+
+
+        }
           else {
             $vol = Volunteer::where('user_id',$user->id)->value('id');
             $seasonId = Season::where('isActive',1)->value('id');
             DB::table('vol_history')->where('vol_id',$vol)->where('season_id',$seasonId)->delete();
             DB::table('vol_committees')->where('season_id',$seasonId)->where('vol_id',$vol)->delete();
             Volunteer::findOrFail($vol)->delete();
+            $user->type="particiapnt";
+            $user->update();
+            $par = new Participant;
+            $par->user_id = $user->id;
+            $par->save();
+            $type = $user->type;
+            $confirmation_code = $user->confirmation_code;
+            $req ="";
+             Mail::send('/emails.verify', compact(['type', 'user','confirmation_code']), function($message) use ($req,$us) {
+            $message->to($user->email, 'user')->subject('Verify an email address');
+        });
           }
-          $user->delete();
         return response()->json(['success' => 'Deleted Successfully']);
     
         } catch (\Exception $e)

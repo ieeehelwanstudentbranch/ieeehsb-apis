@@ -33,9 +33,17 @@ class ConfirmController extends Controller
         {
           $vol->status_id = Status::where('name','activated')->value('id');
           $vol->update();
+            Mail::send(['success'=>'Welcome To The Branch.You had activated your account'] function($message) {
+            $message->to($user->email; 'user')->subject('Acceptance Mail');
+        });
+          }
+          else{
+                return response()->json(['success' => 'you had activated this account successfully.']);
+
+          }
+
         }
 
 
-        return response()->json(['success' => 'you had activated this account successfully.']);
     }
 }

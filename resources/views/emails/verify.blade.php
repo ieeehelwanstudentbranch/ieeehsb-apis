@@ -67,7 +67,7 @@
             <a href="https://evaluation-system.ieeehsb.org/verify/{{ $confirmation_code }}" target="_blank" class="emailButton success"> Activate Account </a>
             {{--<a href="{{ URL::to('api/register/verify/' . $confirmation_code) }}" target="_blank">Active This Account</a>--}}
             <p>If this is an anonymous or unsure user, you can delete this account but please check with your manager before performing this operation</p>
-            <a href="https://evaluation-system.ieeehsb.org/delete-user/{{$user->id}}" target="_blank" class="emailButton danger">Delete account</a>
+            <a href="https://evaluation-system.ieeehsb.org/change-user/{{$user->id}}" target="_blank" class="emailButton danger">Delete account</a>
             {{--<a href="http://localhost:3000/delete-user/{{ encrypt($user->id) }}">Delete</a>  href="{{URL::to('api/delete-user/' . encrypt($user->id)) }}" --}}
             <table>
                 <thead>

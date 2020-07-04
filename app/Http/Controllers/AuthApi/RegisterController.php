@@ -6,6 +6,7 @@ use App\User;
 use App\Committee;
 use App\Status;
 use App\Season;
+use App\Role;
 use App\Position;
 use App\Volunteer;
 use App\Participant;
@@ -43,9 +44,8 @@ protected $user;
      *)
      **/
     public function registerPage(){
-        // $committee = Committee::all();
-        // return new RegisterCollection($committee);
-        return response()->json('Hello in reg');
+        $data = Role::all();
+        return new RegisterCollection($data);
     }
  /**
      * @SWG\Post(
@@ -167,8 +167,8 @@ protected $user;
         if ($request->input('type')=='volunteer')
         {$validator = Validator::make($request->all(), ['role' => 'required']);}
 
-       if ($request->input('role')=='ex_com')
-       {$validator = Validator::make($request->all(), ['ex_options' => 'required']);}
+       // if ($request->input('role')=='ex_com')
+       // {$validator = Validator::make($request->all(), ['ex_options' => 'required']);}
 
 
        if ($validator->fails()) {
@@ -190,16 +190,16 @@ protected $user;
         $user->password=app('hash')->make($request->input('password'));
 
         if ($request->input('type')== 'volunteer'){
-          if ($request->input('role')!=='ex_com')
-          {$validat = Validator::make($request->all(), ['committee' => 'required']);
-         if ($validat->fails()) {
+        //   if ($request->input('role')!=='ex_com')
+        //   {$validat = Validator::make($request->all(), ['committee' => 'required']);
+        //  if ($validat->fails()) {
 
-            return response()->json(['errors'=>$validat->errors()]);
-          }
-        }
+        //     return response()->json(['errors'=>$validat->errors()]);
+        //   }
+        // }
           $seasonId = Season::where('isActive',1)->value('id');
            $stat    = Status::where('name','deactivated')->value('id');
-          if ($request->input('role')=='EX_com'){
+          if ($request->input('role')=='ex_com'){
 
             $vol = new Volunteer();
             $user->type = "volunteer";
@@ -250,7 +250,7 @@ protected $user;
               $user->save();
               $vol->user_id = $user->id;
               $vol->status_id = $stat;
-            $vol->position_id = Position::where('name','Director')->value('id');
+            $vol->position_id = Position::where('name','director')->value('id');
             $vol->status_id = $stat;
             $vol->save();
             $volComm = DB::table('vol_committees')->insertGetId(
@@ -266,7 +266,7 @@ protected $user;
               [
                 'vol_id' =>$vol->id,
                 'season_id' =>$seasonId,
-                'position_id' => Position::where('name','Director')->value('id'),
+                'position_id' => Position::where('name','director')->value('id'),
               ]
             );
             }
@@ -298,11 +298,11 @@ protected $user;
             ]
           );
         }
-        $us = "";
+        $us =$vol;
       }
       else {
         $par = new Participant();
-        $user->type = 2;
+          $user->type = "participant";
         $user->save();
         $par->user_id = $user->id;
         $par->save();
@@ -324,25 +324,25 @@ protected $user;
     //  mail target
     public function MailTarget(Request $request, $us)
     {
-        $email =  'engMarina97@gmail.com';
+      $email = 'ieeehelwanstudentbranch@gmail.com';
 
-        // if Ex-com(Chairperson) register
-        if ($request->input('type') == 'participant') {
-          $user = User::query()->findOrFail($us->user_id);
+        // if participant register
+        $user = User::query()->findOrFail($us->user_id);
+        if ($user->type == 'participant') {
           $email = $user->email;
         }
-      elseif($request->input('type') == 'volunteer')
+      elseif($user->type == 'volunteer')
         {
           // $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
 
 
 
-        if ($request->input('role')=='EX_com' && ($request->input('ex_options')=='chairperson') ){
-            $email = 'zeka.bolbol@gmail.com';
+        if ($request->input('role')=='ex_com' && ($request->input('ex_options')=='chairperson') ){
+          $email = 'ieeehelwanstudentbranch@gmail.com';
         }
 
         // if Ex-com(!Chairperson) register
-        if ($request->input('role')=='EX_com' && ($request->input('ex_options')!='chairperson') ) {
+        if ($request->input('role')=='ex_com' && ($request->input('ex_options')!='chairperson') ) {
           $seasonId = Season::where('isActive',1)->value('id');
 
             try {
@@ -357,12 +357,12 @@ protected $user;
                 $user = User::query()->findOrFail($chairperson->user_id);
                 $email = $user->email;
             } catch (\Exception $e) {
-                $email = 'zeka.bolbol@gmail.com';
+              $email = 'ieeehelwanstudentbranch@gmail.com';
             }
         }
 
         // if High Board register
-        if ($request->input('role')=='highBoard') {
+        if ($request->input('role')=='highboard') {
           $seasonId = Season::where('isActive',1)->value('id');
           $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
           $ment = DB::table('volunteers')
@@ -385,8 +385,8 @@ protected $user;
                 $email = $mentor->email;
 
             } catch (\Exception $e) {
-                // $email = 'ieeehelwanstudentbranch@gmail.com';
-                 $email = 'engMarina97@gmail.com';
+                $email = 'ieeehelwanstudentbranch@gmail.com';
+                 // $email = 'engMarina97@gmail.com';
 
             }
         }
@@ -405,10 +405,10 @@ protected $user;
                     $mentor = User::query()->findOrFail($ment->user_id);
                     $email = $mentor->email;
                 }else{
-                    $email = 'engMarina97@gmail.com';
+                  $email = 'ieeehelwanstudentbranch@gmail.com';
                 }
             } catch (\Exception $e) {
-                $email = 'engMarina97@gmail.com';
+              $email = 'ieeehelwanstudentbranch@gmail.com';
             }
         }
       }

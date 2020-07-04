@@ -46,13 +46,6 @@ class AuthController extends Controller
      *          required=true,
      *          type="string",
      *     ),
-     *@SWG\Parameter(
-     *          name="password_confirmation",
-     *          in="query",
-     *           description="testing data",
-     *          required=true,
-     *          type="string",
-     *     ),
      *   )
      **/
     public function login(Request $request)
@@ -102,7 +95,8 @@ class AuthController extends Controller
             'message' => 'You logged in successfully',
             'token' => $token,
             'expirationTime' => $expirationTime,
-            'userId' => Auth::user()->id
+            'userId' => Auth::user()->id,
+            'type' => Auth::user()->type
         ]);
     }
 
@@ -110,7 +104,7 @@ class AuthController extends Controller
      /**
      * @SWG\Post(
      *   path="/api/logout/",
-     *   summary="login",
+     *   summary="User logout",
      *   operationId="register",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),

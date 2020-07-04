@@ -3,6 +3,8 @@
 namespace App\Http\Resources\Post;
 
 use App\Committee;
+use App\Role;
+use App\Position;
 use Illuminate\Http\Resources\Json\Resource;
 
 class RegisterCollection extends Resource
@@ -15,8 +17,10 @@ class RegisterCollection extends Resource
      */
     public function toArray($request)
     {
-        return [
+         return [
             'committees' =>Committee::query()->select('id','name')->get(),
+            'roles' => Role::query()->select('id','name')->get(),
+            'positions' => Position::query()->select('id','name')->get(),
         ];
     }
 }
