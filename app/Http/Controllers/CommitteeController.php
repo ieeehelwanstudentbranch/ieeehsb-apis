@@ -3,21 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Committee;
-use App\Ex_com_options;
-use App\HighBoardOptions;
+use App\Volunteer;
+use App\User;
+use App\Position;
+use App\Season;
+use App\Role;
 use App\Http\Resources\Committee\CommitteeCollection;
 use App\Http\Resources\Committee\CommitteeData;
 use App\Http\Resources\Committee\CommitteeResource;
 use App\Http\Resources\User\UserData;
-use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+
 
 class CommitteeController extends Controller
 {
     public function __construct()
     {
         $this->middleware('jwt.auth');
+        $this->middleware('type:volunteer');
+
     }
 
     // index
@@ -25,21 +33,16 @@ class CommitteeController extends Controller
     {
         $committees = Committee::orderBy('id', 'DESC')->paginate(100);
         return CommitteeCollection::collection($committees);
-    }
 
-    // view committee
-    public function view($id)
-    {
-        $committees = Committee::findOrFail($id);
-        return new CommitteeData($committees);
     }
 
     // add committee
-    public function addPage()
+    public function create()
     {
-        if (auth()->user()->ex_com_option) {
-            if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
-                $committee = Committee::where('name', 'HR_OD')->get();
+         $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $position = Position::where('id',$vol->position_id)->value('name');
+        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+                $committee = Committee::where('name', 'hr_od')->get();
                 if (count($committee) >= 1) {
                     return CommitteeResource::collection($committee);
                 } else {
@@ -48,115 +51,156 @@ class CommitteeController extends Controller
             } else {
                 return response()->json(['error' => 'Un Authenticated']);
             }
-        } else {
-            return response()->json(['error' => 'Un Authenticated']);
-        }
 
     }
 
-    public function add(Request $request)
+
+    public function store(Request $request)
     {
-        if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
-            $this->validate($request, [
+        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $position = Position::where('id',$vol->position_id)->value('name');
+        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+             $validator = Validator::make($request->all(), [
                 'name' => 'required |string | unique:committees| max:50 | min:2',
+                'description' =>'nullable |string | max:4000 | min:2',
+                'chapter' => 'nullable |numeric | min:1 | max:20000',
                 'mentor' => 'nullable |numeric | min:0 | max:20000',
                 'director' => 'nullable |numeric | min:1 | max:20000',
                 'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
             ]);
+             if ($validator->fails()) {
+
+         return response()->json(['errors'=>$validator->errors()]);
+       }
 
             $committee = new Committee();
-            $committee->name = strtoupper($request->input('name'));
-
-            if ($request->input('mentor')) {
-                $mentor = User::findOrFail($request->input('mentor'));
-                $committee->mentor = $mentor->firstName . ' ' . $mentor->lastName;
-                $committee->mentor_id = $mentor->id;
-            }
-
-            if ($request->input('director')) {
-                $director = User::findOrFail($request->input('director'));
-                $committee->director = $director->firstName . ' ' . $director->lastName;
-                $committee->director_id = $director->id;
-            }
-
-            if ($request->input('hr_coordinator')) {
-                $hr_coordinator = User::findOrFail($request->input('hr_coordinator'));
-                $committee->hr_coordinator = $hr_coordinator->firstName . ' ' . $hr_coordinator->lastName;
-                $committee->hr_coordinator_id = $hr_coordinator->id;
-            }
+            $committee->name = strtolower($request->input('name'));
+            $committee->chapter_id =$request->chapter != null ? $request->chapter : null;
+            $committee->description =$request->description != null ? $request->description : null;
             $committee->save();
+            $commId = $committee->id;
+
+            $seasonId = Season::where('isActive',1)->value('id');
+            if ($request->input('mentor')) {
+                $mentor = DB::table('vol_committees')->insert(
+            [
+                'vol_id' => $request->mentor,
+                'committee_id' => $commId,
+                'position' => 'mentor',
+                'season_id' => $seasonId,
+            ]);
+            }
+
+            elseif ($request->input('director')) {
+                  $director = DB::table('vol_committees')->insert(
+            [
+                'vol_id' => $request->director,
+                'committee_id' => $commId,
+                'position' => 'director',
+                'season_id' => $seasonId,
+            ]);
+            }
+
+            elseif ($request->input('hr_coordinator')) {
+                 $director = DB::table('vol_committees')->insert(
+            [
+                'vol_id' => $request->hr_coordinator,
+                'committee_id' => $commId,
+                'position' => 'hr_coordinator',
+                'season_id' => $seasonId,
+            ]);
+            }
             return response()->json(['success' => 'Committee Added Successfully']);
         } else {
             return response()->json(['error' => 'Un Authenticated']);
         }
 
     }
+     // view committee
+    public function show(Committee $committee)
+    {
+                // $committee->volunteer()->wherePivot('position','=','volunteer')->updateExistingPivot($committee,['vol_id'=> 1]);
+
+        return new CommitteeData($committee);
+    }
+
 
     //Edit Committee
-    public function updatePage()
+    public function edit(Committee $committee)
     {
-        if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
-            $committee = Committee::where('name', 'HR_OD')->get();
+        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $position = Position::where('id',$vol->position_id)->value('name');
+        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+            $committee = Committee::where('name', 'hr-od')->get();
             return CommitteeResource::collection($committee);
         } else {
             return response()->json(['error' => 'Un Authenticated']);
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Committee $committee,Request $request)
     {
-        if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
-            $this->validate($request, [
-                'name' => ['required', Rule::unique('committees')->ignore($id)],
-                'mentor' => 'required |string | max:100 | min:1',
+       $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $position = Position::where('id',$vol->position_id)->value('name');
+            $seasonId = Season::where('isActive',1)->value('id');
+        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+$validator = Validator::make($request->all(), [
+                'name' => 'required', 'unique:committees',
+                'mentor' => 'nullable |string | max:100 | min:1',
                 'director' => 'nullable |string | max:100 | min:1',
                 'hr_coordinator' => 'nullable |string | max:100 | min:1',
             ]);
-            $committee = Committee::findOrFail($id);
-            $committee->name = $request->input('name');
-            $mentor = User::findOrFail($request->input('mentor'));
-            $committee->mentor = $mentor->firstName . ' ' . $mentor->lastName;
-            $committee->mentor_id = $mentor->id;
+             if ($validator->fails()) {
 
-            if ($request->input('director')) {
-                $director = User::findOrFail($request->input('director'));
-                $committee->director = $director->firstName . ' ' . $director->lastName;
-                $committee->director_id = $director->id;
-            }
-
-            if ($request->input('hr_coordinator')) {
-                $hr_coordinator = User::findOrFail($request->input('hr_coordinator'));
-                $committee->hr_coordinator = $hr_coordinator->firstName . ' ' . $hr_coordinator->lastName;
-                $committee->hr_coordinator_id = $hr_coordinator->id;
-            }
+             return response()->json(['errors'=>$validator->errors()]);
+         }
+            $committee->name = $request->name;
+            $committee->description = $request->description != null ? $request->description:null;
             $committee->update();
+
+           if ($request->input('mentor')) {
+                self::updatePos('mentor',$request->mentor,$committee);
+            }
+            elseif ($request->input('director')) {
+                self::updatePos('director',$request->director,$committee);
+
+            }
+            elseif ($request->input('hr_coordinator')) {
+                self::updatePos('hr_coordinator',$request->hr_coordinator,$committee);
+
+            }
             return response()->json(['success' => 'Committee Updated']);
         } else {
             return response()->json(['error' => 'Un Authenticated']);
         }
 
     }
+    public function updatePos($pos,$volId,$committee)
+    {
+        $seasonId = Season::where('isActive',1)->value('id');
+        if($committee->volunteer()->wherePivot('position','=',$pos)->wherePivot('season_id',$seasonId)->first())
+        {
+            $committee->volunteer()->updateExistingPivot($volId , ['position'=>$pos,'season_id'=>$seasonId]);
+        }
+        else{
+            $committee->volunteer()->attach($volId, ['position'=>$pos,'season_id'=>$seasonId,'committee_id'=>$committee->id]);
+        }
+    }
 
     // delete
-    public function destroy($id)
+    public function destroy(Committee $committee)
     {
-        if (auth()->user()->position == 'EX_com' && (auth()->user()->ex_com_option->ex_options == 'chairperson' || auth()->user()->ex_com_option->ex_options == 'vice-chairperson')) {
-            $committee = Committee::findOrFail($id);
-            $user = User::where('committee_id', $id);
-            if ($user) {
-                $user_id = User::where('committee_id', $id)->pluck('id');
-                if (count($user_id) > 0) {
-                    $ex_option = Ex_com_options::where('user_id', $user_id);
-                    $hb_option = HighBoardOptions::where('user_id', $user_id);
-                    if ($ex_option) {
-                        $ex_option->delete();
-                    }
-                    if ($hb_option) {
-                        $hb_option->delete();
-                    }
-                }
+       $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $seasonId = Season::where('isActive',1)->value('id');
+        $position = Position::where('id',$vol->position_id)->value('name');
+        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+            $committee->volunteer;
+            $volunteers = $committee->volunteer()->wherePivot('committee_id',$committee->id)
+            ->wherePivot('season_id',$seasonId)->pluck('vol_id');
+            foreach ($volunteers as $key => $volunteer) {
+                $committee->volunteer()->detach($volunteer);
             }
-            $user->delete();
+
             $committee->delete();
             $committees = Committee::all();
             return CommitteeCollection::collection($committees);

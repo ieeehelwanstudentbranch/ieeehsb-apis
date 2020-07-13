@@ -11,7 +11,7 @@ use App\Position;
 use App\Volunteer;
 use App\Participant;
 use App\Http\Controllers\Controller as Controller;
-use App\Http\Resources\Post\RegisterCollection;
+use App\Http\Resources\Register\RegisterCollection;
 use Egulias\EmailValidator\Exception\ExpectingCTEXT;
 use Illuminate\Http\Request;
 use App\Http\Requests;
@@ -158,8 +158,8 @@ protected $user;
             'university' => 'nullable |string | max:30 | min:3',
             'DOB' => 'nullable|date_format:d-m-Y|before:today',
             'email' => 'required |string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'password_confirmation'=>'sometimes|required_with:password',
+            'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
+            'password_confirmation'=>'sometimes|required_with:password',          
             'type' =>'required|string',
         ]);
 
@@ -190,25 +190,24 @@ protected $user;
         $user->password=app('hash')->make($request->input('password'));
 
         if ($request->input('type')== 'volunteer'){
-        //   if ($request->input('role')!=='ex_com')
-        //   {$validat = Validator::make($request->all(), ['committee' => 'required']);
-        //  if ($validat->fails()) {
+          if ($request->input('role')=='volunteer' )
+          {$validat = Validator::make($request->all(), ['committee' => 'required']);
+         if ($validat->fails()) {
 
-        //     return response()->json(['errors'=>$validat->errors()]);
-        //   }
-        // }
+            return response()->json(['errors'=>$validat->errors()]);
+          }
+        }
           $seasonId = Season::where('isActive',1)->value('id');
            $stat    = Status::where('name','deactivated')->value('id');
           if ($request->input('role')=='ex_com'){
-
+            if($request->input('ex_options') != null)
+            {
             $vol = new Volunteer();
             $user->type = "volunteer";
             $user->save();
             $vol->user_id = $user->id;
             $vol->status_id = $stat;
 
-            if($request->input('ex_options') != null)
-            {
               $vol->position_id = Position::where('name',$request->input('ex_options'))->value('id');
               $vol->save();
               $volHis = DB::table('vol_history')->insertGetId(
@@ -225,7 +224,7 @@ protected $user;
             }
         }
 
-        if ($request->input('role')=='highboard')
+        elseif ($request->input('role')=='highboard')
         {
           $vol = new Volunteer;
           $user->type = "volunteer";
@@ -241,7 +240,7 @@ protected $user;
             ->join('volunteers', 'vol_committees.vol_id', '=', 'volunteers.id')
                  ->where('vol_committees.season_id', '=',  $seasonId)
                  ->where('vol_committees.committee_id','=',$committee)
-                 ->where('vol_committees.position_id','=',$dirPos )
+                 ->where('vol_committees.position','=','director' )
                  ->where('volunteers.status_id' ,'=',$status)->first();
             if ($director != null)
             {
@@ -258,7 +257,7 @@ protected $user;
                 'vol_id' => $vol->id,
                 'committee_id' => $committee,
                 'season_id' => $seasonId,
-                'position_id' => $dirPos
+                'position' => 'director'
               ]
             );
 
@@ -272,7 +271,7 @@ protected $user;
             }
         }
 
-        if ($request->input('role')=='volunteer')
+        elseif ($request->input('role')=='volunteer')
         {
           $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
           $vol = new Volunteer;
@@ -294,11 +293,10 @@ protected $user;
               'vol_id' => $vol->id,
               'committee_id' => $committee,
               'season_id' => $seasonId,
-              'position_id' => Position::where('name','volunteer')->value('id'),
+              'position' => 'volunteer',
             ]
           );
         }
-        $us =$vol;
       }
       else {
         $par = new Participant();
@@ -306,11 +304,10 @@ protected $user;
         $user->save();
         $par->user_id = $user->id;
         $par->save();
-        $us = $par;
       }
         // send activation email
-        Mail::send('/emails.verify', compact(['type', 'req', 'user','confirmation_code']), function($message) use ($req,$us) {
-            $message->to($this->MailTarget($req,$us), 'user')->subject('Verify an email address');
+        Mail::send('/emails.verify', compact(['type', 'req', 'user','confirmation_code']), function($message) use ($req,$user) {
+            $message->to($this->MailTarget($req,$user), 'user')->subject('Verify an email address');
         });
 
         if ($user->id) {
@@ -322,12 +319,11 @@ protected $user;
 
 
     //  mail target
-    public function MailTarget(Request $request, $us)
+    public function MailTarget(Request $request, $user)
     {
       $email = 'ieeehelwanstudentbranch@gmail.com';
 
         // if participant register
-        $user = User::query()->findOrFail($us->user_id);
         if ($user->type == 'participant') {
           $email = $user->email;
         }
@@ -338,7 +334,7 @@ protected $user;
 
 
         if ($request->input('role')=='ex_com' && ($request->input('ex_options')=='chairperson') ){
-          $email = 'ieeehelwanstudentbranch@gmail.com';
+          $email = 'zeka.bolbol@gmail.com';
         }
 
         // if Ex-com(!Chairperson) register
@@ -370,14 +366,14 @@ protected $user;
                   $join->on('volunteers.id', '=', 'vol_committees.vol_id')
                   ->where('vol_committees.season_id',Season::where('isActive',1)->value('id'))
                   ->where('vol_committees.committee_id', $committee)
-                  ->where('volunteers.position_id', Position::where('name','mentor')->value('id'));
+                  ->where('volunteers.position', 'mentor');
                 })->get();
           $dir = DB::table('volunteers')
                ->join('vol_committees', function ($join) {
                 $join->on('volunteers.id', '=', 'vol_committees.vol_id')
                 ->where('vol_committees.season_id',$seasonId)
                 ->where('vol_committees.committee_id', $committee)
-                ->where('volunteers.position_id', Position::where('name','director')->value('id'));
+                ->where('volunteers.position', 'director');
                })->get();
             try {
 
@@ -405,10 +401,10 @@ protected $user;
                     $mentor = User::query()->findOrFail($ment->user_id);
                     $email = $mentor->email;
                 }else{
-                  $email = 'ieeehelwanstudentbranch@gmail.com';
+                  $email = 'engMarina97@gmail.com';
                 }
             } catch (\Exception $e) {
-              $email = 'ieeehelwanstudentbranch@gmail.com';
+              $email = 'engMarina97@gmail.com';
             }
         }
       }
@@ -416,3 +412,4 @@ protected $user;
         return $email;
     }
 }
+

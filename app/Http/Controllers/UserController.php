@@ -16,13 +16,15 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+
 
 
 class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('jwt.auth')->except('deleteUser');
+        $this->middleware('jwt.auth')->except('changeUser');
     }
 
     /**
@@ -154,9 +156,11 @@ class UserController extends Controller
         }
           else {
             $vol = Volunteer::where('user_id',$user->id)->value('id');
+            // dd($vol);
             $seasonId = Season::where('isActive',1)->value('id');
             DB::table('vol_history')->where('vol_id',$vol)->where('season_id',$seasonId)->delete();
-            DB::table('vol_committees')->where('season_id',$seasonId)->where('vol_id',$vol)->delete();
+            DB::table('vol_committees')->where('season_id',$seasonId)->where('vol_id',$vol)
+            ->delete();
             Volunteer::findOrFail($vol)->delete();
             $user->type="particiapnt";
             $user->update();
@@ -165,8 +169,7 @@ class UserController extends Controller
             $par->save();
             $type = $user->type;
             $confirmation_code = $user->confirmation_code;
-            $req ="";
-             Mail::send('/emails.verify', compact(['type', 'user','confirmation_code']), function($message) use ($req,$us) {
+             Mail::send('/emails.verify', compact(['type', 'user','confirmation_code']), function($message) use ($user) {
             $message->to($user->email, 'user')->subject('Verify an email address');
         });
           }

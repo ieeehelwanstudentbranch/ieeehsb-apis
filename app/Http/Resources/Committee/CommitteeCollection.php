@@ -5,6 +5,7 @@ namespace App\Http\Resources\Committee;
 use App\Committee;
 use App\User;
 use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Support\Facades\DB;
 
 class CommitteeCollection extends Resource
 {
@@ -14,18 +15,25 @@ class CommitteeCollection extends Resource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    public function position($pos)
+    {
+        $volunteer = DB::table('users')->join('volunteers','users.id','=','volunteers.user_id')->join('vol_committees', function ($join) use ($pos) {
+            $join->on('volunteers.id', '=', 'vol_committees.vol_id')
+                 ->where('vol_committees.position', '=', $pos )->where('season_id',DB::table('seasons')->where('isActive',1)->value('id'))->where('vol_committees.committee_id',$this->id);
+        })
+        ->select('users.firstName' , 'users.lastName','volunteers.id')->get();
+        return $volunteer;
+    }
     public function toArray($request)
     {
-        $numOfVolunteers = User::where('committee_id',$this->id)->where('position','volunteer')->get();
+        $numOfVolunteers = DB::table('vol_committees')->where('committee_id',$this->id)->where('vol_committees.position', '=', 'volunteer')->where('season_id',DB::table('seasons')->where('isActive',1)->value('id'))->get();
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'mentor' => $this->mentor,
-            'mentor_id' => $this->mentor_id,
-            'director' => $this->director,
-            'director_id' => $this->director_id,
-            'hr_coordinator' => $this->hr_coordinator,
-            'hr_coordinator_id' => $this->hr_coordinator_id,
+            'chapter_id' =>$this->chapter_id,
+            'mentor' => self::position('mentor'),
+            'director' => self::position('director'),
+            'hr_coordinator' => self::position('hr_coordinator'),
             'numOfVolunteers' => $numOfVolunteers->count(),
         ];
     }

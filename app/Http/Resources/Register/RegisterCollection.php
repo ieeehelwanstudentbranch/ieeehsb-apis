@@ -21,6 +21,7 @@ class RegisterCollection extends Resource
             'committees' =>Committee::query()->select('id','name')->get(),
             'roles' => Role::query()->select('id','name')->get(),
             'positions' => Position::query()->select('id','name')->get(),
+            'chapters' => Chapter::query()->select('id','name')->get(),
         ];
     }
 }

@@ -20,4 +20,12 @@ class Volunteer extends Model
   public function task(){
       return $this->hasMany(Task::class);
   }
+   public function user(){
+      return $this->belongsTo(User::class);
+  }
+  public function hasPos($position)
+{
+  $pos = Position::where('name',$position)->first();
+    return Volunteer::where('position_id', $pos->id)->get();
+}
 }

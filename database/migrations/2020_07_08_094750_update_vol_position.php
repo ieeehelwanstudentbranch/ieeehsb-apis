@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateChapterId extends Migration
+class UpdateVolPosition extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class UpdateChapterId extends Migration
      */
     public function up()
     {
-        Schema::table('committees', function (Blueprint $table) {
-           $table->dropForeign(['chapter_id']);
-           $table->integer('chapter_id')->nullable()->change();
-
+        Schema::table('vol_committees', function (Blueprint $table) {
+            // $table->dropForeign(['position_id']);
+            // $table->dropColumn('position_id');
+            $table->string('position',200)->after('committee_id');
 
         });
     }
@@ -28,7 +28,7 @@ class UpdateChapterId extends Migration
      */
     public function down()
     {
-        Schema::table('committees', function (Blueprint $table) {
+        Schema::table('vol_committees', function (Blueprint $table) {
             //
         });
     }

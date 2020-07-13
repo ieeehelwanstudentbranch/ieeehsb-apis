@@ -51,10 +51,11 @@ class AuthController extends Controller
     public function login(Request $request)
     {
       // dd($request->all());
+
         $credentials = $request->only('email', 'password');
         $validator = Validator::make($request->all(), [
             'email' => 'required',
-            'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
+            'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])/',
         ]);
         if ($validator->fails()) {
           return response()->json(['errors'=>$validator->errors()]);
@@ -69,16 +70,16 @@ class AuthController extends Controller
         //     $expirationTime = env('ttl',3);
         // }
         try {
-            if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json([
-                    'response' => 'Error',
-                    'message' => 'Invalid Email or Password',
-                ]);
-            }
             if (!User::where('email', $request['email'])->first()->confirmed) {
                 return response()->json([
                     'response' => 'Error',
                     'message' => 'Sorry your account does not been activated yet',
+                ]);
+            }
+            elseif (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json([
+                    'response' => 'Error',
+                    'message' => 'Invalid Email or Password',
                 ]);
             }
 
@@ -136,7 +137,31 @@ class AuthController extends Controller
             ], 500);
         }
     }
-
+     // Check User Token 
+     /**
+     * @SWG\Post(
+     *   path="api/check-token/{user_id}/{token}",
+     *   summary="Check User Token",
+     *   operationId="token",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     * @SWG\Parameter(
+     *          name="user Id",
+     *          in="path",
+     *           description="User Id",
+     *          required=true,
+     *          type="integer",
+     *     ),
+     *      * @SWG\Parameter(
+     *          name="token",
+     *          in="path",
+     *           description="jwt token",
+     *          required=true,
+     *          type="string",
+     *     ),
+     *)
+     **/
     public function checkToken($user_id, $token)
     {
         $user = User::query()->where('id', $user_id);

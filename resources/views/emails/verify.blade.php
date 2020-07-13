@@ -65,10 +65,10 @@
             <p>Hi, Please help us in verifing {{$user->firstName .' ' .$user->lastName}} account for saving our privacy.</p>
             <p>If you are sure that the owner of the requested email is a member of our crew, so please activate the account.</p>
             <a href="https://evaluation-system.ieeehsb.org/verify/{{ $confirmation_code }}" target="_blank" class="emailButton success"> Activate Account </a>
-            {{--<a href="{{ URL::to('api/register/verify/' . $confirmation_code) }}" target="_blank">Active This Account</a>--}}
+            {{-- <a href="{{ URL::to('api/register/verify/' . $confirmation_code) }}" target="_blank">Active This Account</a> --}}
             <p>If this is an anonymous or unsure user, you can delete this account but please check with your manager before performing this operation</p>
             <a href="https://evaluation-system.ieeehsb.org/change-user/{{$user->id}}" target="_blank" class="emailButton danger">Delete account</a>
-            {{--<a href="http://localhost:3000/delete-user/{{ encrypt($user->id) }}">Delete</a>  href="{{URL::to('api/delete-user/' . encrypt($user->id)) }}" --}}
+           {{--  <a href="{{URL::to('api/change-user/' . encrypt($user->id)) }}" >Delete</a> --}}
             <table>
                 <thead>
                     <tr>
@@ -76,10 +76,10 @@
                         <th>E-Mail</th>
                         @if($type == 'volunteer')
                         <th>Position</th>
-                        @if($req->role=='EX_com')
+                        @if($req->role=='ex_com')
                             <th>EX Options</th>
                         @endif
-                        @if($req->role != 'EX_com')
+                        @if($req->role != 'ex_com')
                             <th>Committee</th>
                         @endif
                       @endif
@@ -92,11 +92,11 @@
                         @if($type == 'volunteer')
                         <td>{{$req->role}}</td>
 
-                        @if($req->role == 'EX_com')
+                        @if($req->role == 'ex_com')
                             <td>{{$req->ex_options}}</td>
                         @endif
 
-                        @if($req->role != 'EX_com')
+                        @if($req->role != 'ex_com')
                             <td>{{$req->committee}}</td>
                         @endif
                       @endif

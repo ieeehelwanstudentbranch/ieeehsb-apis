@@ -18,7 +18,6 @@ class CreateCommitteesTable extends Migration
             $table->string('name',200);
             $table->string('description',1000);
             $table->unsignedBigInteger('chapter_id');
-            $table->foreign('chapter_id')->references('id')->on('chapters')->onUpdate('cascade');
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class UpdateChapterId extends Migration
+class UpdateDescriptionColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,7 @@ class UpdateChapterId extends Migration
     public function up()
     {
         Schema::table('committees', function (Blueprint $table) {
-           $table->dropForeign(['chapter_id']);
-           $table->integer('chapter_id')->nullable()->change();
-
-
+            $table->string('description')->nullable()->change();
         });
     }
 

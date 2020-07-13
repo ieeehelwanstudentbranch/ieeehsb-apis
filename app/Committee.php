@@ -12,7 +12,10 @@ class Committee extends Model
     public $updated_at=false;
 
 
-    public function volunteer(){
-        return $this->hasMany(Volunteer::class,'id','vol_id');
+    public function volunteer()
+    {
+        // hasMany(RelatedModel, foreignKeyOnRelatedModel = student_id, localKey = id)
+        return $this->belongsToMany('App\Volunteer','vol_committees','committee_id','vol_id')
+        ->withPivot('position','season_id', 'created_at');
     }
 }
