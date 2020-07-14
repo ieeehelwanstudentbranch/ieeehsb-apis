@@ -30,6 +30,7 @@ class CommitteeCollection extends Resource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'description' => $this->description,
             'chapter_id' =>$this->chapter_id,
             'mentor' => self::position('mentor'),
             'director' => self::position('director'),
