@@ -33,7 +33,6 @@ class CommitteeController extends Controller
     {
         $committees = Committee::orderBy('id', 'DESC')->paginate(100);
         return CommitteeCollection::collection($committees);
-
     }
 
     // add committee
@@ -119,8 +118,6 @@ class CommitteeController extends Controller
      // view committee
     public function show(Committee $committee)
     {
-                // $committee->volunteer()->wherePivot('position','=','volunteer')->updateExistingPivot($committee,['vol_id'=> 1]);
-
         return new CommitteeData($committee);
     }
 
@@ -146,9 +143,9 @@ class CommitteeController extends Controller
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
 $validator = Validator::make($request->all(), [
                 'name' => 'required', 'unique:committees',
-                'mentor' => 'nullable |string | max:100 | min:1',
-                'director' => 'nullable |string | max:100 | min:1',
-                'hr_coordinator' => 'nullable |string | max:100 | min:1',
+                'mentor' => 'nullable |numeric | min:0 | max:20000',
+                'director' => 'nullable |numeric | min:1 | max:20000',
+                'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
             ]);
              if ($validator->fails()) {
 

@@ -43,11 +43,65 @@ class ChapterController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    /**
+     * @SWG\Post(
+     *   path="/api/register/",
+     *   summary="Add new user",
+     *   operationId="register",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     *@SWG\Parameter(
+     *          name="firstName",
+     *          in="query",
+     *      description="testing data",
+     *          required=true,
+     *          type="string",
+     *     ),
+     *@SWG\Parameter(
+     *          name="lastName",
+     *          in="query",
+     *      description="testing data",
+     *          required=true,
+     *          type="string",
+     *     ),
+     *@SWG\Parameter(
+     *          name="facutly",
+     *          in="query",
+     *      description="testing data",
+     *          required=true,
+     *          type="string",
+     *     ),
+     *@SWG\Parameter(
+     *          name="university",
+     *          in="query",
+     *      description="testing data",
+     *          required=true,
+     *          type="string",
+     *     ),
+     *@SWG\Parameter(
+     *          name="DOB",
+     *          in="query",
+     *      description="testing data",
+     *          required=true,
+     *          type="string",
+     *     ),
+     
+
+
+     *   )
+
+
+     *
+     */
     public function store(Request $request)
     {
+        //description
         Input::merge(array_map('trim', Input::all()));
         $validator = Validator::make($request->all(), [
             'name' => 'required |string | max:50 | min:3|unique:chapters',
+                'mentor' => 'nullable |string | max:100 | min:1',
         ]);
          if ($validator->fails()) {
 
