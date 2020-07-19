@@ -181,7 +181,18 @@ protected $user;
         $user= new User();
         $user->firstName= $request->input('firstName');
         $user->lastName= $request->input('lastName');
-        $user->image= 'default.jpg';
+
+        if ($request->file('image')) {
+            $filenameWithExtention = $request->file('image')->getClientOriginalName();
+            $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $fileNameStoreImage = $fileName . '_' . time() . '.' . $extension;
+            $path = $request->file('image')->move('public/profile_images/', $fileNameStoreImage);
+        $user->image= $path;
+        }
+        else{
+          $user->image = 'default.png';
+        }
         $user->faculty= $request->input('faculty');
         $user->university= $request->input('university');
         $user->DOB= $request->input('DOB');

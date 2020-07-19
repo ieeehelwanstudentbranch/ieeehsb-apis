@@ -152,7 +152,7 @@ $validator = Validator::make($request->all(), [
              return response()->json(['errors'=>$validator->errors()]);
          }
             $committee->name = $request->name;
-            $committee->description = $request->description != null ? $request->description:null;
+            $committee->description = $request->description != null ? $request->description:$committee->description;
             $committee->update();
 
            if ($request->input('mentor')) {

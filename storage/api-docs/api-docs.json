@@ -33,13 +33,6 @@
                         "description": "testing data",
                         "required": true,
                         "type": "string"
-                    },
-                    {
-                        "name": "password_confirmation",
-                        "in": "query",
-                        "description": "testing data",
-                        "required": true,
-                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -57,9 +50,42 @@
         },
         "/api/logout/": {
             "post": {
-                "summary": "login",
+                "summary": "User logout",
                 "operationId": "register",
                 "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "description": "jwt token",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "406": {
+                        "description": "not acceptable"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "api/check-token/{user_id}/{token}": {
+            "post": {
+                "summary": "Check User Token",
+                "operationId": "token",
+                "parameters": [
+                    {
+                        "name": "user Id",
+                        "in": "path",
+                        "description": "User Id",
+                        "required": true,
+                        "type": "integer"
+                    },
                     {
                         "name": "token",
                         "in": "path",

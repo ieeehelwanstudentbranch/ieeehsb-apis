@@ -18,4 +18,8 @@ class Committee extends Model
         return $this->belongsToMany('App\Volunteer','vol_committees','committee_id','vol_id')
         ->withPivot('position','season_id', 'created_at');
     }
+    public function chapter()
+    {
+    	return $this->belongsTo(Chapter::class,'chapter_id');
+    }
 }

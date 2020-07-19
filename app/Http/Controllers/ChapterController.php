@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Input;
 use Auth;
-use App\Chapter;
 use App\Role;
+use App\Chapter;
 use App\Position;
+use App\Committee;
+use App\Volunteer;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\Chapter\ChapterCollection;
+use App\Http\Resources\Chapter\ChapterResource;
+
+
 class ChapterController extends Controller
 {
     /**
@@ -24,7 +32,8 @@ class ChapterController extends Controller
     }
     public function index()
     {
-        
+        $chapters = Chapter::orderBy('id', 'DESC')->paginate(5);
+        return ChapterResource::collection( $chapters);
     }
 
     /**
@@ -33,8 +42,9 @@ class ChapterController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
-        
+    { 
+        $chapters = Chapter::orderBy('id', 'DESC')->paginate(5);
+        return new ChapterCollection($chapters);
     }
 
     /**
@@ -101,23 +111,45 @@ class ChapterController extends Controller
         Input::merge(array_map('trim', Input::all()));
         $validator = Validator::make($request->all(), [
             'name' => 'required |string | max:50 | min:3|unique:chapters',
-                'mentor' => 'nullable |string | max:100 | min:1',
-        ]);
+            'description' =>'nullable|string|min:2',
+            'chairperson' => 'nullable|numeric|min:1',
+            'logo' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
+            ]);
          if ($validator->fails()) {
 
          return response()->json(['errors'=>$validator->errors()]);
-     }
-        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
-        $position = Postion::where('id',$vol->position_id)->value('name');
-        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
-         $chapter = new Chapter;
-         $chapter->name = strtolower($request->name);
+        }
+
+          $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+          $position = Position::where('id',$vol->position_id)->value('name');
+          if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+
+          $chapter = new Chapter;
+          $chapter->name = strtolower($request->name);
+          if ($request->file('logo')) {
+            $filenameWithExtention = $request->file('logo')->getClientOriginalName();
+            $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
+            $extension = $request->file('logo')->getClientOriginalExtension();
+            $fileNameStoreImage = $fileName . '_' . time() . '.' . $extension;
+            $path = $request->file('logo')->move('public/logo/', $fileNameStoreImage);
+        $chapter->logo= $path;
+        }
          $chapter->save();
-         $chairmanPos = new Position;
-         $chairmanPos->name = 'chairperson ' . strtolower($request->name);
-         $chairmanPos->role_id = Role::where('name','ex_com')->value('id');
-         $chairmanPos->save();
+
+         if ($request->chairperson) {
+             $chapter->chairperson_id = $request->chairperson;
+             $chapter->update();
+         }
+
+         Position::updateOrCreate([ 
+            'name' => 'chairperson ' . strtolower($request->name) , 
+            'role_id' => Role::where('name','ex_com')->value('id') 
+        ]);
          return response()->json(['success' =>'A New Chapter Has been added successfully']);
+     }
+     else{
+            return response()->json(['error' => 'Un Authenticated']);
+
      }
     }
    
@@ -127,9 +159,10 @@ class ChapterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Chapter $chapter)
     {
-        //
+        $chapter;
+        return new ChapterResource($chapter);
     }
 
     /**
@@ -138,9 +171,10 @@ class ChapterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Chapter $chapter)
     {
-        //
+        $chapter;
+        return new ChapterResource($chapter);
     }
 
     /**
@@ -150,9 +184,28 @@ class ChapterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Chapter $chapter)
     {
-        //
+         $validator = Validator::make($request->all(), [
+            'name' => 'required |string | max:50 | min:3|unique:chapters',
+            'description' => 'nullable |string| min:2',
+            'chairperson' => 'nullable|numeric|min:1',
+            'logo' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
+
+        ]);
+         if ($validator->fails()) {
+
+         return response()->json(['errors'=>$validator->errors()]);
+     }
+        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $position = Position::where('id',$vol->position_id)->value('name');
+        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+         $chapter->name = strtolower($request->name);
+         $chapter->description = $request->description!= null ? $request->description : $chapter->description;
+         $cahpter->chairperson_id = $request->chairperson!=null ? $request->chairperson : $chapter->chairperson_id;
+         $chapter->update();
+         return response()->json(['success' =>'The Chapter Has been updated successfully']);
+     }
     }
 
     /**
@@ -161,8 +214,19 @@ class ChapterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Chapter $chapter)
     {
-        //
+        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $position = Position::where('id',$vol->position_id)->value('name');
+        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+            $committees = Committee::where('chapter_id',$chapter->id)->get();
+            foreach ($committees as $key => $comm) {
+                $comm->chapter_id = 0;
+                $comm->update();
+            }
+           
+         $chapter->delete();
+         return response()->json(['success' =>'The Chapter Has been deleted successfully']);
+     }
     }
 }

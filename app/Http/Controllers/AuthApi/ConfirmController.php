@@ -25,7 +25,7 @@ class ConfirmController extends Controller
         {
             return response()->json(['error' => 'You have not verified account.']);
         }
-
+        else{
         $user->confirmed = 1;
         $user->confirmation_code = null;
         $user->update();
@@ -34,19 +34,20 @@ class ConfirmController extends Controller
         if($vol != null)
         {
           $vol->status_id = Status::where('name','activated')->value('id');
-          $vol->update();
-        $data = []; // Empty array
-            Mail::send('emails.confirm',compact(['user']), function($message) use ($email) {
-
-            $message->to('zeka.bolbol@gmail.com', 'user')->subject('Confrim Mail');
-
-        });
+          $vol->update();            
 
           }
+
           else{
                 return response()->json(['error' => 'You have not verified account.']);
 
           }
+          Mail::send('emails.confirm',compact(['user']), function($message) use ($email) {
+
+            $message->to($email, 'user')->subject('Confrim Mail');
+
+        });
+      }
 
         }
 }

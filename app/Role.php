@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    //
+  protected $table = 'roles';
+    public function volunteer()
+  {
+    return $this->hasOneThrough('App\Volunteer', 'App\Position');
+  }
+   public function position()
+  {
+    return $this->hasOne('App\Position');
+  }
 }

@@ -63,3 +63,6 @@ Route::post('deliver-task/{id}', 'TaskController@deliverTask');
 
 //Notification
 Route::get('/notification', 'NotificationController@getNotification');
+
+//awards
+Route::resource('award','AwardController');

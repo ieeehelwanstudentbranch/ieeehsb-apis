@@ -8,6 +8,11 @@ class Volunteer extends Model
 {
   protected $table = 'volunteers';
 
+  public function position()
+  {
+    return $this->hasOne(Position::class,'id','position_id');
+  }
+ 
   public function committee(){
       return $this->belongsTo(Committee::class);
   }
