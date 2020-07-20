@@ -13,4 +13,8 @@ class Chapter extends Model
     {
     	return $this->hasMany(Committee::class,'chapter_id');
     }
+     public function post()
+    {
+        return $this->morphMany('App\Post', 'post');
+    }
 }

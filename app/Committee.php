@@ -22,4 +22,8 @@ class Committee extends Model
     {
     	return $this->belongsTo(Chapter::class,'chapter_id');
     }
+    public function post()
+    {
+        return $this->morphMany('App\Post', 'post');
+    }
 }
