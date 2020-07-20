@@ -18,6 +18,9 @@ class CreatePostsTable extends Migration
             $table->string('body',2000);
             $table->unsignedBigInteger('status_id');
             $table->foreign('status_id')->references('id')->on('statuses');
+            $table->morphs('post');
+            $table->unsignedBigInteger('creator');
+            $table->foreign('creator')->references('id')->on('volunteers');
             $table->timestamps();
         });
     }

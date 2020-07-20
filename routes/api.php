@@ -30,6 +30,7 @@ Route::resource('chapter','ChapterController');
 
 //posts
 Route::resource('post','PostController');
+Route::resource('committee.post', 'PostController')->shallow();
 // Route::get('posts', 'PostController@index');
 // Route::get('post/{id}', 'PostController@show');
 // Route::post('create-post', 'PostController@store');
