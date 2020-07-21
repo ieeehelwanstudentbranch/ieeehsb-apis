@@ -46,6 +46,7 @@ Route::post('/disapprove-posts', 'PostController@disapprovePost');
 
 //comments
 Route::resource('comment','CommentController');
+Route::resource('post.comment','CommentController')->shallow();
 
 // Route::get('/post/{id}/comments', 'CommentController@index');
 // Route::post('/post/{id}/add-comment', 'CommentController@addComment');

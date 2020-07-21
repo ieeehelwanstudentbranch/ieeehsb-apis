@@ -118,7 +118,7 @@ class PostController extends Controller
                 'status_id' => Status::where('name','approved')->value('id'),
 
             ]);
-             return response()->json('The Post has been created');
+             return response()->json('Post Created Successfully');
 
         }
         elseif(in_array($vol->id,$chapterVols))
@@ -158,6 +158,8 @@ class PostController extends Controller
                 'status_id' => Status::where('name','approved')->value('id'),
 
             ]);
+             return response()->json('Post Created Successfully');
+
         }
         else
         {
@@ -173,7 +175,6 @@ class PostController extends Controller
 
          }
         // event(new PostEvent($post));
-        return response()->json(['success' => 'Done successfully']);
         }
     }
 
@@ -181,12 +182,10 @@ class PostController extends Controller
     {
         $vol = Volunteer::findOrFail($post->creator);
         if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
-
-        // $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');
         return new PostResource($post);
     }
      else{
-                return response()->json('you are not in this committee');
+            return response()->json('you arenot allowed to see this post');
 
          }
      }
