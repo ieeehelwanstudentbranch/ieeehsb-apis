@@ -14,7 +14,6 @@ class CommitteeData extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
-    // SQLSTATE[42S22]: Column not found: 1054 Unknown column 'position' in 'field list' (SQL: select `id`, `image`, `firstName`, `lastName`, `position`, `status` from `users` where `committee_id` = 1)
 
      public function position($pos)
     {
