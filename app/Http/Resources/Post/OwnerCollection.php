@@ -15,7 +15,7 @@ class OwnerCollection extends Resource
     public function toArray($request)
     {
             return [
-                'id' => $this->user->id,
+                'vol_id' => $this->id,
                 'firstName' => $this->user->firstName,
                 'lastName' => $this->user->lastName,
                 'image' => $this->user->image,

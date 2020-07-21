@@ -31,8 +31,15 @@ Route::resource('chapter','ChapterController');
 //posts
 Route::resource('post','PostController');
 Route::resource('committee.post', 'PostController')->shallow();
-// Route::get('posts', 'PostController@index');
-// Route::get('post/{id}', 'PostController@show');
+Route::resource('chapter.post', 'PostController')->shallow();
+
+
+Route::get('/chapter/{chapter}/pending-posts', 'PostController@pendingPost');
+Route::get('/committee/{committee}/pending-posts', 'PostController@pendingPost');
+Route::post('/approve-posts', 'PostController@approvePost');
+Route::post('/disapprove-posts', 'PostController@disapprovePost');
+
+
 // Route::post('create-post', 'PostController@store');
 // Route::put('update-post/{id}', 'PostController@update');
 // Route::delete('/post/{id}', 'PostController@destroy');
