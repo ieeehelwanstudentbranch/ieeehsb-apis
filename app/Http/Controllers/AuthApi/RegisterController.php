@@ -157,6 +157,7 @@ protected $user;
             'faculty' => 'nullable |string | max:30 |   min:3',
             'university' => 'nullable |string | max:30 | min:3',
             'DOB' => 'nullable|date_format:d-m-Y|before:today',
+            'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
             'email' => 'required |string|email|max:255|unique:users',
             'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
             'password_confirmation'=>'sometimes|required_with:password',          
@@ -181,15 +182,11 @@ protected $user;
         $user= new User();
         $user->firstName= $request->input('firstName');
         $user->lastName= $request->input('lastName');
-
+        
         if ($request->file('image')) {
-            $filenameWithExtention = $request->file('image')->getClientOriginalName();
-            $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
-            $extension = $request->file('image')->getClientOriginalExtension();
-            $fileNameStoreImage = $fileName . '_' . time() . '.' . $extension;
-            $path = $request->file('image')->move('public/profile_images/', $fileNameStoreImage);
-        $user->image= $path;
-        }
+        $filename = $request->file('image')->store('public/profile_images/');
+            $user->image = trim($filename, 'public');
+          }
         else{
           $user->image = 'default.png';
         }

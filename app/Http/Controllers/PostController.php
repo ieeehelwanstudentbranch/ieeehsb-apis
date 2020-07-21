@@ -50,7 +50,7 @@ class PostController extends Controller
             
             $chapterVols = self::chapterVols($id);
 
-            $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+            $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
             if (in_array($vol->id,$chapterVols) ||$vol->position->name =='chairperson' || $vol->position->name == 'vice-chairperson') {
                 $approved = Status::where('name','approved')->value('id');
                  $posts = $chapter->post()->where('status_id',$approved)->orderBy('created_at', 'desc')->paginate(50);
@@ -61,7 +61,7 @@ class PostController extends Controller
 
         $committee = Committee::findOrFail($id);
 
-        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+            $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');
     //Anyone in the committeee and the chairperson and the vice can see the posts
        if($volPos != null || ($vol->position->name == 'chairperson' || ($vol->position->name == 'vice-chairperson'))){

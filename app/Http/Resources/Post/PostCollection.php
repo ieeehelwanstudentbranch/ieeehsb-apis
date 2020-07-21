@@ -16,12 +16,13 @@ class PostCollection extends Resource
     public function toArray($request)
     {
         $vol =  Volunteer::findOrFail($this->creator);
-
+        $comments = $this->comments()->latetest()->take(3)->get()
         return [
             'id' => $this->id,
             'body' => $this->body,
             'created_at' => $this->created_at->toDateTimeString(),
             'post_owner' => new OwnerCollection($vol),
+            'comments' => $comments,
         ];
     }
 }

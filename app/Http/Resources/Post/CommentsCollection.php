@@ -18,7 +18,7 @@ class CommentsCollection extends Resource
 
         return [
             'id' => $this->id,
-            'body' => $this->comment_body,
+            'body' => $this->body,
             'created_at' => $this->created_at,
             'delete'    => action('CommentController@destroy' , $this->id ),
             'update'    => action('CommentController@update' , $this->id ),
