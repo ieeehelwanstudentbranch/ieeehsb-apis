@@ -148,8 +148,8 @@ protected $user;
     public function register(Request $request)
     {
         $req = $request;
-        $type = $request->input('type');
-        Input::merge(array_map('trim', Input::all()));
+        $type = $request->type;
+        // Input::merge(array_map('trim', Input::all()));
         $validator = Validator::make($request->all(), [
             'firstName' => 'required |string | max:50 | min:3',
             'lastName' => 'required |string | max:50 | min:3',
@@ -164,7 +164,7 @@ protected $user;
         ]);
 
 
-        if ($request->input('type')=='volunteer')
+        if ($request->type=='volunteer')
         {$validator = Validator::make($request->all(), ['role' => 'required']);}
 
        // if ($request->input('role')=='ex_com')
@@ -179,8 +179,8 @@ protected $user;
          //if position EX-com
         $confirmation_code = str_random(30);
         $user= new User();
-        $user->firstName= $request->input('firstName');
-        $user->lastName= $request->input('lastName');
+        $user->firstName= $request->firstName;
+        $user->lastName= $request->lastName;
 
         if ($request->file('image')) {
         $filename = $request->file('image')->store('public/profile_images/');
@@ -189,15 +189,15 @@ protected $user;
         else{
           $user->image = 'default.png';
         }
-        $user->faculty= $request->input('faculty');
-        $user->university= $request->input('university');
-        $user->DOB= $request->input('DOB');
-        $user->email=$request->input('email');
+        $user->faculty= $request->faculty;
+        $user->university= $request->university;
+        $user->DOB= $request->DOB;
+        $user->email=$request->email;
         $user->confirmation_code  = $confirmation_code ;
-        $user->password=app('hash')->make($request->input('password'));
+        $user->password=app('hash')->make($request->password));
 
-        if ($request->input('type')== 'volunteer'){
-          if ($request->input('role')=='volunteer' )
+        if ($request->type== 'volunteer'){
+          if ($request->role=='volunteer' )
           {$validat = Validator::make($request->all(), ['committee' => 'required']);
          if ($validat->fails()) {
 
@@ -206,8 +206,8 @@ protected $user;
         }
           $seasonId = Season::where('isActive',1)->value('id');
            $stat    = Status::where('name','deactivated')->value('id');
-          if ($request->input('role')=='ex_com'){
-            if($request->input('ex_options') != null)
+          if ($request->role=='ex_com'){
+            if($request->ex_options != null)
             {
             $vol = new Volunteer();
             $user->type = "volunteer";
@@ -215,13 +215,13 @@ protected $user;
             $vol->user_id = $user->id;
             $vol->status_id = $stat;
 
-              $vol->position_id = Position::where('name',$request->input('ex_options'))->value('id');
+              $vol->position_id = Position::where('name',$request->ex_options)->value('id');
               $vol->save();
               $volHis = DB::table('vol_history')->insertGetId(
                 [
                   'vol_id' =>$vol->id,
                   'season_id' =>$seasonId,
-                  'position_id' => Position::where('name',$request->input('ex_options'))->value('id'),
+                  'position_id' => Position::where('name',$request->ex_options)->value('id'),
                 ]
               );
             }
@@ -231,13 +231,13 @@ protected $user;
             }
         }
 
-        elseif ($request->input('role')=='highboard')
+        elseif ($request->role=='highboard')
         {
           $vol = new Volunteer;
           $user->type = "volunteer";
 
           $seasonId = Season::where('isActive',1)->value('id');
-          $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
+          $committee = DB::table('committees')->where('name',($request->committee))->value('id');
           $dirPos = Position::where('name','director')->value('id');
           $status = Status::where('name','activated')->value('id');
           // dircetor of this committee of that season which is active exists
@@ -278,9 +278,9 @@ protected $user;
             }
         }
 
-        elseif ($request->input('role')=='volunteer')
+        elseif ($request->role=='volunteer')
         {
-          $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
+          $committee = DB::table('committees')->where('name',($request->committee))->value('id');
           $vol = new Volunteer;
           $user->type = "volunteer";
           $user->save();
@@ -340,12 +340,12 @@ protected $user;
 
 
 
-        if ($request->input('role')=='ex_com' && ($request->input('ex_options')=='chairperson') ){
+        if ($request->role=='ex_com' && ($request->ex_options=='chairperson') ){
           $email = 'zeka.bolbol@gmail.com';
         }
 
         // if Ex-com(!Chairperson) register
-        if ($request->input('role')=='ex_com' && ($request->input('ex_options')!='chairperson') ) {
+        if ($request->role=='ex_com' && ($request->ex_options!='chairperson') ) {
           $seasonId = Season::where('isActive',1)->value('id');
 
             try {
@@ -365,9 +365,9 @@ protected $user;
         }
 
         // if High Board register
-        if ($request->input('role')=='highboard') {
+        if ($request->role=='highboard') {
           $seasonId = Season::where('isActive',1)->value('id');
-          $committee = DB::table('committees')->where('name',($request->input('committee')))->value('id');
+          $committee = DB::table('committees')->where('name',($request->committee)))->value('id');
           $ment = DB::table('volunteers')
                   ->join('vol_committees', function ($join) {
                   $join->on('volunteers.id', '=', 'vol_committees.vol_id')
@@ -395,7 +395,7 @@ protected $user;
         }
 
         // if volunteer register
-        if ($request->input('role')=='volunteer') {
+        if ($request->role=='volunteer') {
 
             try {
                 if (User::query()->findOrFail($dir->user_id) != null) {
