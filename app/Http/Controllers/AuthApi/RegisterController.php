@@ -45,7 +45,7 @@ protected $user;
      **/
     public function registerPage(){
         $data = Role::all();
-        return new RegisterCollection($data);
+        return RegisterCollection::collection($data);
     }
  /**
      * @SWG\Post(
@@ -160,7 +160,7 @@ protected $user;
             'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
             'email' => 'required |string|email|max:255|unique:users',
             'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
-            'password_confirmation'=>'sometimes|required_with:password',          
+            'password_confirmation'=>'sometimes|required_with:password',
             'type' =>'required|string',
         ]);
 
@@ -182,7 +182,7 @@ protected $user;
         $user= new User();
         $user->firstName= $request->input('firstName');
         $user->lastName= $request->input('lastName');
-        
+
         if ($request->file('image')) {
         $filename = $request->file('image')->store('public/profile_images/');
             $user->image = trim($filename, 'public');
@@ -420,4 +420,3 @@ protected $user;
         return $email;
     }
 }
-
