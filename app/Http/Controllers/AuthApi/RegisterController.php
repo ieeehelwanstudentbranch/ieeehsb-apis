@@ -150,6 +150,7 @@ protected $user;
         $req = $request;
         $type = $request->type;
         // Input::merge(array_map('trim', Input::all()));
+        DB::transaction();
         $validator = Validator::make($request->all(), [
             'firstName' => 'required |string | max:50 | min:3',
             'lastName' => 'required |string | max:50 | min:3',
@@ -162,8 +163,9 @@ protected $user;
             'password_confirmation'=>'sometimes|required_with:password',
             'type' =>'required|string',
         ]);
-
-
+        if ($request->type=='volunteer') {
+          // code...
+        }
         if ($request->type=='volunteer')
         {$validator = Validator::make($request->all(), ['role' => 'required']);}
 
@@ -194,7 +196,7 @@ protected $user;
         $user->DOB= $request->DOB;
         $user->email=$request->email;
         $user->confirmation_code  = $confirmation_code ;
-        $user->password=app('hash')->make($request->password));
+        $user->password=app('hash')->make($request->password);
 
         if ($request->type== 'volunteer'){
           if ($request->role=='volunteer' )
@@ -322,6 +324,7 @@ protected $user;
         }else{
             return response()->json(['response' => 'failed', 'message' => 'Registration has failed, please check your data again!']);
         }
+        DB::commit();
     }
 
 
@@ -367,7 +370,7 @@ protected $user;
         // if High Board register
         if ($request->role=='highboard') {
           $seasonId = Season::where('isActive',1)->value('id');
-          $committee = DB::table('committees')->where('name',($request->committee)))->value('id');
+          $committee = DB::table('committees')->where('name', ($request->committee)->value('id'));
           $ment = DB::table('volunteers')
                   ->join('vol_committees', function ($join) {
                   $join->on('volunteers.id', '=', 'vol_committees.vol_id')
