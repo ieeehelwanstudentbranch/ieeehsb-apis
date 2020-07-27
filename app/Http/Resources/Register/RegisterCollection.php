@@ -17,7 +17,7 @@ class RegisterCollection extends ResourceCollection
           return [
              'committees' =>Committee::query()->select('id','name')->get(),
              'roles' => Role::query()->select('id','name')->get(),
-             'positions' => Position::query()->select('id','name')->get(),
+             'positions' => Position::query()->where('role_id',Role::where('name','ex_com')->value('id'))->select('id','name')->get(),
              'chapters' => Chapter::query()->select('id','name')->get(),
          ];
      }
