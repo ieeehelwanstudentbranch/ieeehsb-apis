@@ -414,10 +414,10 @@ protected $user;
                     $mentor = User::query()->findOrFail($ment->user_id);
                     $email = $mentor->email;
                 }else{
-                  $email = 'engMarina97@gmail.com';
+                  $email = 'ieeehelwanstudentbranch@gmail.com';
                 }
             } catch (\Exception $e) {
-              $email = 'engMarina97@gmail.com';
+              $email = 'ieeehelwanstudentbranch@gmail.com';
             }
         }
       }
