@@ -47,7 +47,7 @@ class PostController extends Controller
         if(Chapter::find($id) != null)
         {
             $chapter = Chapter::findOrFail($id);
-            
+
             $chapterVols = self::chapterVols($id);
 
             $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
@@ -65,7 +65,7 @@ class PostController extends Controller
         $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');
     //Anyone in the committeee and the chairperson and the vice can see the posts
        if($volPos != null || ($vol->position->name == 'chairperson' || ($vol->position->name == 'vice-chairperson'))){
-         
+
             $approved = Status::where('name','approved')->value('id');
             $posts = $committee->post()->where('status_id',$approved)->orderBy('created_at', 'desc')->paginate(50);
             return PostCollection::collection($posts);
@@ -105,11 +105,11 @@ class PostController extends Controller
         if(Chapter::find($id) != null)
         {
             $chapter = Chapter::findOrFail($id);
-            
+
             $chapterVols = self::chapterVols($id);
             $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
             if ($vol->position->name =='chairperson' ||$vol->position->name == 'vice-chairperson' || $vol->id == $chapter->chairperson_id) {
- 
+
             $chapter->post()->create(
             [
                 'body' => $request->body,
@@ -130,7 +130,7 @@ class PostController extends Controller
                 'status_id' => Status::where('name','pending')->value('id'),
                 'created_at' =>now(),
                 'creator' => $vol->id,
-            ]);            
+            ]);
              return response()->json('The Post is sent to the chairperson to be approved');
          }
 
@@ -140,7 +140,7 @@ class PostController extends Controller
         $committee = Committee::findOrFail($id);
         $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');
-        //anyone exept the comm volunteers and the chair / vice 
+        //anyone exept the comm volunteers and the chair / vice
         if ( $volPos != 'volunteer' &&($vol->position->name != 'chairperson' ||
             ($vol->position->name != 'vice-chairperson'))) {
             return response()->json(['error'=> 'you are not in this committee']);
@@ -197,7 +197,7 @@ class PostController extends Controller
                     return new PostResource($post);
 
         }
-        
+
     }
 
     /**
@@ -220,7 +220,7 @@ class PostController extends Controller
          return response()->json(['errors'=>$validator->errors()]);
         }
 
-            $post->body = $request->input('body');
+            $post->body = $request->body;
             $post->update();
             return response()->json(['success' => 'updated successfully']);
         } else {
@@ -251,7 +251,7 @@ class PostController extends Controller
         if(Chapter::find($id) != null)
         {
             $chapter = Chapter::findOrFail($id);
-            
+
             $chapterVols = self::chapterVols($id);
             $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
             if ($vol->id == $chapter->chairperson_id) {
@@ -266,7 +266,7 @@ class PostController extends Controller
             $committee = Committee::findOrFail($id);
             $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
             $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');
-            //anyone exept the comm volunteers and the chair / vice 
+            //anyone exept the comm volunteers and the chair / vice
             if ($vol->position->name == 'director')
             {
                 $pending = Status::where('name','pending')->value('id');

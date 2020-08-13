@@ -150,7 +150,6 @@ protected $user;
         $req = $request;
         $type = $request->type;
         // Input::merge(array_map('trim', Input::all()));
-        DB::transaction();
         $validator = Validator::make($request->all(), [
             'firstName' => 'required |string | max:50 | min:3',
             'lastName' => 'required |string | max:50 | min:3',
@@ -159,7 +158,7 @@ protected $user;
             'DOB' => 'nullable|date_format:d-m-Y|before:today',
             'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
             'email' => 'required |string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
+            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
             'password_confirmation'=>'sometimes|required_with:password',
             'type' =>'required|string',
         ]);
@@ -172,13 +171,16 @@ protected $user;
        // if ($request->input('role')=='ex_com')
        // {$validator = Validator::make($request->all(), ['ex_options' => 'required']);}
 
-
        if ($validator->fails()) {
 
          return response()->json(['errors'=>$validator->errors()]);
        }
 
          //if position EX-com
+         DB::beginTransaction();
+         if (User::where('email',$request->email)->get()) {
+           return response()->json(['errors'=> "The email is stored before"]);
+         }
         $confirmation_code = str_random(30);
         $user= new User();
         $user->firstName= $request->firstName;
@@ -314,6 +316,8 @@ protected $user;
         $par->user_id = $user->id;
         $par->save();
       }
+      DB::commit();
+
         // send activation email
         Mail::send('/emails.verify', compact(['type', 'req', 'user','confirmation_code']), function($message) use ($req,$user) {
             $message->to($this->MailTarget($req,$user), 'user')->subject('Verify an email address');
@@ -324,7 +328,6 @@ protected $user;
         }else{
             return response()->json(['response' => 'failed', 'message' => 'Registration has failed, please check your data again!']);
         }
-        DB::commit();
     }
 
 

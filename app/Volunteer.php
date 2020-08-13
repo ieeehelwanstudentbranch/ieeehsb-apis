@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Status;
 
 class Volunteer extends Model
 {
@@ -12,15 +13,18 @@ class Volunteer extends Model
   {
     return $this->hasOne(Position::class,'id','position_id');
   }
- 
+
   public function committee(){
-      return $this->belongsTo(Committee::class);
+      return $this->belongsToMany(Committee::class,'vol_committees','vol_id')->withPivot('committee_id','position');
   }
   public function comment(){
       return $this->hasMany(Comment::class);
   }
   public function post(){
       return $this->hasMany(Post::class);
+  }
+  public function status(){
+      return $this->belongsTo(Status::class);
   }
   public function task(){
       return $this->hasMany(Task::class);

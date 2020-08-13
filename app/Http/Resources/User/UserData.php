@@ -25,11 +25,10 @@ class UserData extends JsonResource
       if(Volunteer::where('user_id',$this->id)->first() != null)
       {
       $vol = Volunteer::where('user_id',$this->id)->first();
-      $pos = Position::where('id',$vol->position_id)->first();
-      $role = Role::where('id',$pos->role_id)->value('name');
-      $status =Status::where('id',$vol->status_id)->value('name');
+      $role = $vol->position->role->name;
+      $status =$vol->status->name;
       $volCom = DB::table('vol_committees')->where('vol_id',$vol->id)->value('committee_id');
-      $volPos= DB::table('vol_committees')->where('vol_id',$vol->id)->value('position_id');
+      $volPos= DB::table('vol_committees')->where('vol_id',$vol->id)->value('position');
 
             $data = [
                 'id' => $this->id,
@@ -44,12 +43,13 @@ class UserData extends JsonResource
                 'level' => $this->level,
                 'image' => $this->image,
                 'status' => $status,
-                'position' => $role =='highboard' ? $pos->name: $role,
-                'committee' => $role != "Ex_com"? Committee::query()->findOrFail($volCom)->value('name') : null,
-                'ex_options' => $role == "Ex_com" ? $pos->name: null,
+                'role' =>$role,
+                'position' => $vol->position->name,
+                'committee' => $role != "ex_com"? Committee::query()->findOrFail($volCom)->value('name') :null ,
                 'created_at' => $this->created_at->toDateTimeString(),
 
             ];
+
             //if the volunteer is not logged in
             if($this->id != JWTAuth::parseToken()->authenticate()->id) {
                 return  [

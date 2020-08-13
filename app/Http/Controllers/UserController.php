@@ -39,13 +39,13 @@ class UserController extends Controller
      *          name="id",
      *          in="path",
      *          description="user id",
-     *          required=true, 
-     *          type="integer",     
+     *          required=true,
+     *          type="integer",
      *     ),
      @SWG\Parameter(
      *          name="Authorization",
      *          in="header",
-     *          required=true, 
+     *          required=true,
      *          type="string",
      *          schema="Bearer",
      *          format="JWT",
@@ -85,15 +85,15 @@ class UserController extends Controller
             ]);
 
             $user = User::findOrFail($id);
-            $user->firstName = $request->input('firstName');
-            $user->lastName = $request->input('lastName');
-            $user->faculty = $request->input('faculty') ?? null;
-            $user->university = $request->input('university') ?? null;
-            $user->DOB = $request->input('DOB') ?? null;
-            $user->address = $request->input('address') ?? null;
-            $user->phone = $request->input('phone') ?? null;
-            $user->level = $request->input('level') ?? null;
-            $user->email = $request->input('email');
+            $user->firstName = $request->firstName;
+            $user->lastName = $request->lastName;
+            $user->faculty = $request->faculty  ?? null;
+            $user->university = $request->university  ?? null;
+            $user->DOB = $request->DOB  ?? null;
+            $user->address = $request->address  ?? null;
+            $user->phone = $request->phone  ?? null;
+            $user->level = $request->level  ?? null;
+            $user->email = $request->email ;
             $user->update();
             return response()->json(['success' => 'user updated'], 200);
         } else {
@@ -111,8 +111,8 @@ class UserController extends Controller
             ]);
             $user = User::findOrFail($id);
 
-            if (Hash::check($request->input('old_password'), $user->password)) {
-                $user->password = app('hash')->make($request->input('new_password'));
+            if (Hash::check($request->old_password , $user->password)) {
+                $user->password = app('hash')->make($request->new_password);
                 $user->update();
                 return response()->json(['success' => 'PasswordUpdated']);
             } else {
@@ -174,7 +174,7 @@ class UserController extends Controller
         });
           }
         return response()->json(['success' => 'Deleted Successfully']);
-    
+
         } catch (\Exception $e)
         {
 

@@ -11,7 +11,6 @@ use App\Volunteer;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Chapter\ChapterCollection;
 use App\Http\Resources\Chapter\ChapterResource;
@@ -42,7 +41,7 @@ class ChapterController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    { 
+    {
         $chapters = Chapter::orderBy('id', 'DESC')->paginate(5);
         return new ChapterCollection($chapters);
     }
@@ -97,7 +96,7 @@ class ChapterController extends Controller
      *          required=true,
      *          type="string",
      *     ),
-     
+
 
 
      *   )
@@ -108,7 +107,6 @@ class ChapterController extends Controller
     public function store(Request $request)
     {
         //description
-        Input::merge(array_map('trim', Input::all()));
         $validator = Validator::make($request->all(), [
             'name' => 'required |string | max:50 | min:3|unique:chapters',
             'description' =>'nullable|string|min:2',
@@ -141,9 +139,9 @@ class ChapterController extends Controller
              $chapter->update();
          }
 
-         Position::updateOrCreate([ 
-            'name' => 'chairperson ' . strtolower($request->name) , 
-            'role_id' => Role::where('name','ex_com')->value('id') 
+         Position::updateOrCreate([
+            'name' => 'chairperson ' . strtolower($request->name) ,
+            'role_id' => Role::where('name','ex_com')->value('id')
         ]);
          return response()->json(['success' =>'A New Chapter Has been added successfully']);
      }
@@ -152,7 +150,7 @@ class ChapterController extends Controller
 
      }
     }
-   
+
     /**
      * Display the specified resource.
      *
@@ -224,7 +222,7 @@ class ChapterController extends Controller
                 $comm->chapter_id = 0;
                 $comm->update();
             }
-           
+
          $chapter->delete();
          return response()->json(['success' =>'The Chapter Has been deleted successfully']);
      }

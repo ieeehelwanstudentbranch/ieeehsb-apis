@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Http\Resources\Register;
+use App\Committee;
+use App\Chapter;
+use App\Position;
+use App\Role;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 

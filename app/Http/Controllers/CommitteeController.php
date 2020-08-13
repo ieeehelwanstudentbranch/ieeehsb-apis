@@ -73,14 +73,14 @@ class CommitteeController extends Controller
        }
 
             $committee = new Committee();
-            $committee->name = strtolower($request->input('name'));
+            $committee->name = strtolower($request->name);
             $committee->chapter_id =$request->chapter != null ? $request->chapter : null;
             $committee->description =$request->description != null ? $request->description : null;
             $committee->save();
             $commId = $committee->id;
 
             $seasonId = Season::where('isActive',1)->value('id');
-            if ($request->input('mentor')) {
+            if ($request->mentor) {
                 $mentor = DB::table('vol_committees')->insert(
             [
                 'vol_id' => $request->mentor,
@@ -90,7 +90,7 @@ class CommitteeController extends Controller
             ]);
             }
 
-            elseif ($request->input('director')) {
+            elseif ($request->director) {
                   $director = DB::table('vol_committees')->insert(
             [
                 'vol_id' => $request->director,
@@ -100,7 +100,7 @@ class CommitteeController extends Controller
             ]);
             }
 
-            elseif ($request->input('hr_coordinator')) {
+            elseif ($request->hr_coordinator) {
                  $director = DB::table('vol_committees')->insert(
             [
                 'vol_id' => $request->hr_coordinator,
@@ -155,14 +155,14 @@ $validator = Validator::make($request->all(), [
             $committee->description = $request->description != null ? $request->description:$committee->description;
             $committee->update();
 
-           if ($request->input('mentor')) {
+           if ($request->mentor) {
                 self::updatePos('mentor',$request->mentor,$committee);
             }
-            elseif ($request->input('director')) {
+            elseif ($request->director) {
                 self::updatePos('director',$request->director,$committee);
 
             }
-            elseif ($request->input('hr_coordinator')) {
+            elseif ($request->hr_coordinator) {
                 self::updatePos('hr_coordinator',$request->hr_coordinator,$committee);
 
             }

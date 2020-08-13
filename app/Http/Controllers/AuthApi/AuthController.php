@@ -63,7 +63,7 @@ class AuthController extends Controller
         // dd($request->all());
         $token = null;
         $expirationTime = env('JWT_TTL', 60 * 24 * 30);
-        if ($request->input('remember_me') == true) {
+        if ($request->remember_me == true) {
             $expirationTime = env('JWT_TTL', 60 * 24 * 30);
         }
         // else{
@@ -137,7 +137,7 @@ class AuthController extends Controller
             ], 500);
         }
     }
-     // Check User Token 
+     // Check User Token
      /**
      * @SWG\Post(
      *   path="api/check-token/{user_id}/{token}",

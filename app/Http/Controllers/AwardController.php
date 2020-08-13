@@ -61,7 +61,7 @@ class AwardController extends Controller
             'chapterId' =>'nullable|numeric',
             //meen 25d el award el branch wla el chapter
                 ]);
-                if ($validator->fails()) 
+                if ($validator->fails())
                 {
                     return response()->json(['errors'=>$validator->errors()]);
                 }
@@ -128,7 +128,7 @@ class AwardController extends Controller
             'chapterId' =>'nullable|numeric',
             //meen 25d el award el branch wla el chapter
                 ]);
-                if ($validator->fails()) 
+                if ($validator->fails())
                 {
                     return response()->json(['errors'=>$validator->errors()]);
                 }
@@ -145,6 +145,7 @@ class AwardController extends Controller
 
             }
     }
+  }
 
     /**
      * Remove the specified resource from storage.
