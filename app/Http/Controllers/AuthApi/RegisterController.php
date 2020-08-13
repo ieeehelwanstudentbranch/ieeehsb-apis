@@ -347,7 +347,7 @@ protected $user;
 
 
         if ($request->role=='ex_com' && ($request->ex_options=='chairperson') ){
-          $email = 'zeka.bolbol@gmail.com';
+          $email = 'ieeehelwanstudentbranch@gmail.com';
         }
 
         // if Ex-com(!Chairperson) register
