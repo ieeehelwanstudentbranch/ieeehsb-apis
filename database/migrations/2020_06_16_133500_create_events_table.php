@@ -17,13 +17,14 @@ class CreateEventsTable extends Migration
             $table->bigIncrements('id');
             $table->string('name',200);
             $table->string('information',1000);
+            $table->string('logo',500);
+            $table->string('cover',500);
             $table->dateTime('from');
             $table->dateTime('to');
             $table->string('location');
-            $table->tinyInteger('numOfSessions');
-            $table->unsignedBigInteger('award_id');
-            $table->foreign('award_id')->references('id')->on('awards')->onUpdate('cascade');
-            $table->unsignedBigInteger('chapter_id');
+            $table->string('awards',2000);
+            $table->unsignedBigInteger('award_id')->nullable();
+            $table->unsignedBigInteger('chapter_id')->nullable();
             $table->timestamps();
         });
     }

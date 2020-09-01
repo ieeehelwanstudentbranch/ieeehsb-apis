@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class CreateEventSessionTable extends Migration
+class CreateEventSpeakersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,15 @@ class CreateEventSessionTable extends Migration
      */
     public function up()
     {
-        Schema::create('event_session', function (Blueprint $table) {
+        Schema::create('event_speakers', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('topic',200);  //select
             $table->unsignedBigInteger('event_id');
             $table->foreign('event_id')->references('id')->on('events');
-            $table->string('information',500);
-            $table->tinyInteger('noOfSession');
+            $table->string('name',200);
+            $table->string('description',2000); //name/topic , description , session type,
+            $table->string('jobtitle');
+            $table->string('image',500);
             $table->dateTime('date');
-            $table->tinyInteger('duration');
-            $table->string('instructor',200);
             $table->timestamps();
         });
     }
@@ -34,6 +33,6 @@ class CreateEventSessionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('event_session');
+        Schema::dropIfExists('event_speakers');
     }
 }

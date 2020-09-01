@@ -162,9 +162,7 @@ protected $user;
             'password_confirmation'=>'sometimes|required_with:password',
             'type' =>'required|string',
         ]);
-        if ($request->type=='volunteer') {
-          // code...
-        }
+
         if ($request->type=='volunteer')
         {$validator = Validator::make($request->all(), ['role' => 'required']);}
 
@@ -177,8 +175,8 @@ protected $user;
        }
 
          //if position EX-com
-         DB::beginTransaction();
-         if (User::where('email',$request->email)->get()) {
+//         DB::beginTransaction();
+         if (User::where('email',$request->email)->first() != null) {
            return response()->json(['errors'=> "The email is stored before"]);
          }
         $confirmation_code = str_random(30);
@@ -186,13 +184,10 @@ protected $user;
         $user->firstName= $request->firstName;
         $user->lastName= $request->lastName;
 
-        if ($request->file('image')) {
-        $filename = $request->file('image')->store('public/profile_images/');
-            $user->image = trim($filename, 'public');
-          }
-        else{
+
+
           $user->image = 'default.png';
-        }
+
         $user->faculty= $request->faculty;
         $user->university= $request->university;
         $user->DOB= $request->DOB;
@@ -316,7 +311,7 @@ protected $user;
         $par->user_id = $user->id;
         $par->save();
       }
-      DB::commit();
+//      DB::commit();
 
         // send activation email
         Mail::send('/emails.verify', compact(['type', 'req', 'user','confirmation_code']), function($message) use ($req,$user) {
@@ -347,7 +342,7 @@ protected $user;
 
 
         if ($request->role=='ex_com' && ($request->ex_options=='chairperson') ){
-          $email = 'ieeehelwanstudentbranch@gmail.com';
+          $email = 'engMarina97@gmail.com';
         }
 
         // if Ex-com(!Chairperson) register
@@ -357,7 +352,7 @@ protected $user;
             try {
               // user id of the volunteer who is chairperson of the season which is active
               $chairperson = DB::table('volunteers')
-                           ->join('vol_history', function ($join) {
+                           ->join('vol_history', function ($join) use ($seasonId) {
                            $join->on('volunteers.id', '=', 'vol_history.vol_id')
                             ->where('vol_history.season_id',$seasonId)
                             ->where('volunteers.position_id',  Position::where('name','chairperson')->value('id'));
@@ -375,14 +370,14 @@ protected $user;
           $seasonId = Season::where('isActive',1)->value('id');
           $committee = DB::table('committees')->where('name', ($request->committee)->value('id'));
           $ment = DB::table('volunteers')
-                  ->join('vol_committees', function ($join) {
+                  ->join('vol_committees', function ($join) use ($committee) {
                   $join->on('volunteers.id', '=', 'vol_committees.vol_id')
                   ->where('vol_committees.season_id',Season::where('isActive',1)->value('id'))
                   ->where('vol_committees.committee_id', $committee)
                   ->where('volunteers.position', 'mentor');
                 })->get();
           $dir = DB::table('volunteers')
-               ->join('vol_committees', function ($join) {
+               ->join('vol_committees', function ($join) use($seasonId,$committee) {
                 $join->on('volunteers.id', '=', 'vol_committees.vol_id')
                 ->where('vol_committees.season_id',$seasonId)
                 ->where('vol_committees.committee_id', $committee)
