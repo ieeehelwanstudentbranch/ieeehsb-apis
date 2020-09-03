@@ -332,6 +332,17 @@ protected $user;
 
 
     //  mail target
+    public function position($pos,$comm)
+    {
+        $ment = DB::table('volunteers')
+            ->join('vol_committees', function ($join) use ($comm,$pos) {
+                $join->on('volunteers.id', '=', 'vol_committees.vol_id')
+                    ->where('vol_committees.season_id',Season::where('isActive',1)->value('id'))
+                    ->where('vol_committees.committee_id', $comm)
+                    ->where('vol_committees.position', $pos);
+            })->get();
+
+    }
     public function MailTarget(Request $request, $user)
     {
       $email = 'ieeehelwanstudentbranch@gmail.com';
@@ -347,7 +358,7 @@ protected $user;
 
 
         if ($request->role=='ex_com' && ($request->ex_options=='chairperson') ){
-          $email = 'engMarina97@gmail.com';
+          $email = 'ieeehelwanstudentbranch@gmail.com';
         }
 
         // if Ex-com(!Chairperson) register
@@ -372,22 +383,11 @@ protected $user;
 
         // if High Board register
         if ($request->role=='highboard') {
-          $seasonId = Season::where('isActive',1)->value('id');
-          $committee = DB::table('committees')->where('name', ($request->committee)->value('id'));
-          $ment = DB::table('volunteers')
-                  ->join('vol_committees', function ($join) use ($committee) {
-                  $join->on('volunteers.id', '=', 'vol_committees.vol_id')
-                  ->where('vol_committees.season_id',Season::where('isActive',1)->value('id'))
-                  ->where('vol_committees.committee_id', $committee)
-                  ->where('volunteers.position', 'mentor');
-                })->get();
-          $dir = DB::table('volunteers')
-               ->join('vol_committees', function ($join) use($seasonId,$committee) {
-                $join->on('volunteers.id', '=', 'vol_committees.vol_id')
-                ->where('vol_committees.season_id',$seasonId)
-                ->where('vol_committees.committee_id', $committee)
-                ->where('volunteers.position', 'director');
-               })->get();
+
+          $committee = Committee::where('name', ($request->committee))->value('id');
+
+          $ment = self::position('metor',$committee);
+
             try {
 
                 $mentor =User::query()->findOrFail($ment->user_id);
@@ -402,6 +402,7 @@ protected $user;
 
         // if volunteer register
         if ($request->role=='volunteer') {
+            $dir = self::position('director',$committee);
 
             try {
                 if (User::query()->findOrFail($dir->user_id) != null) {

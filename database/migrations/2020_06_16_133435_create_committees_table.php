@@ -17,7 +17,7 @@ class CreateCommitteesTable extends Migration
             $table->bigIncrements('id');
             $table->string('name',200);
             $table->string('description',1000);
-            $table->unsignedBigInteger('chapter_id');
+            $table->unsignedBigInteger('chapter_id')->nullable();
             $table->timestamps();
         });
     }
