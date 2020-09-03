@@ -44,7 +44,7 @@ protected $user;
      **/
     public function registerPage(){
         $data = Role::all();
-        return RegisterCollection::collection($data);
+        return new RegisterCollection($data);
     }
  /**
      * @SWG\Post(
@@ -183,11 +183,7 @@ protected $user;
         $user= new User();
         $user->firstName= $request->firstName;
         $user->lastName= $request->lastName;
-
-
-
-          $user->image = 'default.png';
-
+        $user->image = 'default.png';
         $user->faculty= $request->faculty;
         $user->university= $request->university;
         $user->DOB= $request->DOB;
@@ -196,12 +192,17 @@ protected $user;
         $user->password=app('hash')->make($request->password);
 
         if ($request->type== 'volunteer'){
-          if ($request->role=='volunteer' )
-          {$validat = Validator::make($request->all(), ['committee' => 'required']);
+          if ($request->role!='ex_com' )
+          {
+              $validat = Validator::make($request->all(), ['committee' => 'required']);
          if ($validat->fails()) {
 
             return response()->json(['errors'=>$validat->errors()]);
           }
+         elseif (! Committee::where('name',$request->committee)->first())
+              {
+                  return response()->json(['message'=>'the committee is not found']);
+              }
         }
           $seasonId = Season::where('isActive',1)->value('id');
            $stat    = Status::where('name','deactivated')->value('id');
@@ -232,6 +233,7 @@ protected $user;
 
         elseif ($request->role=='highboard')
         {
+
           $vol = new Volunteer;
           $user->type = "volunteer";
 
@@ -321,6 +323,9 @@ protected $user;
         if ($user->id) {
             return response()->json(['response' => 'success', 'message' => 'Registration is Successful, please wait until your account being activated']);
         }else{
+            $type = $user->ptype();
+            $type->delete();
+            $user->delete();
             return response()->json(['response' => 'failed', 'message' => 'Registration has failed, please check your data again!']);
         }
     }
