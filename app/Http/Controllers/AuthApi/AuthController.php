@@ -54,7 +54,7 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
         $validator = Validator::make($request->all(), [
-            'email' => 'required',
+            'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])/',
         ]);
         if ($validator->fails()) {
@@ -70,7 +70,7 @@ class AuthController extends Controller
         //     $expirationTime = env('ttl',3);
         // }
         try {
-            if (!User::where('email', $request['email'])->first()->confirmed) {
+            if (User::where('email', $request->email)->first() != null &&(!User::where('email', $request->email)->first()->confirmed)) {
                 return response()->json([
                     'response' => 'Error',
                     'message' => 'Sorry your account does not been activated yet',

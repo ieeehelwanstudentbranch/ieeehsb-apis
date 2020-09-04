@@ -17,7 +17,7 @@ class CreateChaptersTable extends Migration
             $table->bigIncrements('id');
             $table->string('name',200);
             $table->string('description',2000)->nullable();
-            $table->string('logo',2000);
+            $table->string('logo',2000)->nullable();
             $table->unsignedBigInteger('chairperson_id')->nullable();
             $table->foreign('chairperson_id')->references('id')->on('volunteers');
             $table->timestamps();

@@ -13,6 +13,6 @@ class Role extends Model
   }
    public function position()
   {
-    return $this->hasOne('App\Position');
+    return $this->hasMany('App\Position','role_id','id');
   }
 }

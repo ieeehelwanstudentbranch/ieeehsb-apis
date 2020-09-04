@@ -55,9 +55,9 @@ class ChapterController extends Controller
 
     /**
      * @SWG\Post(
-     *   path="/api/register/",
-     *   summary="Add new user",
-     *   operationId="register",
+     *   path="/api/chapter/",
+     *   summary="Add new chapter",
+     *   operationId="chapterId",
      *   @SWG\Response(response=200, description="successful operation"),
      *   @SWG\Response(response=406, description="not acceptable"),
      *   @SWG\Response(response=500, description="internal server error"),
@@ -132,7 +132,10 @@ class ChapterController extends Controller
             $path = $request->file('logo')->move('public/logo/', $fileNameStoreImage);
         $chapter->logo= $path;
         }
-         $chapter->save();
+          $chapter->description = $request->description != null ? $request->description : null;
+          $chapter->chairperson_id = $request->chairperson != null ? $request->chairperson : null;
+
+              $chapter->save();
 
          if ($request->chairperson) {
              $chapter->chairperson_id = $request->chairperson;
@@ -185,7 +188,7 @@ class ChapterController extends Controller
     public function update(Request $request, Chapter $chapter)
     {
          $validator = Validator::make($request->all(), [
-            'name' => 'required |string | max:50 | min:3|unique:chapters',
+            'name' => 'string | max:50 | min:3|unique:chapters',
             'description' => 'nullable |string| min:2',
             'chairperson' => 'nullable|numeric|min:1',
             'logo' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
@@ -200,7 +203,7 @@ class ChapterController extends Controller
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
          $chapter->name = strtolower($request->name);
          $chapter->description = $request->description!= null ? $request->description : $chapter->description;
-         $cahpter->chairperson_id = $request->chairperson!=null ? $request->chairperson : $chapter->chairperson_id;
+         $chapter->chairperson_id = $request->chairperson!=null ? $request->chairperson : $chapter->chairperson_id;
          $chapter->update();
          return response()->json(['success' =>'The Chapter Has been updated successfully']);
      }

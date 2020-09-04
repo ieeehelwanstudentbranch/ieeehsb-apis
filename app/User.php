@@ -1,7 +1,7 @@
 <?php
 
 namespace App;
-
+use App\Volunteer;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -36,15 +36,14 @@ class User extends Authenticatable implements JWTSubject
 
     public function ptype()
             {
-                switch ($this->type) {
-                    case 'volunteer':
-                        return $this->hasOne('App\Volunteer','user_id');
-                        break;
-                    case 'participant':
-                        return $this->hasOne('App\Participant','user_id');
-                        break;
-
-                    }
+                dd($this->id);
+        if (Volunteer::where('user_id',$this->id)->first() != null)
+        {
+            return $this->hasOne('App\Volunteer','user_id');
+        }
+        else{
+            return $this->hasOne('App\Participant','user_id');
+        }
             }
 
 

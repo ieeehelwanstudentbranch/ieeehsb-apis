@@ -142,7 +142,7 @@ class CommitteeController extends Controller
             $seasonId = Season::where('isActive',1)->value('id');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
 $validator = Validator::make($request->all(), [
-                'name' => 'required', 'unique:committees',
+                'name' =>  'unique:committees',
                 'mentor' => 'nullable |numeric | min:0 | max:20000',
                 'director' => 'nullable |numeric | min:1 | max:20000',
                 'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
