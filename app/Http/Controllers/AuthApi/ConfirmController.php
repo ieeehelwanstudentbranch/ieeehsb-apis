@@ -34,9 +34,9 @@ class ConfirmController extends Controller
         if($vol != null)
         {
           $vol->status_id = Status::where('name','activated')->value('id');
-          $vol->update();            
-
-          }
+          $vol->update();
+            return response()->json(['msg' => 'Check your email.']);
+        }
 
           else{
                 return response()->json(['error' => 'You have not verified account.']);
