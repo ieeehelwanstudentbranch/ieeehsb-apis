@@ -54,10 +54,15 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
         $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
             'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])/',
         ]);
         if ($validator->fails()) {
           return response()->json(['errors'=>$validator->errors()]);
+        }
+        if (! User::where('email',$request->email)->first())
+        {
+            return response()->json(['error'=> 'the Email is not found']);
         }
         // dd($request->all());
         $token = null;
@@ -69,14 +74,11 @@ class AuthController extends Controller
         //     $expirationTime = env('ttl',3);
         // }
         try {
-            if (User::where('email', $request->email)->first() != null)
-            {
-                if(!User::where('email', $request->email)->first()->confirmed) {
+            if (!User::where('email', $request['email'])->first()->confirmed) {
                 return response()->json([
                     'response' => 'Error',
                     'message' => 'Sorry your account does not been activated yet',
                 ]);
-            }
             }
             elseif (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json([
