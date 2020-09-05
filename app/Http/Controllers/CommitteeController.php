@@ -12,6 +12,7 @@ use App\Http\Resources\Committee\CommitteeCollection;
 use App\Http\Resources\Committee\CommitteeData;
 use App\Http\Resources\Committee\CommitteeResource;
 use App\Http\Resources\User\UserData;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
@@ -66,7 +67,9 @@ class CommitteeController extends Controller
                 'mentor' => 'nullable |numeric | min:0 | max:20000',
                 'director' => 'nullable |numeric | min:1 | max:20000',
                 'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
-            ]);
+                 'create_at' =>'date|nulable|date_format:d/m/Y',
+
+             ]);
              if ($validator->fails()) {
 
          return response()->json(['errors'=>$validator->errors()]);
@@ -76,6 +79,9 @@ class CommitteeController extends Controller
             $committee->name = strtolower($request->name);
             $committee->chapter_id =$request->chapter != null ? $request->chapter : null;
             $committee->description =$request->description != null ? $request->description : null;
+            $committee->created_at = $request->created_at != null ? $request->created_at : Carbon::now();
+
+
             $committee->save();
             $commId = $committee->id;
 

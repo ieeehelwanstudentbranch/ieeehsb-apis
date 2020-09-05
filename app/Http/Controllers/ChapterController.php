@@ -8,6 +8,7 @@ use App\Chapter;
 use App\Position;
 use App\Committee;
 use App\Volunteer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
@@ -112,6 +113,7 @@ class ChapterController extends Controller
             'description' =>'nullable|string|min:2',
             'chairperson' => 'nullable|numeric|min:1',
             'logo' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
+            'create_at' =>'date|nulable|date_format:d/m/Y',
             ]);
          if ($validator->fails()) {
 
@@ -134,6 +136,7 @@ class ChapterController extends Controller
         }
           $chapter->description = $request->description != null ? $request->description : null;
           $chapter->chairperson_id = $request->chairperson != null ? $request->chairperson : null;
+          $chapter->created_at = $request->created_at != null ? $request->created_at : Carbon::now();
 
               $chapter->save();
 
