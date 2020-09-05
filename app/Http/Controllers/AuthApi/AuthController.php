@@ -95,14 +95,15 @@ class AuthController extends Controller
         }
         auth()->user()->remember_token = $token;
         auth()->user()->update();
-        return response()->json([
+        return response()->json(['data' =>[
             'response' => 'Success',
             'message' => 'You logged in successfully',
             'token' => $token,
             'expirationTime' => $expirationTime,
             'userId' => Auth::user()->id,
             'type' => Auth::user()->type
-        ]);
+        ]
+            ]);
     }
 
     // Logout
