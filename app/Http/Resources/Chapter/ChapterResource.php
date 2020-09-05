@@ -32,6 +32,7 @@ class ChapterResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
+            'logo'=> $this->logo,
             'chairperson' => $chairperson,
             'committees' => $this->committee,
 
