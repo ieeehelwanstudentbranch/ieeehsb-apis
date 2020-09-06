@@ -36,7 +36,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function ptype()
             {
-                dd($this->id);
         if (Volunteer::where('user_id',$this->id)->first() != null)
         {
             return $this->hasOne('App\Volunteer','user_id');

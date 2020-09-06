@@ -20,6 +20,10 @@ class Type
         if($user->type == $type)
         {
             return $next($request);
-        } 
+        }
+        else{
+            return response()->json(['errors'=>'You Are Not Allowed To See This Page']);
+
+        }
     }
 }

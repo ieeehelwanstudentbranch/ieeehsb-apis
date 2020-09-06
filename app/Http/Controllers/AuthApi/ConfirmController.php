@@ -30,19 +30,16 @@ class ConfirmController extends Controller
         $user->confirmation_code = null;
         $user->update();
         $email = $user->email;
-        $vol = Volunteer::where('user_id',$user->id)->first();
-        if($vol != null)
+        if($user->type == 'volunteer')
         {
-          $vol->status_id = Status::where('name','activated')->value('id');
-          $vol->update();
-            return response()->json(['msg' => 'Check your email.']);
+          $user->volunteer->status_id = Status::where('name','activated')->value('id');
+          $user->volunteer->update();
+
         }
 
-          else{
-                return response()->json(['error' => 'You have not verified account.']);
+        return response()->json(['success' => 'You have verified your account.Please Check Your Mail']);
 
-          }
-          Mail::send('emails.confirm',compact(['user']), function($message) use ($email) {
+            Mail::send('emails.confirm',compact(['user']), function($message) use ($email) {
 
             $message->to($email, 'user')->subject('Confrim Mail');
 

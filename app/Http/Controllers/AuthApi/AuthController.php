@@ -54,7 +54,7 @@ class AuthController extends Controller
 
         $credentials = $request->only('email', 'password');
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email' => 'required|email|',
             'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])/',
         ]);
         if ($validator->fails()) {
@@ -87,12 +87,15 @@ class AuthController extends Controller
                 ]);
             }
 
+
         } catch (JWTAuthException $e) {
             return response()->json([
                 'response' => 'Error',
                 'message' => 'Failed to create token',
             ]);
         }
+//        dd(JWTAuth::user()->token);
+
         auth()->user()->remember_token = $token;
         auth()->user()->update();
         return response()->json([

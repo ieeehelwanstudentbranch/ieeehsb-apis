@@ -1,13 +1,13 @@
 <?php
 
 namespace App;
-use App\Committee;
-use App\Chapter;
 use Illuminate\Database\Eloquent\Model;
 
 class Chapter extends Model
 {
 	    public $table = 'chapters';
+        protected $fillable = ['name','description','logo','chairperson_id'];
+
 
     public function committee()
     {
