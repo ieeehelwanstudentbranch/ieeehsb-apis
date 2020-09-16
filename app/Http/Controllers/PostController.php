@@ -91,9 +91,54 @@ class PostController extends Controller
         # code...
     }
 
+    public function storeGeneralPost( Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'body' => 'required|string|min:2',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
+        $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
+
+            $post = new Post;
+            $post->body = $request->body;
+            $post->created_at = now();
+            $post->creator = $vol->id;
+            $post->post_type = 'general';
+            $post->post_id = 0;
+            if ($vol->position->name == 'chairperson' || $vol->position->name == 'vice-chairperson') {
+                $post->status_id = Status::where('name', 'approved')->value('id');
+                $post->save();
+
+                return response()->json('Post Created Successfully');
+
+            } else {
+                $post->status_id = Status::where('name', 'pending')->value('id');
+                $post->save();
+                return response()->json('The Post is sent to the chairperson to be approved');
+
+
+            }
+
+
+    }
+    public function postGeneral()
+    {
+        $posts = Post::where('post_type','general')->get();
+        return PostCollection::collection($posts);
+
+    }
+    public function pendingGeneralPost()
+    {
+        $staus = Status::where('name','pending')->value('id');
+        $posts = Post::where('post_type','general')->where('status_id',$staus)->get();
+        return PostCollection::collection($posts);
+
+
+    }
     public function store(Request $request, $id)
     {
-
         $validator = Validator::make($request->all(), [
               'body' => 'required|string|min:2',
         ]);
@@ -101,6 +146,7 @@ class PostController extends Controller
         if ($validator->fails()) {
          return response()->json(['errors'=>$validator->errors()]);
         }
+
 
         if(Chapter::find($id) != null)
         {
@@ -185,7 +231,7 @@ class PostController extends Controller
         return new PostResource($post);
     }
      else{
-            return response()->json('you arenot allowed to see this post');
+            return response()->json('you are not allowed to see this post');
 
          }
      }
@@ -239,7 +285,7 @@ class PostController extends Controller
         // $post = Post::findOrFail($id);
         $vol = Volunteer::findOrFail($post->creator);
         if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
-            Comment::where('post_id', $id)->delete();
+            Comment::where('post_id', $post->id)->delete();
             $post->delete();
             return response()->json(['success' => 'deleted successfully']);
         } else {
@@ -254,11 +300,15 @@ class PostController extends Controller
 
             $chapterVols = self::chapterVols($id);
             $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
-            if ($vol->id == $chapter->chairperson_id) {
-                $pending = Status::where('name','pending')->value('id');
+            if ($vol->position->name =='chairperson' ||$vol->position->name == 'vice-chairperson' || $vol->id == $chapter->chairperson_id ) {
+
+                    $pending = Status::where('name','pending')->value('id');
                 $posts = $chapter->post()->where('status_id',$pending)
                 ->orderBy('created_at', 'desc')->paginate(50);
                 return PostCollection::collection($posts);
+            }
+            else{
+                return response()->json(['error'=> 'you are not allowed to see this page']);
             }
         }
        else
@@ -267,12 +317,16 @@ class PostController extends Controller
             $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
             $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');
             //anyone exept the comm volunteers and the chair / vice
-            if ($vol->position->name == 'director')
+           if ($vol->position->name =='chairperson' || $vol->position->name == 'vice-chairperson' || $vol->position->name == 'director'
+           || $vol->id == $committee->chapter->chairperson_id)
             {
                 $pending = Status::where('name','pending')->value('id');
                 $posts = $committee->post()->where('status_id',$pending)
                 ->orderBy('created_at', 'desc')->paginate(50);
                 return PostCollection::collection($posts);
+            }
+            else{
+                return response()->json(['error'=> 'you are not allowed to see this page']);
             }
         }
     }

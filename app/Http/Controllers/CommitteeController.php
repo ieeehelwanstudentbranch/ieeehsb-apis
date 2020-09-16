@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Chapter;
 use App\Committee;
 use App\Volunteer;
 use App\User;
@@ -67,7 +68,7 @@ class CommitteeController extends Controller
                 'mentor' => 'nullable |numeric | min:0 | max:20000',
                 'director' => 'nullable |numeric | min:1 | max:20000',
                 'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
-                 'create_at' =>'date|nulable|date_format:d/m/Y',
+                 'create_at' =>'date|nullable|date_format:d/m/Y',
 
              ]);
              if ($validator->fails()) {
@@ -79,10 +80,10 @@ class CommitteeController extends Controller
             $committee->name = strtolower($request->name);
             $committee->chapter_id =$request->chapter != null ? $request->chapter : null;
             $committee->description =$request->description != null ? $request->description : null;
-            $committee->created_at = $request->created_at != null ? $request->created_at : Carbon::now();
-
+            $committee->created_at = $request->created_at != null ? $request->created_at : now();
 
             $committee->save();
+
             $commId = $committee->id;
 
             $seasonId = Season::where('isActive',1)->value('id');
@@ -143,44 +144,45 @@ class CommitteeController extends Controller
 
     public function update(Committee $committee,Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'name' =>  'string|max:50 |min:2|required',
+            'mentor' => 'nullable |numeric | min:0 | max:20000',
+            'director' => 'nullable |numeric | min:1 | max:20000',
+            'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
+        ]);
+        if ($validator->fails()) {
+
+            return response()->json(['errors'=>$validator->errors()]);
+        }
        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
         $position = Position::where('id',$vol->position_id)->value('name');
             $seasonId = Season::where('isActive',1)->value('id');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
-$validator = Validator::make($request->all(), [
-                'name' =>  'unique:committees',
-                'mentor' => 'nullable |numeric | min:0 | max:20000',
-                'director' => 'nullable |numeric | min:1 | max:20000',
-                'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
-            ]);
-             if ($validator->fails()) {
 
-             return response()->json(['errors'=>$validator->errors()]);
-         }
-            $committee->name = $request->name;
+            $committee->name = Committee::where('name',strtolower($request->name))->first() != null ? $committee->name: strtolower($request->name);
             $committee->description = $request->description != null ? $request->description:$committee->description;
             $committee->update();
+            $request->mentor != null ? self::updatePos('mentor',$request->mentor,$committee) : null ;
+            $request->director != null ? self::updatePos('director',$request->director,$committee): null ;
+            $request->hr_coordinator != null ?  self::updatePos('hr_coordinator',$request->hr_coordinator,$committee) : null ;
 
-           if ($request->mentor) {
-                self::updatePos('mentor',$request->mentor,$committee);
-            }
-            elseif ($request->director) {
-                self::updatePos('director',$request->director,$committee);
-
-            }
-            elseif ($request->hr_coordinator) {
-                self::updatePos('hr_coordinator',$request->hr_coordinator,$committee);
+            if (Committee::where('name',strtolower($request->name))->first() != null)
+            {
+                return response()->json(['success' =>'The Committee Has been updated successfully','error' =>'Except the name because it is stored before']);
 
             }
-            return response()->json(['success' => 'Committee Updated']);
         } else {
-            return response()->json(['error' => 'Un Authenticated']);
+                return response()->json(['error' => 'Un Authenticated']);
         }
 
     }
     public function updatePos($pos,$volId,$committee)
     {
         $seasonId = Season::where('isActive',1)->value('id');
+        if (Volunteer::where('id',$volId)->first() == null) {
+            return response()->json(['errors' => 'Sorry, This is a participant account']);
+        }
+
         if($committee->volunteer()->wherePivot('position','=',$pos)->wherePivot('season_id',$seasonId)->first())
         {
             $committee->volunteer()->updateExistingPivot($volId , ['position'=>$pos,'season_id'=>$seasonId]);
@@ -205,8 +207,9 @@ $validator = Validator::make($request->all(), [
             }
 
             $committee->delete();
-            $committees = Committee::all();
-            return CommitteeCollection::collection($committees);
+            return response()->json(['success' => 'The Committee has been deleted']);
+
+
         } else {
             return response()->json(['error' => 'Un Authenticated']);
         }

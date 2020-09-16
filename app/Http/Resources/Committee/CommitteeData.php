@@ -42,9 +42,11 @@ class CommitteeData extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'mentor' => self::position('mentor'),
-            'director' =>self::position('mentor'),
-            'hr_coordinator' => self::position('mentor'),
-            'members' =>self::volunteers($this->id)
+            'director' =>self::position('director'),
+            'hr_coordinator' => self::position('hr_coordinator'),
+            'members' =>self::volunteers($this->id),
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString()
         ];
     }
 }

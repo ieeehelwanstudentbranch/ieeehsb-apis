@@ -34,24 +34,19 @@ Route::resource('committee.post', 'PostController')->shallow();
 Route::resource('chapter.post', 'PostController')->shallow();
 
 
+
 Route::get('/chapter/{chapter}/pending-posts', 'PostController@pendingPost');
 Route::get('/committee/{committee}/pending-posts', 'PostController@pendingPost');
+Route::get('/post-general','PostController@postGeneral');
+Route::post('/post-general','PostController@storeGeneralPost');
+Route::get('/pending-posts', 'PostController@pendingGeneralPost');
+
 Route::post('/approve-posts', 'PostController@approvePost');
 Route::post('/disapprove-posts', 'PostController@disapprovePost');
-
-
-// Route::post('create-post', 'PostController@store');
-// Route::put('update-post/{id}', 'PostController@update');
-// Route::delete('/post/{id}', 'PostController@destroy');
 
 //comments
 Route::resource('comment','CommentController');
 Route::resource('post.comment','CommentController')->shallow();
-
-// Route::get('/post/{id}/comments', 'CommentController@index');
-// Route::post('/post/{id}/add-comment', 'CommentController@addComment');
-// Route::put('/update-comment/{id}', 'CommentController@updateComment');
-// Route::delete('/destroy-comment/{id}', 'CommentController@destroyComment');
 
 //User
 Route::resource('user','UserController');
@@ -61,14 +56,15 @@ Route::PUT('update-profile-password/{id}', 'UserController@updateProfilePassword
 Route::delete('change-user/{id}', 'UserController@changeUser');
 
 //task
-Route::get('create-task', 'TaskController@createPage');
-Route::post('create-task', 'TaskController@store');
-Route::get('pending-tasks', 'TaskController@pendingTasks');
-Route::get('complete-tasks', 'TaskController@completeTasks');
-Route::get('task/{id}', 'TaskController@viewTask');
-Route::post('accept-task/{id}', 'TaskController@acceptTask');
-Route::post('refuse-task/{id}', 'TaskController@refuseTask');
-Route::post('deliver-task/{id}', 'TaskController@deliverTask');
+Route::resource('task','TaskController');
+//Route::get('create-task', 'TaskController@createPage');
+//Route::post('create-task', 'TaskController@store');
+//Route::get('pending-tasks', 'TaskController@pendingTasks');
+//Route::get('complete-tasks', 'TaskController@completeTasks');
+//Route::get('task/{id}', 'TaskController@viewTask');
+//Route::post('accept-task/{id}', 'TaskController@acceptTask');
+//Route::post('refuse-task/{id}', 'TaskController@refuseTask');
+//Route::post('deliver-task/{id}', 'TaskController@deliverTask');
 
 //Notification
 Route::get('/notification', 'NotificationController@getNotification');

@@ -24,4 +24,8 @@ class Post extends Model
     {
         return $this->hasOne('App\Status','id','status_id');
     }
+    public function general()
+    {
+        return  $this->where('post_type','general')->get();
+    }
 }

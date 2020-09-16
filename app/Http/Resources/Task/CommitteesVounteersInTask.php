@@ -7,6 +7,7 @@ use App\SendTask;
 use App\Task;
 use App\User;
 use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Support\Facades\DB;
 use phpDocumentor\Reflection\Types\Parent_;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -20,6 +21,7 @@ class CommitteesVounteersInTask extends Resource
      */
     public function toArray($request)
     {
+
         return [
             'id'=>$this->id,
             'name'=>$this->firstName.' '.$this->lastName,

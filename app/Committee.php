@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Committee extends Model
 {
     public $table = 'committees';
-    public $created_at= false;
-    public $updated_at=false;
-
+    public $timestamps = true;
 
     public function volunteer()
     {

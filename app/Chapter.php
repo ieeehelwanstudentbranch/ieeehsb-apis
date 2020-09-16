@@ -7,6 +7,7 @@ class Chapter extends Model
 {
 	    public $table = 'chapters';
         protected $fillable = ['name','description','logo','chairperson_id'];
+    public $timestamps = true;
 
 
     public function committee()

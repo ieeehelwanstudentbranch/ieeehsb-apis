@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Post;
 
+use App\Volunteer;
 use Illuminate\Http\Resources\Json\Resource;
 
 class CommentsCollection extends Resource

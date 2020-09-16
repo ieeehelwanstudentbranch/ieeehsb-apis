@@ -6,8 +6,10 @@ use App\Award;
 use App\Chapter;
 use App\Volunteer;
 use App\Position;
+use Validator;
 use Illuminate\Http\Request;
 use App\Http\Resources\Award\AwardResource;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AwardController extends Controller
 {
@@ -18,7 +20,7 @@ class AwardController extends Controller
      */
     public function __construct()
     {
-        // $this->middleware('jwt.auth');
+         $this->middleware('jwt.auth');
         // $this->middleware('type:volunteer');
 
     }
@@ -47,7 +49,7 @@ class AwardController extends Controller
      */
     public function store(Request $request)
     {
-            $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+            $vol = Volunteer::where('user_id',auth()->user()->id)->first();
         if($vol != null)
         {
             if ($vol->position->name == 'chairperson' || ($vol->position->name == 'vice-chairperson' ||($vol->position->name == 'secratory') ) )
@@ -78,7 +80,13 @@ class AwardController extends Controller
                 $award->save();
 
             }
+            return response()->json(['error' => 'Un Authenticated']);
+
         }
+        else{
+
+        }
+
 
     }
 

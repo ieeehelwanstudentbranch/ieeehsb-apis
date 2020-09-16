@@ -11,7 +11,6 @@ use App\Volunteer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Chapter\ChapterCollection;
 use App\Http\Resources\Chapter\ChapterResource;
@@ -148,7 +147,7 @@ class ChapterController extends Controller
                           $chapter->chairperson_id = $request->chairperson;
                       } else {
                           return response()->json(['errors' => 'You are the ' . $chair->position->name .
-                              'of the Branch,You can not be the chairman of this chpater']);
+                              ' of the Branch,You can not be the chairman of this chpater']);
                       }
                   }
               }
@@ -161,6 +160,9 @@ class ChapterController extends Controller
         ]);
          return response()->json(['success' =>'A New Chapter Has been added successfully']);
      }
+          else {
+              return response()->json(['error'=>'Un Authenticated']);
+          }
 
     }
 
@@ -235,7 +237,7 @@ class ChapterController extends Controller
                      $chapter->chairperson_id = $request->chairperson;
                  } else {
                      return response()->json(['errors' => 'You are the ' . $chair->position->name .
-                         'of the Branch,You can not be the chairman of this chpater']);
+                         ' of the Branch,You can not be the chairman of this chpater']);
                  }
              }
          }
@@ -246,7 +248,9 @@ class ChapterController extends Controller
 
             }
          return response()->json(['success' =>'The Chapter Has been updated successfully']);
-     }
+     }  else {
+            return response()->json(['error'=>'Un Authenticated']);
+        }
     }
 
     /**

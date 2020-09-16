@@ -20,7 +20,6 @@ class ConfirmController extends Controller
             return response()->json(['error' => 'You have not verified account.']);
         }
         $user = User::where('confirmation_code' ,$confirmation_code)->first();
-
         if ( !$user)
         {
             return response()->json(['error' => 'You have not verified account.']);
@@ -32,8 +31,8 @@ class ConfirmController extends Controller
         $email = $user->email;
         if($user->type == 'volunteer')
         {
-          $user->volunteer->status_id = Status::where('name','activated')->value('id');
-          $user->volunteer->update();
+          $user->ptype->status_id = Status::where('name','activated')->value('id');
+          $user->ptype->update();
 
         }
 

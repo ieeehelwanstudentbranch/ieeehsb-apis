@@ -364,15 +364,17 @@ protected $user;
         // if Ex-com(!Chairperson) register
         if ($request->role=='ex_com' && ($request->ex_options!='chairperson') ) {
           $seasonId = Season::where('isActive',1)->value('id');
-
+          $status = Status::where('name','deactivated')->value('id');
+          $pos = Position::where('name','chairperson')->value('id');
             try {
               // user id of the volunteer who is chairperson of the season which is active
-              $chairperson = DB::table('volunteers')
-                           ->join('vol_history', function ($join) use ($seasonId) {
-                           $join->on('volunteers.id', '=', 'vol_history.vol_id')
-                            ->where('vol_history.season_id',$seasonId)
-                            ->where('volunteers.position_id',  Position::where('name','chairperson')->value('id'));
-                           })->get();
+//              $chairperson = DB::table('volunteers')
+//                           ->join('vol_history', function ($join) use ($seasonId) {
+//                           $join->on('volunteers.id', '=', 'vol_history.vol_id')
+//                            ->where('vol_history.season_id',$seasonId)
+//                            ->where('volunteers.position_id',  Position::where('name','chairperson')->value('id'));
+//                           })->get();
+                $chairperson = Volunteer::where('position_id',$pos )->where('status_id',$status)->first();
 
                 $user = User::query()->findOrFail($chairperson->user_id);
                 $email = $user->email;

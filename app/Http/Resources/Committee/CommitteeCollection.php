@@ -36,6 +36,8 @@ class CommitteeCollection extends Resource
             'director' => self::position('director'),
             'hr_coordinator' => self::position('hr_coordinator'),
             'numOfVolunteers' => $numOfVolunteers->count(),
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString()
         ];
     }
 }

@@ -7,6 +7,7 @@ use App\Volunteer;
 use App\Http\Resources\Post\CommentsCollection;
 use App\Http\Resources\Post\PostResource;
 use App\Post;
+use Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -40,6 +41,8 @@ class CommentController extends Controller
          return response()->json(['errors'=>$validator->errors()]);
         }
             $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+        if ($vol)
+        {
             $comment = new Comment();
             $comment->body = $request->body;
             $comment->post_id = $id;
@@ -47,7 +50,8 @@ class CommentController extends Controller
             $comment->created_at = now();
             $comment->save();
             return response()->json(['success' => 'Comment Added Successfully']);
-        } else {
+        }
+         else {
             return response()->json(['error' => 'Un Authenticated']);
         }
     }
@@ -65,7 +69,7 @@ class CommentController extends Controller
 
          return response()->json(['errors'=>$validator->errors()]);
         }
-            $comment->body = $request->'body');
+            $comment->body = $request->body;
             $comment->update();
             return response()->json(['success' => 'Comment Updated Successfully']);
         } else {

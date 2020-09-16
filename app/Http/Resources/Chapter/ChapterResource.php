@@ -35,6 +35,8 @@ class ChapterResource extends JsonResource
             'logo'=> $this->logo,
             'chairperson' => $chairperson,
             'committees' => $this->committee,
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString()
 
 
         ];
