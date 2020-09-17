@@ -49,10 +49,16 @@ class CommentController extends Controller
             $comment->creator = $vol->id;
             $comment->created_at = now();
             $comment->save();
-            return response()->json(['success' => 'Comment Added Successfully']);
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'Comment Has Been Added Successfully',
+            ]);
         }
          else {
-            return response()->json(['error' => 'Un Authenticated']);
+             return response()->json([
+                 'response' => 'Error',
+                 'message' =>  'Un Authenticated',
+             ]);
         }
     }
 
@@ -71,9 +77,15 @@ class CommentController extends Controller
         }
             $comment->body = $request->body;
             $comment->update();
-            return response()->json(['success' => 'Comment Updated Successfully']);
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'Comment Has Been Updated Successfully',
+            ]);
         } else {
-            return response()->json(['error' => 'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Un Authenticated',
+            ]);
         }
     }
 
@@ -84,9 +96,15 @@ class CommentController extends Controller
         $vol = Volunteer::findOrFail($comment->creator);
         if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
             $comment->delete();
-            return response()->json(['success' => 'Comment Deleted Successfully']);
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'Comment Has Been Deleted Successfully',
+            ]);
         } else {
-            response()->json(['error' => 'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Un Authenticated',
+            ]);
         }
     }
 }

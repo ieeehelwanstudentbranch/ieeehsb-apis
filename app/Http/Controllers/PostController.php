@@ -139,6 +139,7 @@ class PostController extends Controller
     }
     public function store(Request $request, $id)
     {
+
         $validator = Validator::make($request->all(), [
               'body' => 'required|string|min:2',
         ]);
@@ -164,7 +165,10 @@ class PostController extends Controller
                 'status_id' => Status::where('name','approved')->value('id'),
 
             ]);
-             return response()->json('Post Created Successfully');
+                return response()->json([
+                    'response' => 'Success',
+                    'message' =>  'Post Has Been Created Successfully',
+                ]);
 
         }
         elseif(in_array($vol->id,$chapterVols))
@@ -177,8 +181,17 @@ class PostController extends Controller
                 'created_at' =>now(),
                 'creator' => $vol->id,
             ]);
-             return response()->json('The Post is sent to the chairperson to be approved');
+            return response()->json([
+                'response' => 'Warning',
+                'message' =>  'The Post Is Sent To The Chairperson To Be Approved',
+            ]);
          }
+            else{
+                return response()->json([
+                    'response' => 'Error',
+                    'message' =>  'Un Authenticated',
+                ]);
+            }
 
         }
         else{
@@ -189,7 +202,10 @@ class PostController extends Controller
         //anyone exept the comm volunteers and the chair / vice
         if ( $volPos != 'volunteer' &&($vol->position->name != 'chairperson' ||
             ($vol->position->name != 'vice-chairperson'))) {
-            return response()->json(['error'=> 'you are not in this committee']);
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'You Are Not Volunteer In This Committee',
+            ]);
         }
         /*the cahirperson and vice can add posts in this committee
         Any Volunteer in the committee can add post but it will be sent to director to approve it
@@ -204,7 +220,10 @@ class PostController extends Controller
                 'status_id' => Status::where('name','approved')->value('id'),
 
             ]);
-             return response()->json('Post Created Successfully');
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'Post Created Successfully',
+            ]);
 
         }
         else
@@ -217,7 +236,10 @@ class PostController extends Controller
                 'created_at' =>now(),
                 'creator' => $vol->id,
             ]);
-            return response()->json('The Post is sent to the director to be approved');
+            return response()->json([
+                'response' => 'Warning',
+                'message' =>  'The Post is sent to the director to be approved',
+            ]);
 
          }
         // event(new PostEvent($post));
@@ -231,7 +253,10 @@ class PostController extends Controller
         return new PostResource($post);
     }
      else{
-            return response()->json('you are not allowed to see this post');
+         return response()->json([
+             'response' => 'Error',
+             'message' =>  'You Are Not Allowed To See This Post',
+         ]);
 
          }
      }
@@ -251,7 +276,7 @@ class PostController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param int $id
-     * @return PostResource
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Post $post)
     {
@@ -268,9 +293,15 @@ class PostController extends Controller
 
             $post->body = $request->body;
             $post->update();
-            return response()->json(['success' => 'updated successfully']);
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'The Post Is Updated Successfully',
+            ]);
         } else {
-            return response()->json(['error' => 'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Un Authenticated',
+            ]);
         }
     }
 
@@ -278,7 +309,7 @@ class PostController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy( Post $post)
     {
@@ -287,9 +318,15 @@ class PostController extends Controller
         if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
             Comment::where('post_id', $post->id)->delete();
             $post->delete();
-            return response()->json(['success' => 'deleted successfully']);
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'The Post Has Been Deleted Successfully',
+            ]);
         } else {
-            return response()->json(['error' => 'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Un Authenticated',
+            ]);
         }
     }
     public function pendingPost($id)
@@ -308,7 +345,10 @@ class PostController extends Controller
                 return PostCollection::collection($posts);
             }
             else{
-                return response()->json(['error'=> 'you are not allowed to see this page']);
+                return response()->json([
+                    'response' => 'Error',
+                    'message' =>  'You Are Not Allowed To See This Page',
+                ]);
             }
         }
        else
@@ -326,7 +366,10 @@ class PostController extends Controller
                 return PostCollection::collection($posts);
             }
             else{
-                return response()->json(['error'=> 'you are not allowed to see this page']);
+                return response()->json([
+                    'response' => 'Error',
+                    'message' =>  'You Are Not Allowed To See This Page',
+                ]);
             }
         }
     }
@@ -342,7 +385,10 @@ class PostController extends Controller
         $post = Post::findOrFail($request->post);
         $post->status_id = $approved;
         $post->update();
-        return response()->json('the post has been approved');
+        return response()->json([
+            'response' => 'Success',
+            'message' =>  'The Post Has Been Approved',
+        ]);
 
     }
     public function disapprovePost( Request $request)
@@ -355,6 +401,9 @@ class PostController extends Controller
         }
         $post = Post::findOrFail($request->post);
         $post->delete();
-        return response()->json('the post has been deleted');
+        return response()->json([
+            'response' => 'Success',
+            'message' =>  'The Post Has Been Deleted',
+        ]);
     }
 }

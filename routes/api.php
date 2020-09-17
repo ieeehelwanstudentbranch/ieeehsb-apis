@@ -59,12 +59,12 @@ Route::delete('change-user/{id}', 'UserController@changeUser');
 Route::resource('task','TaskController');
 //Route::get('create-task', 'TaskController@createPage');
 //Route::post('create-task', 'TaskController@store');
-//Route::get('pending-tasks', 'TaskController@pendingTasks');
-//Route::get('complete-tasks', 'TaskController@completeTasks');
+Route::get('pending-tasks', 'TaskController@pendingTasks');
+Route::get('complete-tasks', 'TaskController@completeTasks');
 //Route::get('task/{id}', 'TaskController@viewTask');
-//Route::post('accept-task/{id}', 'TaskController@acceptTask');
-//Route::post('refuse-task/{id}', 'TaskController@refuseTask');
-//Route::post('deliver-task/{id}', 'TaskController@deliverTask');
+Route::post('accept-task/{id}', 'TaskController@acceptTask');
+Route::post('refuse-task/{id}', 'TaskController@refuseTask');
+Route::post('deliver-task/{id}', 'TaskController@deliverTask');
 
 //Notification
 Route::get('/notification', 'NotificationController@getNotification');

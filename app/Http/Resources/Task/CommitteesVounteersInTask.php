@@ -6,6 +6,7 @@ use App\Committee;
 use App\SendTask;
 use App\Task;
 use App\User;
+use App\Volunteer;
 use Illuminate\Http\Resources\Json\Resource;
 use Illuminate\Support\Facades\DB;
 use phpDocumentor\Reflection\Types\Parent_;
@@ -21,10 +22,12 @@ class CommitteesVounteersInTask extends Resource
      */
     public function toArray($request)
     {
+        $vol = Volunteer::findOrFail($this->vol_id);
 
         return [
-            'id'=>$this->id,
-            'name'=>$this->firstName.' '.$this->lastName,
+            'id'=>$this->vol_id,
+            'name'=>$vol->user->firstName.' '.$vol->user->lastName,
+            'position' => $this->position,
         ];
     }
 }

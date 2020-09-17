@@ -12,16 +12,16 @@ class SeasonSeeder extends Seeder
     public function run()
     {
       DB::table('seasons')->insert([
-        'name' => '2019-2020',
-        'startDate' => '2019-07-01',
-        'endDate' => '2020-07-28',
+        'name' => '2020-2021',
+        'startDate' => '2020-08-01',
+        'endDate' => '2021-08-01',
         'isActive' => 1,
         'created_at' => now(),
       ]);
       DB::table('seasons')->insert([
-        'name' => '2020-2021',
-        'startDate' => '2020-07-28',
-        'endDate' => '2021-07-01',
+        'name' => '2021-2022',
+        'startDate' => '2021-08-01',
+        'endDate' => '2022-08-01',
         'isActive' => 0,
         'created_at' => now(),
       ]);

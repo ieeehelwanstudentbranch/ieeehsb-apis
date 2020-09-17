@@ -24,7 +24,11 @@ class StatusSeeder extends Seeder
           'created_at' => now(),
       ]);
         DB::table('statuses')->insert([
-          'name' => 'approved',
+            'name' => 'delivered',
+            'created_at' => now(),
+        ]);
+        DB::table('statuses')->insert([
+          'name' => 'accepted',
           'created_at' => now(),
       ]);
         DB::table('statuses')->insert([

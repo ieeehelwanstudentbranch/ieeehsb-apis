@@ -168,19 +168,25 @@ class CommitteeController extends Controller
 
             if (Committee::where('name',strtolower($request->name))->first() != null)
             {
+
                 return response()->json(['success' =>'The Committee Has been updated successfully','error' =>'Except the name because it is stored before']);
 
             }
         } else {
-                return response()->json(['error' => 'Un Authenticated']);
-        }
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Un Authenticated',
+            ]);        }
 
     }
     public function updatePos($pos,$volId,$committee)
     {
         $seasonId = Season::where('isActive',1)->value('id');
         if (Volunteer::where('id',$volId)->first() == null) {
-            return response()->json(['errors' => 'Sorry, This is a participant account']);
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Sorry, This Is A Participant Account',
+            ]);
         }
 
         if($committee->volunteer()->wherePivot('position','=',$pos)->wherePivot('season_id',$seasonId)->first())
@@ -207,11 +213,17 @@ class CommitteeController extends Controller
             }
 
             $committee->delete();
-            return response()->json(['success' => 'The Committee has been deleted']);
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'The Committee Has Been Deleted Successfully',
+            ]);
 
 
         } else {
-            return response()->json(['error' => 'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Un Authenticated',
+            ]);
         }
     }
 }

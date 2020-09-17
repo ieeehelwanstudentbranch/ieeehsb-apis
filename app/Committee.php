@@ -24,4 +24,8 @@ class Committee extends Model
     {
         return $this->morphMany('App\Post', 'post');
     }
+//    public function task()
+//    {
+//        return $this->morphMany('App\Task', 'task');
+//    }
 }

@@ -50,41 +50,44 @@ class AwardController extends Controller
     public function store(Request $request)
     {
             $vol = Volunteer::where('user_id',auth()->user()->id)->first();
-        if($vol != null)
-        {
-            if ($vol->position->name == 'chairperson' || ($vol->position->name == 'vice-chairperson' ||($vol->position->name == 'secratory') ) )
-            {
+        if($vol != null) {
+            if ($vol->position->name == 'chairperson' || ($vol->position->name == 'vice-chairperson' || ($vol->position->name == 'secratory'))) {
                 $validator = Validator::make($request->all(), [
-            'name' => 'required |string | max:50 | min:3|unique:awards',
-            'information' =>'required|string|min:2',
-            'location' =>'nullable|string|min:2',
-            'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
-            'date' => 'required|date|date_format:Y-m-d',
-            'chapterId' =>'nullable|numeric',
-            //meen 25d el award el branch wla el chapter
+                    'name' => 'required |string | max:50 | min:3|unique:awards',
+                    'information' => 'required|string|min:2',
+                    'location' => 'nullable|string|min:2',
+                    'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
+                    'date' => 'required|date|date_format:Y-m-d',
+                    'chapterId' => 'nullable|numeric',
+                    //meen 25d el award el branch wla el chapter
                 ]);
-                if ($validator->fails())
-                {
-                    return response()->json(['errors'=>$validator->errors()]);
+                if ($validator->fails()) {
+                    return response()->json(['errors' => $validator->errors()]);
                 }
-                $award =  new Award;
+                $award = new Award;
                 $award->name = $request->name;
-                $award->information = $request->information!= null ? $request->information : $award->information;
-                $award->location = $request->location!= null ? $request->location : null;
+                $award->information = $request->information != null ? $request->information : $award->information;
+                $award->location = $request->location != null ? $request->location : null;
                 $award->date = $request->date;
                 if ($request->file('image')) {
                     $filename = $request->file('image')->store('public/awards/');
                     $award->image = trim($filename, 'public');
                 }
-                $award->to = $request->chapterId!= null ? $request->chapterId : null;
+                $award->to = $request->chapterId != null ? $request->chapterId : null;
                 $award->save();
 
+            } else {
+                return response()->json([
+                    'response' => 'Error',
+                    'message' => 'Sorry, You are Not Authorized to Create The Award.',
+                ]);
             }
-            return response()->json(['error' => 'Un Authenticated']);
-
         }
         else{
-
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Sorry, You are Not Authorized to Create The Award.',
+            ]);
         }
 
 
@@ -128,7 +131,7 @@ class AwardController extends Controller
             if ($vol->position->name == 'chairperson' || ($vol->position->name == 'vice-chairperson' ||($vol->position->name == 'secratory') ) )
             {
                 $validator = Validator::make($request->all(), [
-            'name' => 'required |string | max:50 | min:3|unique:awards',
+            'name' => ' string | max:50 | min:3|required|unique:awards',
             'information' =>'nullable|string|min:2',
             'location' =>'nullable|string|min:2',
             'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
@@ -159,7 +162,7 @@ class AwardController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\Award  $award
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Award $award)
     {
@@ -171,5 +174,11 @@ class AwardController extends Controller
                 $award->delete();
             }
     }
+        else{
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Sorry, You are Not Authorized to delete The Award.',
+            ]);
+        }
 }
 }

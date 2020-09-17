@@ -146,8 +146,10 @@ class ChapterController extends Controller
                       if (strpos($chair->position->name, $chapter->name)) {
                           $chapter->chairperson_id = $request->chairperson;
                       } else {
-                          return response()->json(['errors' => 'You are the ' . $chair->position->name .
-                              ' of the Branch,You can not be the chairman of this chpater']);
+                          return response()->json([
+                              'response' => 'Error',
+                              'message' => 'You are the ' . $chair->position->name . ' of the Branch,You can not be the chairman of this chpater',
+                          ]);
                       }
                   }
               }
@@ -158,10 +160,16 @@ class ChapterController extends Controller
             'name' => 'chairperson ' . strtolower($request->name) ,
             'role_id' => Role::where('name','ex_com')->value('id')
         ]);
-         return response()->json(['success' =>'A New Chapter Has been added successfully']);
+              return response()->json([
+                  'response' => 'Success',
+                  'message' =>  'A New Chapter Has been added successfully',
+              ]);
      }
           else {
-              return response()->json(['error'=>'Un Authenticated']);
+              return response()->json([
+                  'response' => 'Error',
+                  'message' =>  'Un Authenticated',
+              ]);
           }
 
     }
@@ -195,7 +203,7 @@ class ChapterController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Chapter $chapter)
     {
@@ -230,14 +238,22 @@ class ChapterController extends Controller
             }
             if ($request->chairperson != null) {
              if (Volunteer::where('id',$request->chairperson)->first() == null) {
-                 return response()->json(['errors' => 'Sorry, This is a participant account']);
+                 return response()->json([
+                     'response' => 'Error',
+                     'message' =>  'Sorry, This is a participant account',
+                 ]);
+
              } else {
                  $chair = Volunteer::findOrFail($request->chairperson);
                  if (strpos($chair->position->name, $chapter->name)) {
                      $chapter->chairperson_id = $request->chairperson;
                  } else {
-                     return response()->json(['errors' => 'You are the ' . $chair->position->name .
-                         ' of the Branch,You can not be the chairman of this chpater']);
+                     return response()->json([
+                         'response' => 'Error',
+                         'message' =>  'You are the ' . $chair->position->name .
+                             ' of the Branch,You can not be the chairman of this chpater',
+                     ]);
+
                  }
              }
          }
@@ -247,9 +263,15 @@ class ChapterController extends Controller
                 return response()->json(['success' =>'The Chapter Has been updated successfully','error' =>'Except the name  because it is stored before']);
 
             }
-         return response()->json(['success' =>'The Chapter Has been updated successfully']);
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'The Chapter Has been updated successfully',
+            ]);
      }  else {
-            return response()->json(['error'=>'Un Authenticated']);
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Un Authenticated',
+            ]);
         }
     }
 
@@ -257,7 +279,7 @@ class ChapterController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Chapter $chapter)
     {
@@ -271,7 +293,16 @@ class ChapterController extends Controller
             }
 
          $chapter->delete();
-         return response()->json(['success' =>'The Chapter Has been deleted successfully']);
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'The Chapter Has been deleted successfully',
+            ]);
      }
+        else{
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Un Authenticated',
+            ]);
+        }
     }
 }
