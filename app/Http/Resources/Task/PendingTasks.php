@@ -4,8 +4,10 @@ namespace App\Http\Resources\Task;
 
 use App\Committee;
 use App\DeliverTask;
+use App\Status;
 use App\Task;
 use Illuminate\Http\Resources\Json\Resource;
+use Illuminate\Support\Facades\DB;
 use phpDocumentor\Reflection\Types\Parent_;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -17,27 +19,44 @@ class PendingTasks extends Resource
      * @param \Illuminate\Http\Request $request
      * @return array
      */
+    public function info($pos)
+    {
+        $comm = DB::table('committees')
+            ->join('vol_committees','committees.id','=','vol_committees.committee_id')
+            ->join('volunteers','volunteers.id','vol_committees.vol_id')
+            ->where('vol_committees.position', '=', $pos )
+            ->where('season_id',DB::table('seasons')->where('isActive',1)->value('id'))
+            ->where('vol_committees.vol_id','volunteers.id')
+            ->select('committees.id','committees.name')->get();
+        return $comm;
+    }
+    public function status($s)
+    {
+        $stat = Status::where('name',$s)->value('id');
+        return $stat;
+
+    }
     public function toArray($request)
     {
-        $committees_mentor = Committee::query()->where('mentor_id', JWTAuth::parseToken()->authenticate()->id)->get();
-        $committees_hr_od = Committee::query()->where('hr_coordinator_id', JWTAuth::parseToken()->authenticate()->id)->get();
+        $committees_mentor = self::info('mentor');
+        $committees_hr_od =self::info('hr_coordinator');
 //        $tasksSent = Task::where('from', JWTAuth::parseToken()->authenticate()->id)->where('status','pending')->get();
 
         $tasksSent = Task::where('from', JWTAuth::parseToken()->authenticate()->id)->where(function ($q) {
-            $q->where('status', 'pending')
-                ->orWhere('status', 'deliver');
+            $q->where('status_id', self::status('pending'))
+                ->orWhere('status_id', self::status('delivered'));
         })->get();
 
         $tasksRecived = Task::where('to', JWTAuth::parseToken()->authenticate()->id)->where(function ($q) {
-            $q->where('status', 'pending')
-                ->orWhere('status', 'deliver');
+            $q->where('status_id', self::status('pending'))
+                ->orWhere('status_id', self::status('delivered'));
         })->get();
 
         try {
             foreach ($committees_mentor as $committee) {
                 $committeeTasks[] = DataInTask::collection(Task::query()->where('committee_id', $committee->id)->where(function ($q) {
-                    $q->where('status', 'pending')
-                        ->orWhere('status', 'deliver');
+                    $q->where('status_id', self::status('pending'))
+                        ->orWhere('status_id', self::status('delivered'));
                 })->get());
             }
             return [
@@ -49,8 +68,8 @@ class PendingTasks extends Resource
             try {
                 foreach ($committees_hr_od as $committee) {
                     $committeeTask[] = DataInTask::collection(Task::query()->where('committee_id', $committee->id)->where(function ($q) {
-                        $q->where('status', 'pending')
-                            ->orWhere('status', 'deliver');
+                        $q->where('status_id', self::status('pending'))
+                            ->orWhere('status_id', self::status('delivered'));
                     })->get());
                 }
                 return [
