@@ -12,10 +12,14 @@ use App\Http\Resources\Task\PendingTasks;
 use App\Http\Resources\Task\TaskCollection;
 use App\Http\Resources\Task\TaskCollectionPanding;
 use App\Notification;
+use App\Position;
 use App\SendTask;
+use App\Status;
 use App\Task;
 use App\Events\TaskEvent;
 use App\User;
+use App\Volunteer;
+use Illuminate\Support\Facades\Validator;
 use function GuzzleHttp\Psr7\try_fopen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,20 +30,27 @@ class TaskController extends Controller
     public function __construct()
     {
         $this->middleware('jwt.auth');
+        $this->middleware('type:volunteer');
+
     }
 
-    public function createPage(){
-        if ( JWTAuth::parseToken()->authenticate()->position == 'EX_com' || JWTAuth::parseToken()->authenticate()->position == 'highBoard') {
-            $users = User::select('id', 'firstName', 'lastName', 'position')->get();
-            return new CreateTaskPage($users);
+    public function create(){
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+        $pos = $vol->position;
+        if ($pos->role->name == 'ex_com' || ($pos->role->name == 'highboard')) {
+            $volunteers = Volunteer::all();
+            return new CreateTaskPage($volunteers);
         }else{
             return response()->json(['error'=>'Un Authenticated']);
         }
     }
 
     public function store(Request $request){
-        if ( JWTAuth::parseToken()->authenticate()->position == 'EX_com' || JWTAuth::parseToken()->authenticate()->position == 'highBoard') {
-            $this->validate($request, [
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+        $pos = $vol->position;
+        if ($pos->role->name == 'ex_com' || ($pos->role->name == 'highboard')) {
+            $validator = Validator::make($request->all(), [
+
                 'title' => 'required |min:3 |max:100 ',
                 'body' => 'required |min:3',
                 'deadline' => 'required',
@@ -51,14 +62,20 @@ class TaskController extends Controller
                 'to' => 'required',
             ]);
 
-            foreach ($request->input('to') as $to) {
+            if ($validator->fails()) {
+                return response()->json(['errors'=>$validator->errors()]);
+            }
+
+            foreach ($request->to as $to) {
                 $task = new Task();
                 $task->title = $request->input('title');
                 $task->body_sent = $request->input('body');
                 $task->deadline = $request->input('deadline');
                 $task->from = JWTAuth::parseToken()->authenticate()->id;
                 $task->to = $to;
-                $task->committee_id = User::findOrFail($to)->committee_id;
+                $vol = Volunteer::findOrFail($to);
+                $task->comm_id = $vol->committee->first()->id;
+                $task->status_id = Status::where('name','pending')->value('id');
                 // upload files
                 if ($request->hasfile('files')) {
                     foreach ($request->file('files') as $file) {
@@ -72,7 +89,7 @@ class TaskController extends Controller
                     $task->files_sent = json_encode($data);
                 }
                 $task->save();
-                event(new TaskEvent($task , 'send'));
+//                event(new TaskEvent($task , 'send'));
             }
             return response()->json(['success'=>'task sent successfully']);
         } else {
@@ -93,7 +110,7 @@ class TaskController extends Controller
     }
     
     // view task
-    public function viewTask($id){
+    public function show($id){
         if (Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id) || Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)
         ||(Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id))
         ){
@@ -107,7 +124,7 @@ class TaskController extends Controller
     public function deliverTask(Request $request ,$id){
         $task = Task::findOrFail($id);
         if ($task->to == JWTAuth::parseToken()->authenticate()->id){
-            $this->validate($request, [
+            $validator = Validator::make($request->all(), [
                 'body' => 'required |min:1',
                 'files.*' => 'sometimes|file|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
                 [
@@ -115,6 +132,9 @@ class TaskController extends Controller
                     'files.*.max' => 'Sorry! Maximum allowed size for an one file is 500MB',
                 ],
             ]);
+            if ($validator->fails()) {
+                return response()->json(['errors'=>$validator->errors()]);
+            }
             // upload files
             if ($request->hasfile('files')) {
                 foreach ($request->file('files') as $file) {
@@ -125,12 +145,13 @@ class TaskController extends Controller
                     $file->move(base_path() . '/storage/app/public/tasks_delivered', $fileNameStore);
                     $data[] = $fileNameStore;
                 }
-                $task->files_deliver = json_encode($data);
+                $task->files_delivered = json_encode($data);
             }
-            $task->body_deliver = $request->input('body');
-            $task->status = 'deliver';
+
+            $task->body_delivered = $request->body;
+            $task->status_id = Status::where('name','delivered')->value('id');
             $task->update();
-            event(new TaskEvent($task , 'deliver'));
+//            event(new TaskEvent($task , 'deliver'));
             return response()->json([
                 'response' => 'Success',
                 'message' => 'Congratulations, You had delivered this task successfully, Keep Going.',
@@ -147,15 +168,19 @@ class TaskController extends Controller
         $task = Task::findOrFail($id);
 
         if ($task->from == JWTAuth::parseToken()->authenticate()->id){
-            $this->validate($request, [
-                'rate' => 'required|numeric|min:1|max:100',
-                'evaluation' => 'required|min:3',
+
+            $validator = Validator::make($request->all(), [
+                'rate' => 'numeric|required|min:1|max:100',
+                'evaluation' => 'string|required|min:3',
             ]);
-            $task->status = 'accepted';
-            $task->rate = $request->input('rate');
-            $task->evaluation = $request->input('evaluation');
+            if ($validator->fails()) {
+                return response()->json(['errors'=>$validator->errors()]);
+            }
+            $task->status_id = Status::where('name','accepted')->value('id');
+            $task->rate = $request->rate;
+            $task->evaluation = $request->evaluation;
             $task->update();
-            event(new TaskEvent($task , 'accept-task'));
+//            event(new TaskEvent($task , 'accept-task'));
             return response()->json([
                 'response' => 'Success',
                 'message' => 'Evaluating tasks done successfullty',
@@ -171,9 +196,9 @@ class TaskController extends Controller
     public function refuseTask($id){
         $task = Task::findOrFail($id);
         if ($task->from == JWTAuth::parseToken()->authenticate()->id){
-            $task->status = 'pending';
+            $task->status_id = Status::where('name','pending')->value('id');
             $task->update();
-            event(new TaskEvent($task , 'refuse-task'));
+//            event(new TaskEvent($task , 'refuse-task'));
             return response()->json([
                 'response' => 'Success',
                 'message' => 'The task has been refused successfully',
