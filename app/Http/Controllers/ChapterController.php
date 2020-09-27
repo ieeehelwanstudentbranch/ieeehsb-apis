@@ -306,8 +306,7 @@ class ChapterController extends Controller
                     $chapter = Chapter::findOrFail($chId);
                     $committees = Committee::where('chapter_id', $chapter->id)->get();
                     foreach ($committees as $key => $comm) {
-                        $comm->chapter_id = 0;
-                        $comm->update();
+                        $comm->delete();
                     }
 
                     $chapter->delete();
