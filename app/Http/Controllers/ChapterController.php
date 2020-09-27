@@ -296,30 +296,31 @@ class ChapterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Chapter $chapter)
+    public function destroy($chId)
     {
         $vol = Volunteer::where('user_id',auth()->user()->id)->first();
-        if ($vol)
-        {
-        $position = Position::where('id',$vol->position_id)->value('name');
-        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
-            $committees = Committee::where('chapter_id', $chapter->id)->get();
-            foreach ($committees as $key => $comm) {
-                $comm->chapter_id = 0;
-                $comm->update();
-            }
+        if ($vol) {
+            $position = Position::where('id', $vol->position_id)->value('name');
+            if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+                if (Chapter::where('id', $chId)->first() != null) {
+                    $chapter = Chapter::findOrFail($chId);
+                    $committees = Committee::where('chapter_id', $chapter->id)->get();
+                    foreach ($committees as $key => $comm) {
+                        $comm->chapter_id = 0;
+                        $comm->update();
+                    }
 
-            $chapter->delete();
-            return response()->json([
-                'response' => 'Success',
-                'message' => 'The Chapter Has been deleted successfully',
-            ]);
-        }
-        else {
-                return response()->json([
-                    'response' => 'Error',
-                    'message' =>  'You are not allowed to create a chapter',
-                ]);
+                    $chapter->delete();
+                    return response()->json([
+                        'response' => 'Success',
+                        'message' => 'The Chapter Has been deleted successfully',
+                    ]);
+                } else {
+                    return response()->json([
+                        'response' => 'Error',
+                        'message' => 'You are not allowed to create a chapter',
+                    ]);
+                }
             }
         }
 

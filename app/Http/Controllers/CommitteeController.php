@@ -207,27 +207,42 @@ class CommitteeController extends Controller
     }
 
     // delete
-    public function destroy(Committee $committee)
+    public function destroy($commId)
     {
        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
-        $seasonId = Season::where('isActive',1)->value('id');
-        $position = Position::where('id',$vol->position_id)->value('name');
-        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
-            $committee->volunteer;
-            $volunteers = $committee->volunteer()->wherePivot('committee_id',$committee->id)
-            ->wherePivot('season_id',$seasonId)->pluck('vol_id');
-            foreach ($volunteers as $key => $volunteer) {
-                $committee->volunteer()->detach($volunteer);
-            }
+       if($vol) {
+           $seasonId = Season::where('isActive', 1)->value('id');
+           $position = Position::where('id', $vol->position_id)->value('name');
+           if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+               if (Committee::where('id', $commId)->first() != null) {
+                   $committee = Committee::findOrFail($commId);
+                   $committee->volunteer;
+                   $volunteers = $committee->volunteer()->wherePivot('committee_id', $committee->id)
+                       ->wherePivot('season_id', $seasonId)->pluck('vol_id');
+                   foreach ($volunteers as $key => $volunteer) {
+                       $committee->volunteer()->detach($volunteer);
+                   }
 
-            $committee->delete();
-            return response()->json([
-                'response' => 'Success',
-                'message' =>  'The Committee Has Been Deleted Successfully',
-            ]);
-
-
-        } else {
+                   $committee->delete();
+                   return response()->json([
+                       'response' => 'Success',
+                       'message' => 'The Committee Has Been Deleted Successfully',
+                   ]);
+               } else {
+                   return response()->json([
+                       'response' => 'Error',
+                       'message' => 'The Committee Is Not Found',
+                   ]);
+               }
+           }
+           else {
+               return response()->json([
+                   'response' => 'Error',
+                   'message' =>  'You are not allowed to create a chapter',
+               ]);
+           }
+       }
+       else {
             return response()->json([
                 'response' => 'Error',
                 'message' =>  'Un Authenticated',
