@@ -159,12 +159,14 @@ protected $user;
             'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
             'email' => 'required |string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
-            'password_confirmation'=>'sometimes|required_with:password',
+            'password_confirmation'=>'required_with:password',
             'type' =>'required|string',
         ]);
 
         if ($request->type=='volunteer')
-        {$validator = Validator::make($request->all(), ['role' => 'required']);}
+        {$validator = Validator::make($request->all(), ['role' => 'required',
+            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
+            'password_confirmation'=>'required_with:password']);}
 
        // if ($request->input('role')=='ex_com')
        // {$validator = Validator::make($request->all(), ['ex_options' => 'required']);}
