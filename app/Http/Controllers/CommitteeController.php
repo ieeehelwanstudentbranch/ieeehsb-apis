@@ -75,10 +75,17 @@ class CommitteeController extends Controller
 
          return response()->json(['errors'=>$validator->errors()]);
        }
-
             $committee = new Committee();
             $committee->name = strtolower($request->name);
-            $committee->chapter_id =$request->chapter != null ? $request->chapter : null;
+            $chapter = Chapter::where('id',$request->chapter)->first();
+            if ($chapter == null)
+            {
+                return response()->json(['error' => 'This Chapter Is Not Found']);
+            }
+            else{
+                $committee->chapter_id =$request->chapter != null ? $request->chapter : null;
+
+            }
             $committee->description =$request->description != null ? $request->description : null;
             $committee->created_at = $request->created_at != null ? $request->created_at : now();
 
@@ -166,12 +173,13 @@ class CommitteeController extends Controller
             $request->director != null ? self::updatePos('director',$request->director,$committee): null ;
             $request->hr_coordinator != null ?  self::updatePos('hr_coordinator',$request->hr_coordinator,$committee) : null ;
 
-            if (Committee::where('name',strtolower($request->name))->first() != null)
-            {
+//            if (Committee::where('name',strtolower($request->name))->first() != null)
+//            {
 
-                return response()->json(['success' =>'The Committee Has been updated successfully','error' =>'Except the name because it is stored before']);
+                return response()->json(['success' =>'The Committee Has been updated successfully']);
 
-            }
+//            }
+
         } else {
             return response()->json([
                 'response' => 'Error',

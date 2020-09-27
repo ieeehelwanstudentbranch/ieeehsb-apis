@@ -36,14 +36,15 @@ class ConfirmController extends Controller
 
         }
 
-        return response()->json(['success' => 'You have verified your account.Please Check Your Mail']);
 
             Mail::send('emails.confirm',compact(['user']), function($message) use ($email) {
 
             $message->to($email, 'user')->subject('Confrim Mail');
 
         });
-      }
+            return response()->json(['success' => 'You have verified your account.Please Check Your Mail']);
+
+        }
 
         }
 }
