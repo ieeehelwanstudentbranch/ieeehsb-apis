@@ -130,9 +130,17 @@ class CommitteeController extends Controller
 
     }
      // view committee
-    public function show(Committee $committee)
+    public function show($commId)
     {
-        return new CommitteeData($committee);
+        if (Committee::where('id', $commId)->first() != null) {
+            $committee = Committee::findOrFail($commId);
+            return new CommitteeData($committee);
+        }else{
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Committee Not Found',
+            ]);
+        }
     }
 
 
@@ -149,7 +157,7 @@ class CommitteeController extends Controller
         }
     }
 
-    public function update(Committee $committee,Request $request)
+    public function update( $commId,Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' =>  'string|max:50 |min:2|required',
@@ -165,22 +173,32 @@ class CommitteeController extends Controller
         $position = Position::where('id',$vol->position_id)->value('name');
             $seasonId = Season::where('isActive',1)->value('id');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+            if (Committee::where('id', $commId)->first() != null) {
+                $committee = Committee::findOrFail($commId);
 
-            $committee->name = Committee::where('name',strtolower($request->name))->first() != null ? $committee->name: strtolower($request->name);
-            $committee->description = $request->description != null ? $request->description:$committee->description;
-            $committee->update();
-            $request->mentor != null ? self::updatePos('mentor',$request->mentor,$committee) : null ;
-            $request->director != null ? self::updatePos('director',$request->director,$committee): null ;
-            $request->hr_coordinator != null ?  self::updatePos('hr_coordinator',$request->hr_coordinator,$committee) : null ;
+                $committee->name = Committee::where('name', strtolower($request->name))->first() != null ? $committee->name : strtolower($request->name);
+                $committee->description = $request->description != null ? $request->description : $committee->description;
+                $committee->update();
+                $request->mentor != null ? self::updatePos('mentor', $request->mentor, $committee) : null;
+                $request->director != null ? self::updatePos('director', $request->director, $committee) : null;
+                $request->hr_coordinator != null ? self::updatePos('hr_coordinator', $request->hr_coordinator, $committee) : null;
 
 //            if (Committee::where('name',strtolower($request->name))->first() != null)
 //            {
 
-                return response()->json(['success' =>'The Committee Has been updated successfully']);
+                return response()->json(['success' => 'The Committee Has been updated successfully']);
 
 //            }
 
-        } else {
+            }  else{
+                return response()->json([
+                    'response' => 'Error',
+                    'message' =>  'Committee Not Found',
+                ]);
+            }
+        }
+        else {
+
             return response()->json([
                 'response' => 'Error',
                 'message' =>  'Un Authenticated',
