@@ -187,10 +187,18 @@ class ChapterController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Chapter $chapter)
+    public function show($chId)
     {
-        $chapter;
-        return new ChapterResource($chapter);
+        if (Committee::where('id', $chId)->first() != null) {
+            $chapter = Chapter::findOrFail($chId);
+            return new ChapterResource($chapter);
+        }
+        else{
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Chapter Not Found',
+            ]);
+        }
     }
 
     /**
