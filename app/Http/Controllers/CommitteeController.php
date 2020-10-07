@@ -77,23 +77,40 @@ class CommitteeController extends Controller
        }
             $committee = new Committee();
             $committee->name = strtolower($request->name);
-            $chapter = Chapter::where('id',$request->chapter)->first();
-            if ($chapter == null)
-            {
-                return response()->json(['error' => 'This Chapter Is Not Found']);
-            }
-            else{
-                $committee->chapter_id =$request->chapter != null ? $request->chapter : null;
+            if ($request->chapter != null) {
+                $chapter = Chapter::where('id', $request->chapter)->first();
+                if ($chapter == null) {
+                    return response()->json(['error' => 'This Chapter Is Not Found']);
+                } else {
+                    $chapter = Chapter::find($request->chapter);
+                    $committee->chapter_id = $request->chapter != null ? $request->chapter :0;
 
+//                    the mentor of this chapter
+//                    position of chairperson of this chapter and find the volunteer who have this position from
+//                    volunteer histroy table
+                }
             }
+
             $committee->description =$request->description != null ? $request->description : null;
             $committee->created_at = $request->created_at != null ? $request->created_at : now();
 
             $committee->save();
 
             $commId = $committee->id;
-
             $seasonId = Season::where('isActive',1)->value('id');
+            if ($request->chapter != null) {
+                $chapter = Chapter::find($request->chapter);
+                if ($chapter->chairperson != null) {
+                    $volComm = DB::table('vol_committees')->insertGetId(
+                        [
+                            'vol_id' => $chapter->chairperson_id,
+                            'committee_id' => $commId,
+                            'season_id' => $seasonId,
+                            'position' => 'mentor'
+                        ]
+                    );
+                }
+            }
             if ($request->mentor) {
                 $mentor = DB::table('vol_committees')->insert(
             [

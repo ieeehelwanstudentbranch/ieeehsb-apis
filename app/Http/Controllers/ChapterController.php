@@ -189,8 +189,8 @@ class ChapterController extends Controller
      */
     public function show($chId)
     {
-        if (Committee::where('id', $chId)->first() != null) {
-            $chapter = Chapter::findOrFail($chId);
+        if (Chapter::where('id', $chId)->first() != null) {
+            $chapter = Chapter::find($chId);
             return new ChapterResource($chapter);
         }
         else{
@@ -240,7 +240,6 @@ class ChapterController extends Controller
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
             if (Chapter::where('id', $chId)->first() != null) {
                 $chapter = Chapter::findOrFail($chId);
-
                 $chapter->name = Chapter::where('name', strtolower($request->name))->first() != null ? $chapter->name : strtolower($request->name);
                 $chapter->description = $request->description != null ? $request->description : $chapter->description;
                 $chapter->updated_at = Carbon::now();

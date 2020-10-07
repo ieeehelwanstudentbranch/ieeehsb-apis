@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources\Committee;
 
+use App\Chapter;
 use App\Committee;
+use App\Http\Resources\Chapter\ChapterResource;
 use App\User;
 use Illuminate\Http\Resources\Json\Resource;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +33,7 @@ class CommitteeCollection extends Resource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'chapter_id' =>$this->chapter_id,
+            'chapter' => $this->chapter != null ? new ChapterResource(Chapter::find($this->chapter_id)) : "",
             'mentor' => self::position('mentor'),
             'director' => self::position('director'),
             'hr_coordinator' => self::position('hr_coordinator'),

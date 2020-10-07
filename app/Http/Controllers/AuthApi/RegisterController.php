@@ -321,6 +321,7 @@ protected $user;
         $user->save();
         $par->user_id = $user->id;
         $par->save();
+        $role = "";
       }
 //      DB::commit();
 
