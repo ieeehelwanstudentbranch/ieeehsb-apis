@@ -276,7 +276,7 @@ class ChapterController extends Controller
                 }
                 $chapter->update();
                 if (Chapter::where('name', strtolower($request->name))->first() != null) {
-                    return response()->json(['success' => 'The Chapter Has been updated successfully', 'error' => 'Except the name  because it is stored before']);
+                    return response()->json(['Success' => 'The Chapter Has been updated successfully']);
 
                 }
                 return response()->json([

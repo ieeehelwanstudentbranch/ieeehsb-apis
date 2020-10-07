@@ -90,14 +90,17 @@
                         <td>{{$user->firstName .' ' .$user->lastName }}</td>
                         <td>{{$user->email}}</td>
                         @if($type == 'volunteer')
-                        <td>{{$req->role}}</td>
 
-                        @if($req->role == 'ex_com')
-                            <td>{{$req->ex_options}}</td>
+                        <td>{{$role->name}}</td>
+
+                        @if($role->name == 'ex_com')
+
+                            <td>{{\App\Position::find($req->ex_options)->name}}</td>
                         @endif
 
-                        @if($req->role != 'ex_com')
-                            <td>{{$req->committee}}</td>
+                        @if($role->name == 'higboard')
+
+                            <td>{{$pos}}</td>
                         @endif
                       @endif
                     </tr>
