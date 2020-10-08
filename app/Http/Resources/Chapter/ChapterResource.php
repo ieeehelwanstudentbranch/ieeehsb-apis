@@ -4,6 +4,7 @@ namespace App\Http\Resources\Chapter;
 use App\Chapter;
 use App\Role;
 use App\Volunteer;
+use App\User;
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,8 +17,38 @@ class ChapterResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array
      */
+    public function committee($chId)
+    {
+        $chapter = Chapter::find($chId);
+        $committees = $chapter->committee;
+        foreach ($committees as $committee)
+        {
+            $numOfVolunteers = DB::table('vol_committees')->where('committee_id',$committee->id)
+                ->where('vol_committees.position', '=', 'volunteer')
+                ->where('vol_committees.season_id',DB::table('seasons')
+                    ->where('isActive',1)->value('id'))->get();
+            return [
+                'id' => $committee->id,
+                'name' => $committee->name,
+                'description' => $committee->description,
+                'numOfVolunteers' => $numOfVolunteers->count(),
+                'director' => self::position($committee->id),
+            ];
+        }
+    }
+    public function position( $commId)
+    {
+        $user = DB::table('volunteers')
+            ->join('users','volunteers.user_id','=','users.id')
+            ->join('vol_committees','volunteers.id','=','vol_committees.vol_id')->where('committee_id',$commId)
+            ->where('vol_committees.position', '=', 'mentor')
+            ->where('vol_committees.season_id',DB::table('seasons')
+                ->where('isActive',1)->value('id'))->select('users.firstName','lastName')->first();
+        return $user;
+    }
      public function toArray($request)
     {
+
         // $chairpersons = DB::table('volunteers')->join('users','volunteers.user_id','=','users.id')->where('volunteers.position_id',DB::table('positions')->where('name','LIKE','%'. $this->name .'%')->value('id'))->where('status_id',DB::table('statuses')->where('name','activated')->value('id'))->select('users.firstName','users.lastName','volunteers.id')->get();
         if ($this->chairperson_id != null) {
             $chairperson = DB::table('volunteers')
@@ -33,7 +64,7 @@ class ChapterResource extends JsonResource
             'description' => $this->description,
             'logo'=> $this->logo,
             'chairperson' => $this->chairperson_id != null ? $chairperson : null,
-            'committees' => $this->committee,
+            'committees' => self::committee($this->id),
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString()
 

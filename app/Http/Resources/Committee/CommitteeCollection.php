@@ -26,14 +26,27 @@ class CommitteeCollection extends Resource
         ->select('users.firstName' , 'users.lastName','volunteers.id')->get();
         return $volunteer;
     }
+    public function chapter($chId)
+    {
+        $chapter = Chapter::query()->find($chId);
+        return [
+            'id'=>$chapter->id,
+            'name'=> $chapter->name,
+            'logo' => $chapter->logo,
+            'description' => $chapter->description,
+            ];
+    }
     public function toArray($request)
     {
-        $numOfVolunteers = DB::table('vol_committees')->where('committee_id',$this->id)->where('vol_committees.position', '=', 'volunteer')->where('season_id',DB::table('seasons')->where('isActive',1)->value('id'))->get();
+        $numOfVolunteers = DB::table('vol_committees')->where('committee_id',$this->id)
+            ->where('vol_committees.position', '=', 'volunteer')
+            ->where('vol_committees.season_id',DB::table('seasons')
+                ->where('isActive',1)->value('id'))->get();
         return [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'chapter' => $this->chapter != null ? new ChapterResource(Chapter::find($this->chapter_id)) : "",
+            'chapter' => $this->chapter_id != null ? self::chapter($this->chapter_id) : "",
             'mentor' => self::position('mentor'),
             'director' => self::position('director'),
             'hr_coordinator' => self::position('hr_coordinator'),

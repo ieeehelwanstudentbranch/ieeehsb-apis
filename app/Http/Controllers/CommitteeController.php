@@ -83,7 +83,7 @@ class CommitteeController extends Controller
                     return response()->json(['error' => 'This Chapter Is Not Found']);
                 } else {
                     $chapter = Chapter::find($request->chapter);
-                    $committee->chapter_id = $request->chapter != null ? $request->chapter :0;
+                    $committee->chapter_id = $request->chapter != null ? $request->chapter :null;
 
 //                    the mentor of this chapter
 //                    position of chairperson of this chapter and find the volunteer who have this position from
@@ -202,7 +202,7 @@ class CommitteeController extends Controller
                     return response()->json(['error' => 'This Chapter Is Not Found']);
                 } else {
                     $chapter = Chapter::find($request->chapter);
-                    $committee->chapter_id = $request->chapter != null ? $request->chapter :0;
+                    $committee->chapter_id = $request->chapter != null ? $request->chapter :null;
 
 //                    the mentor of this chapter
 //                    position of chairperson of this chapter and find the volunteer who have this position from
