@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\AuthApi;
 
+use App\Chapter;
 use App\User;
 use App\Committee;
 use App\Status;
@@ -211,25 +212,46 @@ protected $user;
           $seasonId = Season::where('isActive',1)->value('id');
            $stat    = Status::where('name','deactivated')->value('id');
           if ($role->name =='ex_com'){
-            if($request->ex_options != null)
-            {
-            $vol = new Volunteer();
-            $user->type = "volunteer";
-            $user->save();
-            $vol->user_id = $user->id;
-            $vol->status_id = $stat;
+            if($request->ex_options != null) {
+                if (Position::find($request->ex_options) != null) {
+                    $position = DB::table('vol_history')->where('position_id', $request->ex_options)
+                        ->where('season_id', Season::where('isActive', 1)->value('id'))->first();
+                    if ($position != null) {
+                        return response()->json(['Error' => 'This Position Is stored Before']);
 
-              $vol->position_id = $request->ex_options;
-              $vol->save();
-              $volHis = DB::table('vol_history')->insertGetId(
-                [
-                  'vol_id' =>$vol->id,
-                  'season_id' =>$seasonId,
-                  'position_id' => $request->ex_options,
-                ]
-              );
-                $pos = Position::find($request->ex_options)->name;
+                    } else {
 
+                        $vol = new Volunteer();
+                        $user->type = "volunteer";
+                        $user->save();
+                        $vol->user_id = $user->id;
+                        $vol->status_id = $stat;
+
+                        $vol->position_id = $request->ex_options;
+                        $vol->save();
+                        $volHis = DB::table('vol_history')->insertGetId(
+                            [
+                                'vol_id' => $vol->id,
+                                'season_id' => $seasonId,
+                                'position_id' => $request->ex_options,
+                            ]
+                        );
+                        $pos = Position::find($request->ex_options)->name;
+                        $chapterName = substr($pos, 12);
+                        if (Chapter::where('name', $chapterName)->first() == null) {
+                            return response()->json(['Error'=>'Chapter  not found']);
+                        }
+                        else{
+                            $chapter = Chapter::where('name', $chapterName)->first();
+                            $chapter->chairperson_id = $vol->id;
+                            $chapter->update();
+                        }
+                    }
+                }
+                else{
+                    return response()->json(['Error'=>'Ex Option not found']);
+
+                }
             }
             else {
               return response()->json(['message'=>'Ex Options Is Required And Must Be A Number']);
