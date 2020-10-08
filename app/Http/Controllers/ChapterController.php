@@ -14,6 +14,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Chapter\ChapterCollection;
 use App\Http\Resources\Chapter\ChapterResource;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 class ChapterController extends Controller
@@ -109,7 +110,7 @@ class ChapterController extends Controller
         //description
 
 
-        $vol = Volunteer::where('user_id', auth()->user()->id)->first();
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         if ($vol) {
             $position = Position::where('id', $vol->position_id)->value('name');
             if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
@@ -234,7 +235,7 @@ class ChapterController extends Controller
          return response()->json(['errors'=>$validator->errors()]);
      }
 
-        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         if ($vol) {
         $position = Position::where('id',$vol->position_id)->value('name');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
@@ -314,7 +315,7 @@ class ChapterController extends Controller
      */
     public function destroy($chId)
     {
-        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         if ($vol) {
             $position = Position::where('id', $vol->position_id)->value('name');
             if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
@@ -324,7 +325,7 @@ class ChapterController extends Controller
                     foreach ($committees as $key => $comm) {
                         $comm->delete();
                     }
-
+                    Position::where('name' , 'chairperson ' . $chapter->name)->delete();
                     $chapter->delete();
                     return response()->json([
                         'response' => 'Success',

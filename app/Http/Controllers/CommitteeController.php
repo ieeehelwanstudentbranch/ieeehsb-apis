@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 class CommitteeController extends Controller
@@ -40,7 +40,7 @@ class CommitteeController extends Controller
     // add committee
     public function create()
     {
-         $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $position = Position::where('id',$vol->position_id)->value('name');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
                 $committee = Committee::where('name', 'hr_od')->get();
@@ -58,7 +58,7 @@ class CommitteeController extends Controller
 
     public function store(Request $request)
     {
-        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $position = Position::where('id',$vol->position_id)->value('name');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
              $validator = Validator::make($request->all(), [
@@ -164,7 +164,7 @@ class CommitteeController extends Controller
     //Edit Committee
     public function edit(Committee $committee)
     {
-        $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $position = Position::where('id',$vol->position_id)->value('name');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
             $committee = Committee::where('name', 'hr-od')->get();
@@ -180,13 +180,14 @@ class CommitteeController extends Controller
             'name' =>  'string|max:50 |min:2|required',
             'mentor' => 'nullable |numeric | min:0 | max:20000',
             'director' => 'nullable |numeric | min:1 | max:20000',
+            'chapter' => 'nullable|numeric|min:1',
             'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
         ]);
         if ($validator->fails()) {
 
             return response()->json(['errors'=>$validator->errors()]);
         }
-       $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $position = Position::where('id',$vol->position_id)->value('name');
             $seasonId = Season::where('isActive',1)->value('id');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
@@ -195,6 +196,27 @@ class CommitteeController extends Controller
 
                 $committee->name = Committee::where('name', strtolower($request->name))->first() != null ? $committee->name : strtolower($request->name);
                 $committee->description = $request->description != null ? $request->description : $committee->description;
+                if ($request->chapter != null) {
+                $chapter = Chapter::where('id', $request->chapter)->first();
+                if ($chapter == null) {
+                    return response()->json(['error' => 'This Chapter Is Not Found']);
+                } else {
+                    $chapter = Chapter::find($request->chapter);
+                    $committee->chapter_id = $request->chapter != null ? $request->chapter :0;
+
+//                    the mentor of this chapter
+//                    position of chairperson of this chapter and find the volunteer who have this position from
+//                    volunteer histroy table
+                    $volComm = DB::table('vol_committees')->insertGetId(
+                        [
+                            'vol_id' => $chapter->chairperson_id,
+                            'committee_id' => $commId,
+                            'season_id' => $seasonId,
+                            'position' => 'mentor'
+                        ]
+                    );
+                }
+            }
                 $committee->update();
                 $request->mentor != null ? self::updatePos('mentor', $request->mentor, $committee) : null;
                 $request->director != null ? self::updatePos('director', $request->director, $committee) : null;
@@ -244,7 +266,7 @@ class CommitteeController extends Controller
     // delete
     public function destroy($commId)
     {
-       $vol = Volunteer::where('user_id',auth()->user()->id)->first();
+        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
        if($vol) {
            $seasonId = Season::where('isActive', 1)->value('id');
            $position = Position::where('id', $vol->position_id)->value('name');

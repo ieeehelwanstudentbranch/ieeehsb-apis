@@ -107,13 +107,15 @@ class PostController extends Controller
             $post->creator = $vol->id;
             $post->post_type = 'general';
             $post->post_id = 0;
-            if ($vol->position->name == 'chairperson' || $vol->position->name == 'vice-chairperson') {
+            if ($vol->position->name == 'chairperson' || $vol->position->name == 'vice-chairperson')
+            {
                 $post->status_id = Status::where('name', 'approved')->value('id');
                 $post->save();
 
                 return response()->json('Post Created Successfully');
 
             } else {
+                dd('ss');
                 $post->status_id = Status::where('name', 'pending')->value('id');
                 $post->save();
                 return response()->json('The Post is sent to the chairperson to be approved');
@@ -149,7 +151,14 @@ class PostController extends Controller
         }
 
 
-        if(Chapter::find($id) != null)
+        if(Chapter::find($id) == null)
+        {
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Chapter Not Found',
+            ]);
+        }
+        elseif (Chapter::find($id) != null)
         {
             $chapter = Chapter::findOrFail($id);
 
@@ -194,8 +203,14 @@ class PostController extends Controller
             }
 
         }
-        else{
-
+        elseif(Committee::find($id) == null) {
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Committee Not Found',
+            ]);
+        }
+        else
+        {
         $committee = Committee::findOrFail($id);
         $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');
