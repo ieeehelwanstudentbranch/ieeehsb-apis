@@ -236,15 +236,17 @@ protected $user;
                                 'position_id' => $request->ex_options,
                             ]
                         );
-                        $pos = Position::find($request->ex_options)->name;
-                        $chapterName = substr($pos, 12);
-                        if (Chapter::where('name', $chapterName)->first() == null) {
-                            return response()->json(['Error'=>'Chapter  not found']);
-                        }
-                        else{
-                            $chapter = Chapter::where('name', $chapterName)->first();
-                            $chapter->chairperson_id = $vol->id;
-                            $chapter->update();
+                        $pos = "";
+                        if ($request->ex_options > 4) {
+                            $pos = Position::find($request->ex_options)->name;
+                            $chapterName = substr($pos, 12);
+                            if (Chapter::where('name', $chapterName)->first() == null) {
+                                return response()->json(['Error' => 'Chapter  not found']);
+                            } else {
+                                $chapter = Chapter::where('name', $chapterName)->first();
+                                $chapter->chairperson_id = $vol->id;
+                                $chapter->update();
+                            }
                         }
                     }
                 }
