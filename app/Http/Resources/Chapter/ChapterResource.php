@@ -21,20 +21,20 @@ class ChapterResource extends JsonResource
     {
         $chapter = Chapter::find($chId);
         $committees = $chapter->committee;
+        $data = array();
         foreach ($committees as $committee)
         {
             $numOfVolunteers = DB::table('vol_committees')->where('committee_id',$committee->id)
                 ->where('vol_committees.position', '=', 'volunteer')
                 ->where('vol_committees.season_id',DB::table('seasons')
                     ->where('isActive',1)->value('id'))->get();
-            return [
-                'id' => $committee->id,
-                'name' => $committee->name,
-                'description' => $committee->description,
-                'numOfVolunteers' => $numOfVolunteers->count(),
-                'director' => self::position($committee->id),
-            ];
+            $data[$committee->id]['id'] = $committee->id;
+            $data[$committee->id]['name'] = $committee->name;
+            $data[$committee->id]['description'] = $committee->description;
+            $data[$committee->id]['numOfVolunteers'] = $numOfVolunteers->count();
+            $data[$committee->id]['director'] =  self::position($committee->id);
         }
+        return $data;
     }
     public function position( $commId)
     {
@@ -56,7 +56,7 @@ class ChapterResource extends JsonResource
                 ->join('positions', 'volunteers.position_id', '=', 'positions.id')
                 ->where('volunteers.id', '=', $this->chairperson_id)
                 ->select('volunteers.id', 'users.firstName', 'users.lastName', 'positions.name')
-                ->get();
+                ->get()->first();
         }
         return [
             'id' => $this->id,

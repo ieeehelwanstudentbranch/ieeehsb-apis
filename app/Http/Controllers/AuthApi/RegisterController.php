@@ -237,7 +237,7 @@ protected $user;
                             ]
                         );
                         $pos = "";
-                        if ($request->ex_options > 4) {
+                        if ($request->ex_options >= 4) {
                             $pos = Position::find($request->ex_options)->name;
                             $chapterName = substr($pos, 12);
                             if (Chapter::where('name', $chapterName)->first() == null) {
@@ -426,9 +426,8 @@ protected $user;
         // if High Board register
         if ($role->name=='highboard') {
 
-//          $committee = Committee::where('name', ($request->committee))->value('id');
-
-          $ment = self::position('mentor',$request->committee);
+            $committee = Committee::find($request->committee);
+            $ment = self::position('mentor',$committee->id);
             $status = Status::where('name','activated')->value('id');
             $pos = Position::where('name','chairperson')->value('id');
                 if ($ment != null)
@@ -452,17 +451,16 @@ protected $user;
 
         // if volunteer register
         if ($request->role=='volunteer') {
-            $dir = self::position('director',$request->committee);
-
+            $committee = Committee::find($request->committee);
+            $dir = self::position('director',$committee->id);
 
                 if (User::find($dir->user_id) != null) {
                     $director = User::find($dir->user_id);
                     $email = $director->email;
                 }
-
-
                 elseif (User::find($ment->user_id) != null) {
-                    $ment = self::position('mentor',$request->committee);
+                    $committee = Committee::find($request->committee);
+                    $ment = self::position('mentor',$committee->id);
 
                     $mentor = User::find($ment->user_id);
                     $email = $mentor->email;
