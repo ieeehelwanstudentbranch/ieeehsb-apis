@@ -237,7 +237,7 @@ protected $user;
                             ]
                         );
                         $pos = "";
-                        if ($request->ex_options >= 4) {
+                        if ($request->ex_options >= 5) {
                             $pos = Position::find($request->ex_options)->name;
                             $chapterName = substr($pos, 12);
                             if (Chapter::where('name', $chapterName)->first() == null) {
