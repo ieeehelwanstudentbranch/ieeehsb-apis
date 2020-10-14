@@ -315,7 +315,7 @@ class ChapterController extends Controller
      */
     public function destroy($chId)
     {
-        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+        $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
         if ($vol) {
             $position = Position::where('id', $vol->position_id)->value('name');
             if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
@@ -325,25 +325,23 @@ class ChapterController extends Controller
                     foreach ($committees as $key => $comm) {
                         $comm->delete();
                     }
-                    Position::where('name' , 'chairperson ' . $chapter->name)->delete();
+                    Position::where('name', 'chairperson ' . $chapter->name)->delete();
                     $chapter->delete();
                     return response()->json([
                         'response' => 'Success',
                         'message' => 'The Chapter Has been deleted successfully',
                     ]);
-                } else {
-                    return response()->json([
-                        'response' => 'Error',
-                        'message' => 'You are not allowed to create a chapter',
-                    ]);
                 }
+            } else {
+                return response()->json([
+                    'response' => 'Error',
+                    'message' => 'You are not allowed to delete a chapter',
+                ]);
             }
-        }
-
-        else {
+        } else {
             return response()->json([
                 'response' => 'Error',
-                'message' =>  'Un Authenticated',
+                'message' => 'Un Authenticated',
             ]);
         }
     }

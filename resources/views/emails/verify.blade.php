@@ -78,8 +78,7 @@
                         <th>Position</th>
                         @if($req->role=='ex_com')
                             <th>EX Options</th>
-                        @endif
-                        @if($req->role != 'ex_com')
+                        @else
                             <th>Committee</th>
                         @endif
                       @endif
@@ -101,7 +100,9 @@
                         @if($role->name == 'higboard')
 
                             <td>{{$pos}}</td>
-                        @endif
+                                <td>{{\App\Committee::find($req->committee)->name}}</td>
+
+                            @endif
                       @endif
                     </tr>
                 </tbody>

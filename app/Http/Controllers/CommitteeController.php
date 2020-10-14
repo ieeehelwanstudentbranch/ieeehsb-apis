@@ -64,10 +64,10 @@ class CommitteeController extends Controller
              $validator = Validator::make($request->all(), [
                 'name' => 'required |string | unique:committees| max:50 | min:2',
                 'description' =>'nullable |string | max:4000 | min:2',
-                'chapter' => 'nullable |numeric | min:1 | max:20000',
+                'chapter' => 'nullable |numeric | min:0 | max:20000',
                 'mentor' => 'nullable |numeric | min:0 | max:20000',
-                'director' => 'nullable |numeric | min:1 | max:20000',
-                'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
+                'director' => 'nullable |numeric | min:0 | max:20000',
+                'hr_coordinator' => 'nullable |numeric| min:0 | max:20000',
                  'create_at' =>'date|nullable|date_format:d/m/Y',
 
              ]);
@@ -179,9 +179,9 @@ class CommitteeController extends Controller
         $validator = Validator::make($request->all(), [
             'name' =>  'string|max:50 |min:2|required',
             'mentor' => 'nullable |numeric | min:0 | max:20000',
-            'director' => 'nullable |numeric | min:1 | max:20000',
-            'chapter' => 'nullable|numeric|min:1',
-            'hr_coordinator' => 'nullable |numeric| min:1 | max:20000',
+            'director' => 'nullable |numeric | min:0 | max:20000',
+            'chapter' => 'nullable|numeric|min:0',
+            'hr_coordinator' => 'nullable |numeric| min:0 | max:20000',
         ]);
         if ($validator->fails()) {
 
@@ -207,14 +207,16 @@ class CommitteeController extends Controller
 //                    the mentor of this chapter
 //                    position of chairperson of this chapter and find the volunteer who have this position from
 //                    volunteer histroy table
-                    $volComm = DB::table('vol_committees')->insertGetId(
-                        [
-                            'vol_id' => $chapter->chairperson_id,
-                            'committee_id' => $commId,
-                            'season_id' => $seasonId,
-                            'position' => 'mentor'
-                        ]
-                    );
+                    if ($chapter->chairperson_id != null) {
+                        $volComm = DB::table('vol_committees')->insertGetId(
+                            [
+                                'vol_id' => $chapter->chairperson_id,
+                                'committee_id' => $commId,
+                                'season_id' => $seasonId,
+                                'position' => 'mentor'
+                            ]
+                        );
+                    }
                 }
             }
                 $committee->update();

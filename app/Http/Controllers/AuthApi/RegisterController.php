@@ -246,6 +246,17 @@ protected $user;
                                 $chapter = Chapter::where('name', $chapterName)->first();
                                 $chapter->chairperson_id = $vol->id;
                                 $chapter->update();
+                                foreach ($chapter->committee as $committee)
+                                {
+                                    $volComm = DB::table('vol_committees')->insertGetId(
+                                        [
+                                            'vol_id' => $chapter->chairperson_id,
+                                            'committee_id' => $committee->id,
+                                            'season_id' => $seasonId,
+                                            'position' => 'mentor'
+                                        ]
+                                    );
+                                }
                             }
                         }
                     }
@@ -279,10 +290,10 @@ protected $user;
                  ->where('vol_committees.season_id', '=',  $seasonId)
                  ->where('vol_committees.committee_id','=',$request->committee)
                  ->where('vol_committees.position','=','director' )
-                 ->where('volunteers.status_id' ,'=',$status)->first();
+                 ->where('volunteers.status_id' ,'=',$status)->get()->first();
             if ($director != null)
             {
-                return response()->json(['message'=>'This Committee Already Have Director. If You Already The Right Director For This Committee Contact With the chairperson']);
+                return response()->json(['message'=>'This Committee Already Have Director. If You Already The Right Director For This Committee Contact With The Chairperson']);
             } else {
               $user->save();
               $vol->user_id = $user->id;
@@ -370,13 +381,14 @@ protected $user;
     //  mail target
     public function position($pos,$comm)
     {
-        $ment = DB::table('volunteers')
+        $position = DB::table('volunteers')
             ->join('vol_committees', function ($join) use ($comm,$pos) {
                 $join->on('volunteers.id', '=', 'vol_committees.vol_id')
                     ->where('vol_committees.season_id',Season::where('isActive',1)->value('id'))
                     ->where('vol_committees.committee_id', $comm)
                     ->where('vol_committees.position', $pos);
-            })->get();
+            })->get()->first();
+        return $position;
 
     }
     public function MailTarget(Request $request, $user)

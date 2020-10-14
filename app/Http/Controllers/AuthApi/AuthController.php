@@ -74,6 +74,7 @@ class AuthController extends Controller
         //     $expirationTime = env('ttl',3);
         // }
         try {
+
             if (!User::where('email', $request['email'])->first()->confirmed) {
                 return response()->json([
                     'response' => 'Error',
@@ -86,9 +87,9 @@ class AuthController extends Controller
                     'message' => 'Invalid Email or Password',
                 ]);
             }
+        }
 
-
-        } catch (JWTAuthException $e) {
+        catch (JWTException $exception) {
             return response()->json([
                 'response' => 'Error',
                 'message' => 'Failed to create token',
@@ -98,6 +99,7 @@ class AuthController extends Controller
 
         auth()->user()->remember_token = $token;
         auth()->user()->update();
+//        self::checkToken(User::where('email', $request['email'])->first()->id,$token);
         return response()->json([
             'response' => 'Success',
             'message' => 'You logged in successfully',
@@ -175,9 +177,14 @@ class AuthController extends Controller
         if (count($user->get()) > 0) {
             $user = $user->first();
             if ($user->remember_token == $token) {
+                $expirationTime = env('JWT_TTL', 60 * 24 * 30);
                 return response()->json([
                     'response' => 'Success',
-                    'message' => 'You logged in Successfully'
+                    'message' => 'You logged in Successfully',
+                    'token' => $token,
+                    'expirationTime' => $expirationTime,
+                    'userId' => Auth::user()->id,
+                    'type' => Auth::user()->type
                 ]);
             } else {
                 return response()->json([
