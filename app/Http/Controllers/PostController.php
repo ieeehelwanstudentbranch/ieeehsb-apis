@@ -198,7 +198,7 @@ class PostController extends Controller
             else{
                 return response()->json([
                     'response' => 'Error',
-                    'message' =>  'Un Authenticated',
+                    'message' =>  'You are not allowed to create this post',
                 ]);
             }
 
@@ -261,29 +261,46 @@ class PostController extends Controller
         }
     }
 
-    public function show(Post $post)
+    public function show($p)
     {
-        $vol = Volunteer::findOrFail($post->creator);
-        if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
-        return new PostResource($post);
-    }
-     else{
-         return response()->json([
-             'response' => 'Error',
-             'message' =>  'You Are Not Allowed To See This Post',
-         ]);
-
-         }
-     }
-
-    public function edit(Post $post)
-    {
-        $vol = Volunteer::findOrFail($post->creator);
-        if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
-                    return new PostResource($post);
-
+//        $post = Post::find($p);
+        if ($post = Post::find($p)) {
+            $vol = Volunteer::findOrFail($post->creator);
+            if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
+                return new PostResource($post);
+            }
+            else{
+                return response()->json([
+                    'response' => 'Error',
+                    'message' =>  'You Are Not Allowed To See This Post',
+                    ]);
+            }
         }
+        else {
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Post Not Found',
+            ]);
+        }
+    }
 
+
+    public function edit($p)
+    {
+        $post = Post::find($p);
+        if ($post = Post::find($p)) {
+
+            $vol = Volunteer::findOrFail($post->creator);
+            if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
+                return new PostResource($post);
+            }
+        }
+        else {
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Post Not Found',
+            ]);
+        }
     }
 
     /**
@@ -293,31 +310,39 @@ class PostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Post $post)
+    public function update(Request $request, $p)
     {
-        // $post = Post::findOrFail($id);
-        $vol = Volunteer::findOrFail($post->creator);
-        if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
-             $validator = Validator::make($request->all(), [
-              'body' => 'nullable|string|min:2',
-        ]);
-             if ($validator->fails()) {
+//         $post = Post::find($p);
+         if ($post = Post::find($p)) {
+             $vol = Volunteer::findOrFail($post->creator);
+             if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
+                 $validator = Validator::make($request->all(), [
+                     'body' => 'nullable|string|min:2',
+                 ]);
+                 if ($validator->fails()) {
 
-         return response()->json(['errors'=>$validator->errors()]);
-        }
+                     return response()->json(['errors' => $validator->errors()]);
+                 }
 
-            $post->body = $request->body;
-            $post->update();
-            return response()->json([
-                'response' => 'Success',
-                'message' =>  'The Post Is Updated Successfully',
-            ]);
-        } else {
-            return response()->json([
-                'response' => 'Error',
-                'message' =>  'Un Authenticated',
-            ]);
-        }
+                 $post->body = $request->body;
+                 $post->update();
+                 return response()->json([
+                     'response' => 'Success',
+                     'message' => 'The Post Is Updated Successfully',
+                 ]);
+             } else {
+                 return response()->json([
+                     'response' => 'Error',
+                     'message' => 'Un Authenticated',
+                 ]);
+             }
+         }
+         else{
+             return response()->json([
+                 'response' => 'Error',
+                 'message' =>  'Post Not Found',
+             ]);
+         }
     }
 
     /**
@@ -326,22 +351,30 @@ class PostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy( Post $post)
+    public function destroy($p)
     {
         // $post = Post::findOrFail($id);
-        $vol = Volunteer::findOrFail($post->creator);
-        if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
-            Comment::where('post_id', $post->id)->delete();
-            $post->delete();
-            return response()->json([
-                'response' => 'Success',
-                'message' =>  'The Post Has Been Deleted Successfully',
-            ]);
-        } else {
-            return response()->json([
+        if ($post = Post::find($p)) {
+            $vol = Volunteer::findOrFail($post->creator);
+            if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
+                Comment::where('post_id', $post->id)->delete();
+                $post->delete();
+                return response()->json([
+                    'response' => 'Success',
+                    'message' =>  'The Post Has Been Deleted Successfully',
+                    ]);
+            } else {
+                return response()->json([
                 'response' => 'Error',
                 'message' =>  'Un Authenticated',
-            ]);
+                 ]);
+            }
+         }
+        else{
+            return response()->json([
+                'response' => 'Error',
+                'message' =>  'Post Not Found',
+                ]);
         }
     }
     public function pendingPost($id)
