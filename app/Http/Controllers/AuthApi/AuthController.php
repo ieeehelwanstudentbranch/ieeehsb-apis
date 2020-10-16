@@ -95,8 +95,10 @@ class AuthController extends Controller
                 'message' => 'Failed to create token',
             ]);
         }
-        Auth::user()->remember_token = $token;
+        $tok = self::token($token);
+        Auth::user()->remember_token = $tok;
         Auth::user()->update();
+//
         return response()->json([
             'response' => 'Success',
             'message' => 'You logged in successfully',
@@ -106,7 +108,17 @@ class AuthController extends Controller
             'type' => Auth::user()->type
         ]);
     }
-
+public  function token($token)
+{
+    $t =JWTAuth::setToken($token);
+    $apy = JWTAuth::getPayload($t)->toArray();
+    $apy['user_id'] = Auth::user()->id;
+    $apy['type'] = Auth::user()->type;
+    $factory = JWTFactory::customClaims($apy);
+    $payload = $factory->make();
+    $a = JWTAuth::encode($payload);
+    return $a;
+}
     // Logout
      /**
      * @SWG\Post(
