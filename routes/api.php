@@ -30,13 +30,19 @@ Route::resource('chapter','ChapterController');
 
 //posts
 Route::resource('post','PostController');
-Route::resource('committee.post', 'PostController')->shallow();
-Route::resource('chapter.post', 'PostController')->shallow();
+Route::get('committee/{committee}/post','PostController@getCommPost');
+Route::post('committee/{committee}/post','PostController@storeCommPost');
+//Route::resource('committee.post', 'PostController')->shallow();
+Route::get('chapter/{chapter}/post','PostController@getChapPost');
+Route::post('chapter/{chapter}/post','PostController@storeChapPost');
+
+
+//Route::resource('chapter.post', 'PostController')->shallow();
 
 
 
-Route::get('/chapter/{chapter}/pending-posts', 'PostController@pendingPost');
-Route::get('/committee/{committee}/pending-posts', 'PostController@pendingPost');
+Route::get('/chapter/{chapter}/pending-posts', 'PostController@pendingChapPost');
+Route::get('/committee/{committee}/pending-posts', 'PostController@pendingCommPost');
 Route::get('/post-general','PostController@postGeneral');
 Route::post('/post-general','PostController@storeGeneralPost');
 Route::get('/pending-posts', 'PostController@pendingGeneralPost');
