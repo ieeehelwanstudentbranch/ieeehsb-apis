@@ -463,8 +463,7 @@ class PostController extends Controller
     }
         public function pendingCommPost($id)
         {
-            $committee = Committee::find($id);
-            if ($committee = Committee::find($id) != null)
+            if ($committee = Committee::find($id))
             {
             $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
             $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');
