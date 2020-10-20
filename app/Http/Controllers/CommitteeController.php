@@ -116,8 +116,8 @@ class CommitteeController extends Controller
                 }
             }
             if ($request->mentor) {
-                self::updatePos('mentor',$request->mentor,$commId);
-                $mentor = DB::table('vol_committees')->insert(
+                self::updatePos('mentor',(int)$request->mentor,$commId);
+                DB::table('vol_committees')->insert(
             [
                 'vol_id' => $request->mentor,
                 'committee_id' => $commId,
@@ -251,16 +251,16 @@ class CommitteeController extends Controller
             ]);        }
 
     }
-    public function updatePos($pos,$volId,$committee)
+    public function updatePos($pos,$volId,$commId)
     {
         $seasonId = Season::where('isActive',1)->value('id');
-        if (Volunteer::where('id',$volId)->first() == null) {
+        if (Volunteer::find($volId)->first() == null) {
             return response()->json([
                 'response' => 'Error',
                 'message' =>  'Sorry, This Is A Participant Account',
             ]);
         }
-
+        $committee = Committee::find($commId);
         if($committee->volunteer()->wherePivot('position','=',$pos)->wherePivot('season_id',$seasonId)->first())
         {
             $committee->volunteer()->updateExistingPivot($volId , ['position'=>$pos,'season_id'=>$seasonId]);
