@@ -102,7 +102,7 @@ class AuthController extends Controller
         return response()->json([
             'response' => 'Success',
             'message' => 'You logged in successfully',
-            'token' => $token,
+            'token' => $tok,
             'expirationTime' => $expirationTime,
             'userId' => Auth::user()->id,
             'type' => Auth::user()->type
@@ -116,7 +116,7 @@ public  function token($token)
     $apy['type'] = Auth::user()->type;
     $factory = JWTFactory::customClaims($apy);
     $payload = $factory->make();
-    $a = JWTAuth::encode($payload);
+    $a = (string) JWTAuth::encode($payload);
     return $a;
 }
     // Logout
@@ -192,8 +192,7 @@ public  function token($token)
                     'message' => 'You logged in Successfully',
                     'token' => $token,
                     'expirationTime' => $expirationTime,
-                    'userId' => Auth::user()->id,
-                    'type' => Auth::user()->type
+
                 ]);
             } else {
                 return response()->json([
