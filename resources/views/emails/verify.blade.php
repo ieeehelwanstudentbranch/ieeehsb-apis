@@ -76,7 +76,7 @@
                         <th>E-Mail</th>
                         @if($type == 'volunteer')
                         <th>Position</th>
-                        @if($req->role=='ex_com')
+                        @if($role->name=='ex_com')
                             <th>EX Options</th>
                         @else
                             <th>Committee</th>
@@ -95,11 +95,11 @@
                         @if($role->name == 'ex_com')
 
                             <td>{{\App\Position::find($req->ex_options)->name}}</td>
-                        @endif
-
-                        @if($role->name == 'higboard')
-
+                        @elseif($role->name == 'highboard')
                             <td>{{$pos}}</td>
+
+                                <td>{{\App\Committee::find($req->committee)->name}}</td>
+                            @else
                                 <td>{{\App\Committee::find($req->committee)->name}}</td>
 
                             @endif

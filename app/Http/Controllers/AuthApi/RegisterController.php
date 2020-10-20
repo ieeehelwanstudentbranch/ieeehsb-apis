@@ -159,7 +159,7 @@ protected $user;
             'DOB' => 'nullable|date_format:d-m-Y|before:today',
             'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
             'email' => 'required |string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
+            'password' => 'string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/|required',
             'password_confirmation'=>'required_with:password',
             'type' =>'required|string',
         ]);
@@ -242,7 +242,8 @@ protected $user;
                             $chapterName = substr($pos, 12);
                             if (Chapter::where('name', $chapterName)->first() == null) {
                                 return response()->json(['Error' => 'Chapter  not found']);
-                            } else {
+                            }
+                            else {
                                 $chapter = Chapter::where('name', $chapterName)->first();
                                 $chapter->chairperson_id = $vol->id;
                                 $chapter->update();
@@ -462,7 +463,7 @@ protected $user;
         }
 
         // if volunteer register
-        if ($request->role=='volunteer') {
+        if ($role->name =='volunteer') {
             $committee = Committee::find($request->committee);
             $dir = self::position('director',$committee->id);
 

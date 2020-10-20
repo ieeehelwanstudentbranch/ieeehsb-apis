@@ -80,11 +80,14 @@ class CommitteeController extends Controller
             $committee->name = strtolower($request->name);
             if ($request->chapter != null) {
                 $chapter = Chapter::where('id', $request->chapter)->first();
+
                 if ($chapter == null) {
                     return response()->json(['error' => 'This Chapter Is Not Found']);
                 } else {
                     $chapter = Chapter::find($request->chapter);
                     $committee->chapter_id = $request->chapter != null ? $request->chapter :null;
+
+
 
 //                    the mentor of this chapter
 //                    position of chairperson of this chapter and find the volunteer who have this position from
@@ -100,9 +103,9 @@ class CommitteeController extends Controller
             $commId = $committee->id;
             $seasonId = Season::where('isActive',1)->value('id');
             if ($request->chapter != null) {
-                $chapter = Chapter::find($request->chapter);
-                if ($chapter->chairperson != null) {
-                    $volComm = DB::table('vol_committees')->insertGetId(
+
+                if ($chapter = Chapter::find($request->chapter)) {
+                     DB::table('vol_committees')->insertGetId(
                         [
                             'vol_id' => $chapter->chairperson_id,
                             'committee_id' => $commId,
@@ -113,6 +116,7 @@ class CommitteeController extends Controller
                 }
             }
             if ($request->mentor) {
+                self::updatePos('mentor',$request->mentor,$commId);
                 $mentor = DB::table('vol_committees')->insert(
             [
                 'vol_id' => $request->mentor,
@@ -177,24 +181,24 @@ class CommitteeController extends Controller
 
     public function update( $commId,Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' =>  'string|max:50 |min:2|required',
-            'mentor' => 'nullable |numeric | min:0 | max:20000',
-            'director' => 'nullable |numeric | min:0 | max:20000',
-            'chapter' => 'nullable|numeric|min:0',
-            'hr_coordinator' => 'nullable |numeric| min:0 | max:20000',
-        ]);
-        if ($validator->fails()) {
 
-            return response()->json(['errors'=>$validator->errors()]);
-        }
         $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $position = Position::where('id',$vol->position_id)->value('name');
             $seasonId = Season::where('isActive',1)->value('id');
         if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
             if (Committee::where('id', $commId)->first() != null) {
                 $committee = Committee::findOrFail($commId);
+                $validator = Validator::make($request->all(), [
+                    'name' =>  'string|max:50 |min:2|required',
+                    'mentor' => 'nullable |numeric | min:0 | max:20000',
+                    'director' => 'nullable |numeric | min:0 | max:20000',
+                    'chapter' => 'nullable|numeric|min:0',
+                    'hr_coordinator' => 'nullable |numeric| min:0 | max:20000',
+                ]);
+                if ($validator->fails()) {
 
+                    return response()->json(['errors'=>$validator->errors()]);
+                }
                 $committee->name = Committee::where('name', strtolower($request->name))->first() != null ? $committee->name : strtolower($request->name);
                 $committee->description = $request->description != null ? $request->description : $committee->description;
                 if ($request->chapter != null) {
