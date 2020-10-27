@@ -105,14 +105,16 @@ class CommitteeController extends Controller
             if ($request->chapter != null) {
 
                 if ($chapter = Chapter::find($request->chapter)) {
-                     DB::table('vol_committees')->insertGetId(
-                        [
-                            'vol_id' => $chapter->chairperson_id,
-                            'committee_id' => $commId,
-                            'season_id' => $seasonId,
-                            'position' => 'mentor'
-                        ]
-                    );
+                    if ($chapter->chairperson_id != null) {
+                        DB::table('vol_committees')->insertGetId(
+                            [
+                                'vol_id' => $chapter->chairperson_id,
+                                'committee_id' => $commId,
+                                'season_id' => $seasonId,
+                                'position' => 'mentor'
+                            ]
+                        );
+                    }
                 }
             }
             if ($request->mentor) {

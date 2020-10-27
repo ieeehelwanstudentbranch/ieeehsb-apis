@@ -24,16 +24,17 @@ class ChapterController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-     public function __construct()
+    public function __construct()
     {
         $this->middleware('jwt.auth');
         $this->middleware('type:volunteer');
 
     }
+
     public function index()
     {
         $chapters = Chapter::orderBy('id', 'DESC')->paginate(5);
-        return ChapterResource::collection( $chapters);
+        return ChapterResource::collection($chapters);
     }
 
     /**
@@ -50,7 +51,7 @@ class ChapterController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
 
@@ -97,12 +98,7 @@ class ChapterController extends Controller
      *          required=true,
      *          type="string",
      *     ),
-
-
-
      *   )
-
-
      *
      */
     public function store(Request $request)
@@ -110,7 +106,7 @@ class ChapterController extends Controller
         //description
 
 
-        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+        $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
         if ($vol) {
             $position = Position::where('id', $vol->position_id)->value('name');
             if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
@@ -168,24 +164,22 @@ class ChapterController extends Controller
             } else {
                 return response()->json([
                     'response' => 'Error',
-                    'message' =>  'You are not allowed to create a chapter',
+                    'message' => 'You are not allowed to create a chapter',
                 ]);
             }
+        } else {
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Un Authenticated',
+            ]);
         }
-
-          else {
-              return response()->json([
-                  'response' => 'Error',
-                  'message' =>  'Un Authenticated',
-              ]);
-          }
 
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($chId)
@@ -193,11 +187,10 @@ class ChapterController extends Controller
         if (Chapter::where('id', $chId)->first() != null) {
             $chapter = Chapter::find($chId);
             return new ChapterResource($chapter);
-        }
-        else{
+        } else {
             return response()->json([
                 'response' => 'Error',
-                'message' =>  'Chapter Not Found',
+                'message' => 'Chapter Not Found',
             ]);
         }
     }
@@ -205,7 +198,7 @@ class ChapterController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit(Chapter $chapter)
@@ -217,92 +210,92 @@ class ChapterController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request,$chId)
+    public function update(Request $request, $chId)
     {
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'name' => 'string|max:50 |min:3|required',
             'description' => 'nullable |string| min:2',
             'chairperson' => 'nullable|numeric|min:1',
             'logo' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
 
         ]);
-         if ($validator->fails()) {
+        if ($validator->fails()) {
 
-         return response()->json(['errors'=>$validator->errors()]);
-     }
+            return response()->json(['errors' => $validator->errors()]);
+        }
 
-        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+        $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
         if ($vol) {
-        $position = Position::where('id',$vol->position_id)->value('name');
-        if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
-            if (Chapter::where('id', $chId)->first() != null) {
-                $chapter = Chapter::findOrFail($chId);
-                $chapter->name = Chapter::where('name', strtolower($request->name))->first() != null ? $chapter->name : strtolower($request->name);
-                $chapter->description = $request->description != null ? $request->description : $chapter->description;
-                $chapter->updated_at = Carbon::now();
+            $position = Position::where('id', $vol->position_id)->value('name');
+            if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
+                if (Chapter::where('id', $chId)->first() != null) {
+                    $chapter = Chapter::findOrFail($chId);
+                    $chapter->name = Chapter::where('name', strtolower($request->name))->first() != null ? $chapter->name : strtolower($request->name);
+                    $chapter->description = $request->description != null ? $request->description : $chapter->description;
+                    $chapter->updated_at = Carbon::now();
 
-                if ($request->file('logo')) {
-                    $filenameWithExtention = $request->file('logo')->getClientOriginalName();
-                    $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
-                    $extension = $request->file('logo')->getClientOriginalExtension();
-                    $fileNameStoreImage = $fileName . '_' . time() . '.' . $extension;
-                    $path = $request->file('logo')->move('public/logo/', $fileNameStoreImage);
-                    $chapter->logo = $path;
-                }
-                if ($request->chairperson != null) {
-                    if (Volunteer::where('id', $request->chairperson)->first() == null) {
-                        return response()->json([
-                            'response' => 'Error',
-                            'message' => 'Sorry, This is a participant account',
-                        ]);
-
-                    } else {
-                        $chair = Volunteer::findOrFail($request->chairperson);
-                        if (strpos($chair->position->name, $chapter->name)) {
-                            $chapter->chairperson_id = $request->chairperson;
-                        } else {
+                    if ($request->file('logo')) {
+                        $filenameWithExtention = $request->file('logo')->getClientOriginalName();
+                        $fileName = pathinfo($filenameWithExtention, PATHINFO_FILENAME);
+                        $extension = $request->file('logo')->getClientOriginalExtension();
+                        $fileNameStoreImage = $fileName . '_' . time() . '.' . $extension;
+                        $path = $request->file('logo')->move('public/logo/', $fileNameStoreImage);
+                        $chapter->logo = $path;
+                    }
+                    if ($request->chairperson != null) {
+                        if (Volunteer::where('id', $request->chairperson)->first() == null) {
                             return response()->json([
                                 'response' => 'Error',
-                                'message' => 'You are the ' . $chair->position->name .
-                                    ' of the Branch,You can not be the chairman of this chpater',
+                                'message' => 'Sorry, This is a participant account',
                             ]);
 
+                        } else {
+                            $chair = Volunteer::findOrFail($request->chairperson);
+                            if (strpos($chair->position->name, $chapter->name)) {
+                                $chapter->chairperson_id = $request->chairperson;
+                            } else {
+                                return response()->json([
+                                    'response' => 'Error',
+                                    'message' => 'You are the ' . $chair->position->name .
+                                        ' of the Branch,You can not be the chairman of this chpater',
+                                ]);
+
+                            }
                         }
                     }
-                }
-                $chapter->update();
-                if (Chapter::where('name', strtolower($request->name))->first() != null) {
-                    return response()->json(['Success' => 'The Chapter Has been updated successfully']);
+                    $chapter->update();
+                    if (Chapter::where('name', strtolower($request->name))->first() != null) {
+                        return response()->json(['Error' => 'The name is stored before']);
 
+                    }
+                    else{
+                        return response()->json(['Success' => 'The Chapter Has been updated successfully']);
+
+                    }
+                    return response()->json([
+                        'response' => 'Success',
+                        'message' => 'The Chapter Has been updated successfully',
+                    ]);
+                } else {
+                    return response()->json([
+                        'response' => 'Error',
+                        'message' => 'Chapter Not Found',
+                    ]);
                 }
-                return response()->json([
-                    'response' => 'Success',
-                    'message' => 'The Chapter Has been updated successfully',
-                ]);
-            }
-            else{
+            } else {
                 return response()->json([
                     'response' => 'Error',
-                    'message' =>  'Chapter Not Found',
+                    'message' => 'You are not allowed to create a chapter',
                 ]);
             }
-        }
-        else {
-                return response()->json([
-                    'response' => 'Error',
-                    'message' =>  'You are not allowed to create a chapter',
-                ]);
-            }
-        }
-
-        else {
+        } else {
             return response()->json([
                 'response' => 'Error',
-                'message' =>  'Un Authenticated',
+                'message' => 'Un Authenticated',
             ]);
         }
     }
@@ -310,7 +303,7 @@ class ChapterController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($chId)
@@ -319,8 +312,7 @@ class ChapterController extends Controller
         if ($vol) {
             $position = Position::where('id', $vol->position_id)->value('name');
             if ($position == 'chairperson' || ($position == 'vice-chairperson')) {
-                if (Chapter::where('id', $chId)->first() != null) {
-                    $chapter = Chapter::findOrFail($chId);
+                if ($chapter = Chapter::find($chId) != null) {
                     $committees = Committee::where('chapter_id', $chapter->id)->get();
                     foreach ($committees as $key => $comm) {
                         $comm->delete();
@@ -332,17 +324,26 @@ class ChapterController extends Controller
                         'message' => 'The Chapter Has been deleted successfully',
                     ]);
                 }
+                else{
+                    return response()->json([
+                        'response' => 'Error',
+                        'message' => 'Chapter not Found',
+                    ]);
+                }
             } else {
                 return response()->json([
                     'response' => 'Error',
                     'message' => 'You are not allowed to delete a chapter',
                 ]);
             }
-        } else {
+        }
+
+        else {
             return response()->json([
                 'response' => 'Error',
                 'message' => 'Un Authenticated',
             ]);
         }
+
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 //login & register
 Route::POST('login', 'AuthApi\AuthController@login')->name('login');
 
-Route::POST('logout', 'AuthApi\AuthController@logout');
+Route::post('logout', 'AuthApi\AuthController@logout');
 
 Route::get('register', 'AuthApi\RegisterController@registerPage');
 

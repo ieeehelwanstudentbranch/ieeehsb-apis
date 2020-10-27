@@ -14,6 +14,7 @@ use App\Http\Resources\Task\TaskCollectionPanding;
 use App\Http\Resources\Task\TaskPage;
 use App\Notification;
 use App\Position;
+use App\Season;
 use App\SendTask;
 use App\Status;
 use App\Task;
@@ -172,30 +173,37 @@ class TaskController extends Controller
     }
 
     public function acceptTask(Request $request , $id){
-        $task = Task::findOrFail($id);
+        if ($task = Task::find($id) ) {
 
-        if ($task->from == JWTAuth::parseToken()->authenticate()->id){
+            if ($task->from == JWTAuth::parseToken()->authenticate()->id) {
 
-            $validator = Validator::make($request->all(), [
-                'rate' => 'numeric|required|min:1|max:100',
-                'evaluation' => 'string|required|min:3',
-            ]);
-            if ($validator->fails()) {
-                return response()->json(['errors'=>$validator->errors()]);
-            }
-            $task->status_id = Status::where('name','accepted')->value('id');
-            $task->rate = $request->rate;
-            $task->evaluation = $request->evaluation;
-            $task->update();
+                $validator = Validator::make($request->all(), [
+                    'rate' => 'numeric|required|min:1|max:100',
+                    'evaluation' => 'string|required|min:3',
+                ]);
+                if ($validator->fails()) {
+                    return response()->json(['errors' => $validator->errors()]);
+                }
+                $task->status_id = Status::where('name', 'approved')->value('id');
+                $task->rate = $request->rate;
+                $task->evaluation = $request->evaluation;
+                $task->update();
 //            event(new TaskEvent($task , 'accept-task'));
-            return response()->json([
-                'response' => 'Success',
-                'message' => 'Evaluating tasks done successfullty',
-            ]);
-        }else{
+                return response()->json([
+                    'response' => 'Success',
+                    'message' => 'Evaluating tasks done successfullty',
+                ]);
+            } else {
+                return response()->json([
+                    'response' => 'Error',
+                    'message' => 'Sorry, You are Not Authorized to Evaluate this task.',
+                ]);
+            }
+        }
+        else{
             return response()->json([
                 'response' => 'Error',
-                'message' => 'Sorry, You are Not Authorized to Evaluate this task.',
+                'message' => 'Task not found',
             ]);
         }
     }
@@ -218,4 +226,49 @@ class TaskController extends Controller
             ]);
         }
     }
+    public function update(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+        if ($task = Task::find($id)) {
+            $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
+            $pos = $vol->position;
+
+            if ($task->from == JWTAuth::parseToken()->authenticate()->id || $pos->name == 'chairperson') {
+                $task->body = $request->body;
+                $task->update();
+            }
+        } else {
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Task not found',
+            ]);
+        }
+    }
+        public function makeFeedback($id, Request $request)
+    {
+        if ($task = Task::find($id)) {
+            $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
+            $pos = $vol->position;
+            $validator = Validator::make($request->all(), [
+                'feedback' => 'numeric|required|min:1|max:100',
+                'evaluation' => 'string|required|min:3',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()]);
+            }
+            if ($pos->name == 'volunteer')
+            {
+                $committee = $vol->committee->id;
+                $hr_od = $committee->volunteer()->where('position','hr_coordinator')->where('season_id',Season::where('is_Active',1)->value())->get();
+            }
+            if ($pos->name == 'chairperson' || $hr_od != null)
+                {
+                    $task->feedback = $request->feedback;
+
+
+                }
+            
+            }
+    }
+
 }

@@ -158,7 +158,7 @@ protected $user;
             'university' => 'nullable |string | max:30 | min:3',
             'DOB' => 'nullable|date_format:d-m-Y|before:today',
             'image' => 'image|nullable|max:500000 |mimes:jpg,png,jpeg,svg,gif,tiff,tif',
-            'email' => 'required |string|email|max:255|unique:users',
+            'email' => 'string|email|max:255|required|unique:users',
             'password' => 'string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/|required',
             'password_confirmation'=>'required_with:password',
             'type' =>'required|string',
@@ -181,6 +181,11 @@ protected $user;
 //         DB::beginTransaction();
          if (User::where('email',$request->email)->first() != null) {
            return response()->json(['errors'=> "The email is stored before"]);
+         }
+         elseif($request->email == null)
+         {
+             return response()->json(['errors'=> "Enter Your Email Please"]);
+
          }
         $confirmation_code = str_random(30);
         $user= new User();
