@@ -67,7 +67,7 @@ class PendingTasks extends Resource
         } catch (\Exception $e) {
             try {
                 foreach ($committees_hr_od as $committee) {
-                    $committeeTask[] = DataInTask::collection(Task::query()->where('committee_id', $committee->id)->where(function ($q) {
+                    $committeeTask[] = DataInTask::collection(Task::query()->where('comm_id', $committee->id)->where(function ($q) {
                         $q->where('status_id', self::status('pending'))
                             ->orWhere('status_id', self::status('delivered'));
                     })->get());

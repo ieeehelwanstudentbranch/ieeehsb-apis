@@ -11,6 +11,7 @@ use App\Http\Resources\Task\MintorViewTasks;
 use App\Http\Resources\Task\PendingTasks;
 use App\Http\Resources\Task\TaskCollection;
 use App\Http\Resources\Task\TaskCollectionPanding;
+use App\Http\Resources\Task\TaskPage;
 use App\Notification;
 use App\Position;
 use App\SendTask;
@@ -33,6 +34,12 @@ class TaskController extends Controller
         $this->middleware('type:volunteer');
 
     }
+    public function index()
+    {
+            $tasks = Task::all();
+            return new TaskPage($tasks);
+//        }
+    }
 
     public function create(){
         $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
@@ -51,9 +58,9 @@ class TaskController extends Controller
         if ($pos->role->name == 'ex_com' || ($pos->role->name == 'highboard')) {
             $validator = Validator::make($request->all(), [
 
-                'title' => 'required |min:3 |max:100 ',
-                'body' => 'required |min:3',
-                'deadline' => 'required',
+                'title' => 'min:3 |max:100|required',
+                'body' => 'min:3|required',
+                'deadline' => 'date_format:Y-m-d H:i:s|after:today|required',
                 'files.*' => 'nullable|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
                 [
                     'files.*.mimes' => 'Only docx, doc, txt, csv, xls, xlsx, ppt, pptx, pdf, jpeg, jpg, png, svg, gif, ps, xd, ai, zip files are allowed',
@@ -65,15 +72,14 @@ class TaskController extends Controller
             if ($validator->fails()) {
                 return response()->json(['errors'=>$validator->errors()]);
             }
-
             foreach ($request->to as $to) {
                 $task = new Task();
-                $task->title = $request->input('title');
-                $task->body_sent = $request->input('body');
-                $task->deadline = $request->input('deadline');
+                $task->title = $request->title;
+                $task->body_sent = $request->body;
+                $task->deadline = $request->deadline;
                 $task->from = JWTAuth::parseToken()->authenticate()->id;
                 $task->to = $to;
-                $vol = Volunteer::findOrFail($to);
+                $vol = Volunteer::find($to);
                 $task->comm_id = $vol->committee->first()->id;
                 $task->status_id = Status::where('name','pending')->value('id');
                 // upload files
@@ -99,6 +105,7 @@ class TaskController extends Controller
 
     // pending tasks
     public function pendingTasks(){
+
         $tasks = Task::all();
         return new PendingTasks($tasks);
     }
@@ -192,6 +199,7 @@ class TaskController extends Controller
             ]);
         }
     }
+
 
     public function refuseTask($id){
         $task = Task::findOrFail($id);

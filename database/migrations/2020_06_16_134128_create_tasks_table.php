@@ -30,7 +30,7 @@ class CreateTasksTable extends Migration
             $table->unsignedBigInteger('to');
             $table->foreign('to')->references('id')->on('volunteers');
             $table->unsignedBigInteger('comm_id');
-            $table->foreign('comm_id')->references('id')->on('committees');
+//            $table->foreign('comm_id')->references('id')->on('committees');
 
 
 
