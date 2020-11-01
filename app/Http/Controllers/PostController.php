@@ -187,17 +187,17 @@ class PostController extends Controller
     public function pendingGeneralPost()
     {
         $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
-        if ($vol->position->name =='chairperson' ||$vol->position->name == 'vice-chairperson') {
+//        if ($vol->position->name =='chairperson' ||$vol->position->name == 'vice-chairperson') {
             $staus = Status::where('name', 'pending')->value('id');
             $posts = Post::where('post_type', 'general')->where('status_id', $staus)->get();
             return PostCollection::collection($posts);
-        }
-        else{
+//        }
+//        else{
             return response()->json([
                 'response' => 'Error',
                 'message' =>  'You are not allowed to see this page',
             ]);
-        }
+//        }
     }
     public function storeChapPost(Request $request, $id)
     {
@@ -271,7 +271,7 @@ class PostController extends Controller
         else
         {
         $committee = Committee::findOrFail($id);
-        $chapterChair = $committee->chapter->chairperson_id;
+        $chapterChair = $committee->chapter->chairperson_id; //chairperson
 
         $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
         $volPos = $committee->volunteer()->where('vol_id',$vol->id)->value('position');

@@ -137,22 +137,30 @@ public  function token($token)
      *     ),
      *)
      **/
+
     public function logout(Request $request)
     {
-        $this->validate($request, [
-            'token' => 'required'
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
         ]);
+        if ($validator->fails()) {
+            return response()->json(['errors'=>$validator->errors()]);
+        }
+
         try {
-            JWTAuth::invalidate($request->token);
+            $t =JWTAuth::setToken($request->token);
+            JWTAuth::invalidate($t);
+
+
             return response()->json([
                 'success' => true,
-                'message' => 'You logged out Successfully'
+                'message' => 'User logged out successfully'
             ]);
         } catch (JWTException $exception) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, You cannot be logged out'
-            ], 500);
+                'message' => 'Sorry, the user cannot be logged out'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
      // Check User Token

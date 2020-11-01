@@ -19,6 +19,7 @@ use App\SendTask;
 use App\Status;
 use App\Task;
 use App\Events\TaskEvent;
+use App\TaskFeedback;
 use App\User;
 use App\Volunteer;
 use Illuminate\Support\Facades\Validator;
@@ -35,26 +36,29 @@ class TaskController extends Controller
         $this->middleware('type:volunteer');
 
     }
+
     public function index()
     {
-            $tasks = Task::all();
-            return new TaskPage($tasks);
+        $tasks = Task::all();
+        return new TaskPage($tasks);
 //        }
     }
 
-    public function create(){
-        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+    public function create()
+    {
+        $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
         $pos = $vol->position;
         if ($pos->role->name == 'ex_com' || ($pos->role->name == 'highboard')) {
             $volunteers = Volunteer::all();
             return new CreateTaskPage($volunteers);
-        }else{
-            return response()->json(['error'=>'Un Authenticated']);
+        } else {
+            return response()->json(['error' => 'Un Authenticated']);
         }
     }
 
-    public function store(Request $request){
-        $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
+    public function store(Request $request)
+    {
+        $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
         $pos = $vol->position;
         if ($pos->role->name == 'ex_com' || ($pos->role->name == 'highboard')) {
             $validator = Validator::make($request->all(), [
@@ -71,7 +75,7 @@ class TaskController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['errors'=>$validator->errors()]);
+                return response()->json(['errors' => $validator->errors()]);
             }
             foreach ($request->to as $to) {
                 $task = new Task();
@@ -82,7 +86,7 @@ class TaskController extends Controller
                 $task->to = $to;
                 $vol = Volunteer::find($to);
                 $task->comm_id = $vol->committee->first()->id;
-                $task->status_id = Status::where('name','pending')->value('id');
+                $task->status_id = Status::where('name', 'pending')->value('id');
                 // upload files
                 if ($request->hasfile('files')) {
                     foreach ($request->file('files') as $file) {
@@ -98,40 +102,44 @@ class TaskController extends Controller
                 $task->save();
 //                event(new TaskEvent($task , 'send'));
             }
-            return response()->json(['success'=>'task sent successfully']);
+            return response()->json(['success' => 'task sent successfully']);
         } else {
-            return response()->json(['error'=>'Un Authenticated']);
+            return response()->json(['error' => 'Un Authenticated']);
         }
     }
 
     // pending tasks
-    public function pendingTasks(){
+    public function pendingTasks()
+    {
 
         $tasks = Task::all();
         return new PendingTasks($tasks);
     }
-    
+
     // complete tasks
-    public function completeTasks(){
+    public function completeTasks()
+    {
         $tasks = Task::all();
         return new CompleteTasks($tasks);
     }
-    
+
     // view task
-    public function show($id){
+    public function show($id)
+    {
         if (Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id) || Task::all()->where('from', JWTAuth::parseToken()->authenticate()->id)
-        ||(Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id))
-        ){
-        return new TaskCollectionPanding(Task::findOrFail($id));
-        }else{
-            return response()->json(['error'=>'Un Authenticated']);
+            || (Task::all()->where('to', JWTAuth::parseToken()->authenticate()->id))
+        ) {
+            return new TaskCollectionPanding(Task::findOrFail($id));
+        } else {
+            return response()->json(['error' => 'Un Authenticated']);
         }
     }
-    
+
     // deliver task
-    public function deliverTask(Request $request ,$id){
+    public function deliverTask(Request $request, $id)
+    {
         $task = Task::findOrFail($id);
-        if ($task->to == JWTAuth::parseToken()->authenticate()->id){
+        if ($task->to == JWTAuth::parseToken()->authenticate()->id) {
             $validator = Validator::make($request->all(), [
                 'body' => 'required |min:1',
                 'files.*' => 'sometimes|file|mimes:docx,doc,txt,csv,xls,xlsx,ppt,pptx,pdf,jpeg,jpg,png,svg,gif,ps,xd,ai,zip|max:524288',
@@ -141,7 +149,7 @@ class TaskController extends Controller
                 ],
             ]);
             if ($validator->fails()) {
-                return response()->json(['errors'=>$validator->errors()]);
+                return response()->json(['errors' => $validator->errors()]);
             }
             // upload files
             if ($request->hasfile('files')) {
@@ -157,7 +165,7 @@ class TaskController extends Controller
             }
 
             $task->body_delivered = $request->body;
-            $task->status_id = Status::where('name','delivered')->value('id');
+            $task->status_id = Status::where('name', 'delivered')->value('id');
             $task->update();
 //            event(new TaskEvent($task , 'deliver'));
             return response()->json([
@@ -172,8 +180,9 @@ class TaskController extends Controller
         }
     }
 
-    public function acceptTask(Request $request , $id){
-        if ($task = Task::find($id) ) {
+    public function acceptTask(Request $request, $id)
+    {
+        if ($task = Task::find($id)) {
 
             if ($task->from == JWTAuth::parseToken()->authenticate()->id) {
 
@@ -199,8 +208,7 @@ class TaskController extends Controller
                     'message' => 'Sorry, You are Not Authorized to Evaluate this task.',
                 ]);
             }
-        }
-        else{
+        } else {
             return response()->json([
                 'response' => 'Error',
                 'message' => 'Task not found',
@@ -209,23 +217,25 @@ class TaskController extends Controller
     }
 
 
-    public function refuseTask($id){
+    public function refuseTask($id)
+    {
         $task = Task::findOrFail($id);
-        if ($task->from == JWTAuth::parseToken()->authenticate()->id){
-            $task->status_id = Status::where('name','pending')->value('id');
+        if ($task->from == JWTAuth::parseToken()->authenticate()->id) {
+            $task->status_id = Status::where('name', 'pending')->value('id');
             $task->update();
 //            event(new TaskEvent($task , 'refuse-task'));
             return response()->json([
                 'response' => 'Success',
                 'message' => 'The task has been refused successfully',
             ]);
-        }else{
+        } else {
             return response()->json([
                 'response' => 'Error',
                 'message' => 'Sorry, You are Not Authorized to refuse this task.',
             ]);
         }
     }
+
     public function update(Request $request, $id)
     {
         $task = Task::findOrFail($id);
@@ -244,31 +254,84 @@ class TaskController extends Controller
             ]);
         }
     }
-        public function makeFeedback($id, Request $request)
+
+    public function makeFeedback($id, Request $request)
     {
         if ($task = Task::find($id)) {
             $vol = Volunteer::where('user_id', JWTAuth::parseToken()->authenticate()->id)->first();
             $pos = $vol->position;
             $validator = Validator::make($request->all(), [
-                'feedback' => 'numeric|required|min:1|max:100',
-                'evaluation' => 'string|required|min:3',
+                'feedback' => 'string|required|min:1|max:500',
             ]);
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()]);
             }
-            if ($pos->name == 'volunteer')
-            {
-                $committee = $vol->committee->id;
-                $hr_od = $committee->volunteer()->where('position','hr_coordinator')->where('season_id',Season::where('is_Active',1)->value())->get();
-            }
-            if ($pos->name == 'chairperson' || $hr_od != null)
-                {
-                    $task->feedback = $request->feedback;
+            ////////////////////
+            $taskTo = Volunteer::where('user_id', $task->to)->first();
+            if ($taskTo->position->name == 'volunteer') {
+                $comm = $taskTo->committee->first();
+                $perm = $comm->volunteer()->where('season_id', Season::where('isActive', 1)->value('id'))
+                    ->where('position', 'director')
+                    ->orWhere('position', 'mentor')
+                    ->orWhere('position', 'hr_coordinator')
+                        ->pluck('vol_id')->toArray();
+                $p =array_unique($perm);
 
-
+                if (in_array($vol->id, $p) || $pos->name == 'chairperson') {
+                    $feed = new TaskFeedback();
+                    $feed->feedback = $request->feedback;
+                    $feed->feedback_creator = $vol->id;
+                    $feed->task_id = $task->id;
+                    $feed->save();
+                    return response()->json([
+                        'response' => 'Success',
+                        'message' => 'The Feedback Has Been Created',
+                    ]);
                 }
-            
-            }
-    }
 
+                else {
+                    return response()->json([
+                        'response' => 'Error',
+                        'message' => 'You are not allowed to add feedback for this volunteer',
+                    ]);
+                }
+            } elseif ($taskTo->position->name == 'director') {
+                $comm = $taskTo->committee;
+                $perm = $comm->volunteer()->where('season_id', Season::where('isActive', 1)->value('id'))
+                    ->where('position', 'mentor')->pluck('vol_id')->toArray();
+                $p =array_unique($perm);
+
+                if (in_array($p, $vol->id) || $pos->name == 'chairperson') {
+                    $feed = new TaskFeedback();
+                    $feed->feedback = $request->feedback;
+                    $feed->feedback_creator = $vol->user_id;
+                    $feed->task_id = $task->id;
+                    $feed->save();
+                    return response()->json([
+                        'response' => 'Success',
+                        'message' => 'The Feedback Has Been Created',
+                    ]);
+                }
+                else {
+                    return response()->json([
+                        'response' => 'Error',
+                        'message' => 'You are not allowed to add feedback for this volunteer',
+                    ]);
+                }
+            }
+            else {
+                return response()->json([
+                    'response' => 'Error',
+                    'message' => 'You are not allowed to add feedback',
+                ]);
+            }
+
+        }
+        else {
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'Task not found',
+            ]);
+        }
+    }
 }

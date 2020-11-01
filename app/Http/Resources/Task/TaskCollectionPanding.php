@@ -5,6 +5,7 @@ namespace App\Http\Resources\Task;
 use App\SendTask;
 use App\Status;
 use App\Task;
+use App\TaskFeedback;
 use App\User;
 use Illuminate\Http\Resources\Json\Resource;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,18 @@ class TaskCollectionPanding extends Resource
             ->select('users.id','users.firstName','users.lastName','users.email','users.image','positions.name')->get();
         return $volunteer;
     }
+    public function feedback($taskId)
+    {
+        $feedbacks = TaskFeedback::where('task_id',$taskId)->get();
+        $feed=array();
+        foreach ($feedbacks as $id => $feedback)
+        {
+            $feed['id'] = $id;
+            $feed['name'] = $feedback->feedback;
+            $feed['feedback_creator'] = self::info($feedback->feedback_creator);
+        }
+        return empty($feed) ? null : $feed ;
+    }
     public function toArray($request)
     {
 
@@ -44,6 +57,7 @@ class TaskCollectionPanding extends Resource
                 'delivered_files' => json_decode($this->files_deliver),
                 'rate' =>$this->rate,
                 'evaluation' =>$this->evaluation,
+                'feedback' => self::feedback($this->id),
                 'delivered_at' =>$this->updated_at,
                 'created_at' =>$this->created_at,
                 'status' => $this->status->name,
@@ -60,6 +74,7 @@ class TaskCollectionPanding extends Resource
                 'delivered_files' => json_decode($this->files_delivered),
                 'rate' =>$this->rate,
                 'evaluation' =>$this->evaluation,
+                'feedback' => self::feedback($this->id),
                 'delivered_at' =>$this->updated_at,
                 'created_at' =>$this->created_at,
                 'status' => $this->status->name,

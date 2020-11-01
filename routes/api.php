@@ -71,6 +71,8 @@ Route::get('complete-tasks', 'TaskController@completeTasks');
 Route::post('accept-task/{id}', 'TaskController@acceptTask');
 Route::post('refuse-task/{id}', 'TaskController@refuseTask');
 Route::post('deliver-task/{id}', 'TaskController@deliverTask');
+Route::post('make-taskFeedback/{id}', 'TaskController@makeFeedback');
+
 
 //Notification
 Route::get('/notification', 'NotificationController@getNotification');
