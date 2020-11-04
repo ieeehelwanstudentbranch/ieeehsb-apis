@@ -107,7 +107,7 @@ class CommentController extends Controller
     //delete comment
     public function destroy($id)
     {
-        $comment = Comment::find($id);
+//        $comment = Comment::find($id);
         if ($comment = Comment::find($id)) {
             $vol = Volunteer::find($comment->creator);
             $postCreator = Volunteer::find($comment->post->creator);

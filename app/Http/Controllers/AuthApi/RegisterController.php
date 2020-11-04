@@ -152,8 +152,8 @@ protected $user;
         $type = $request->type;
         // Input::merge(array_map('trim', Input::all()));
         $validator = Validator::make($request->all(), [
-            'firstName' => 'required |string | max:50 | min:3',
-            'lastName' => 'required |string | max:50 | min:3',
+            'firstName' => 'string|max:50|min:3|regex:/^([a-zA-Z]+)(\s[a-zA-Z]+)*$/|required',
+            'lastName' => 'required |string | max:50 | min:3|regex:/^([a-zA-Z]+)(\s[a-zA-Z]+)*$/|required',
             'faculty' => 'nullable |string | max:30 |   min:3',
             'university' => 'nullable |string | max:30 | min:3',
             'DOB' => 'nullable|date_format:d-m-Y|before:today',
@@ -166,6 +166,9 @@ protected $user;
 
         if ($request->type=='volunteer')
         {$validator = Validator::make($request->all(), ['role' => 'numeric|required',
+            'firstName' => 'string|max:50|min:3|regex:/^([a-zA-Z]+)(\s[a-zA-Z]+)*$/|required',
+            'lastName' => 'required |string | max:50 | min:3|regex:/^([a-zA-Z]+)(\s[a-zA-Z]+)*$/|required',
+            'email' => 'string|email|max:255|required|unique:users',
             'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
             'password_confirmation'=>'required_with:password']);}
 
@@ -204,7 +207,13 @@ protected $user;
 
             if ($role->name !='ex_com' )
           {
-              $validat = Validator::make($request->all(), ['committee' => 'numeric| required']);
+              $validat = Validator::make($request->all(), ['committee' => 'numeric| required',
+               'firstName' => 'string|max:50|min:3|regex:/^([a-zA-Z]+)(\s[a-zA-Z]+)*$/|required',
+            'lastName' => 'required |string | max:50 | min:3|regex:/^([a-zA-Z]+)(\s[a-zA-Z]+)*$/|required',
+            'email' => 'string|email|max:255|required|unique:users',
+            'password' => 'required|string|min:6|confirmed|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$/',
+            'password_confirmation'=>'required_with:password'
+              ]);
          if ($validat->fails()) {
 
             return response()->json(['errors'=>$validat->errors()]);
@@ -217,6 +226,10 @@ protected $user;
           $seasonId = Season::where('isActive',1)->value('id');
            $stat    = Status::where('name','deactivated')->value('id');
           if ($role->name =='ex_com'){
+              if (Position::find($request->ex_options) == null)
+              {
+                  return response()->json(['Error','Ex-com option not found']);
+              }
             if($request->ex_options != null) {
                 if (Position::find($request->ex_options) != null) {
                     $position = DB::table('vol_history')->where('position_id', $request->ex_options)
@@ -355,6 +368,10 @@ protected $user;
           );
           $pos = 'Volunteer';
         }
+          else{
+              return response()->json(['Error'=>'Role Not Found']);
+
+          }
       }
       else {
         $par = new Participant();

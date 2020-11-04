@@ -291,6 +291,7 @@ class PostController extends Controller
             $vol->position->name == 'vice-chairperson' ||
             $volPos == 'director' || $vol->id == $chapterChair)
         {
+            dd('s');
             $validator = Validator::make($request->all(), [
                 'body' => 'required|string|min:2',
             ]);
@@ -389,10 +390,9 @@ class PostController extends Controller
      */
     public function update(Request $request, $p)
     {
-//         $post = Post::find($p);
          if ($post = Post::find($p)) {
              $vol = Volunteer::findOrFail($post->creator);
-             if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id) {
+             if ($vol->user_id == JWTAuth::parseToken()->authenticate()->id || $vol->position->name == 'chairperson') {
                  $validator = Validator::make($request->all(), [
                      'body' => 'nullable|string|min:2',
                  ]);
@@ -465,8 +465,18 @@ class PostController extends Controller
 
                 $pending = Status::where('name', 'pending')->value('id');
                 $posts = $chapter->post()->where('status_id', $pending)
-                    ->orderBy('created_at', 'desc')->paginate(50);
-                return PostCollection::collection($posts);
+                    ->orderBy('created_at', 'desc')->paginate(10);
+                $p = PostCollection::collection($posts);
+                if ($p->isEmpty())
+                {
+                    return response()->json([
+                        'response' => 'Error',
+                        'message' => 'No Pending Posts',
+                    ]);
+                }
+                else{
+                    return $p;
+                }
             } else {
                 return response()->json([
                     'response' => 'Error',
@@ -495,7 +505,18 @@ class PostController extends Controller
                 $pending = Status::where('name','pending')->value('id');
                 $posts = $committee->post()->where('status_id',$pending)
                 ->orderBy('created_at', 'desc')->paginate(50);
-                return PostCollection::collection($posts);
+                $p = PostCollection::collection($posts);
+                if ($p->isEmpty())
+                {
+                    return response()->json([
+                        'response' => 'Error',
+                        'message' => 'No Pending Posts',
+                    ]);
+                }
+                else{
+
+                    return $p;
+                }
             }
             else{
                 return response()->json([
@@ -520,13 +541,28 @@ class PostController extends Controller
          return response()->json(['errors'=>$validator->errors()]);
         }
         $approved = Status::where('name','approved')->value('id');
-        $post = Post::findOrFail($request->post);
-        $post->status_id = $approved;
-        $post->update();
-        return response()->json([
-            'response' => 'Success',
-            'message' =>  'The Post Has Been Approved',
-        ]);
+             if ($post = Post::find($request->post)) {
+                 if ($post->status_id == $approved) {
+                     return response()->json([
+                         'response' => 'Error',
+                         'message' => 'The Post Is Approved Before',
+                     ]);
+                 } else {
+                     $post->status_id = $approved;
+                     $post->update();
+                     return response()->json([
+                         'response' => 'Success',
+                         'message' => 'The Post Has Been Approved',
+                     ]);
+                 }
+             }
+             else{
+                 return response()->json([
+                     'response' => 'Error',
+                     'message' => 'The Post Is Not Found',
+                 ]);
+             }
+
 
     }
     public function disapprovePost( Request $request)
@@ -537,11 +573,20 @@ class PostController extends Controller
              if ($validator->fails()) {
          return response()->json(['errors'=>$validator->errors()]);
         }
-        $post = Post::findOrFail($request->post);
-        $post->delete();
-        return response()->json([
-            'response' => 'Success',
-            'message' =>  'The Post Has Been Deleted',
-        ]);
+        if ($post = Post::find($request->post)) {
+
+            $post->delete();
+                $post->update();
+            return response()->json([
+                'response' => 'Success',
+                'message' =>  'The Post Has Been Deleted',
+            ]);
+            }
+        else {
+            return response()->json([
+                'response' => 'Error',
+                'message' => 'The Post Is Not Found',
+            ]);
+        }
     }
 }
