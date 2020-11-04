@@ -52,8 +52,8 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|',
-            'password' => 'required|string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])/',
+            'email' => 'email|required',
+            'password' => 'string|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])/|required',
         ]);
         if ($validator->fails()) {
           return response()->json(['errors'=>$validator->errors()]);
