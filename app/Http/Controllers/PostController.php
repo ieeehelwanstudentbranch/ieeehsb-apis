@@ -157,7 +157,7 @@ class PostController extends Controller
             $post->creator = $vol->id;
             $post->post_type = 'general';
             $post->post_id = 0;
-            if ($vol->position->name == 'chairperson' || $vol->position->name == 'vice-chairperson')
+            if ($vol->position->role->name == 'ex_com')
             {
                 $post->status_id = Status::where('name', 'approved')->value('id');
                 $post->save();
@@ -187,17 +187,27 @@ class PostController extends Controller
     public function pendingGeneralPost()
     {
         $vol = Volunteer::where('user_id',JWTAuth::parseToken()->authenticate()->id)->first();
-//        if ($vol->position->name =='chairperson' ||$vol->position->name == 'vice-chairperson') {
+        if ($vol->position->role->name =='ex_com') {
             $staus = Status::where('name', 'pending')->value('id');
             $posts = Post::where('post_type', 'general')->where('status_id', $staus)->get();
-            return PostCollection::collection($posts);
-//        }
-//        else{
+            $p = PostCollection::collection($posts);
+            if ($p->isEmpty())
+            {
+                return response()->json([
+                    'response' => 'Error',
+                    'message' => 'No Pending Posts',
+                ]);
+            }
+            else{
+                return $p;
+            }
+        }
+        else{
             return response()->json([
                 'response' => 'Error',
                 'message' =>  'You are not allowed to see this page',
             ]);
-//        }
+        }
     }
     public function storeChapPost(Request $request, $id)
     {
@@ -291,7 +301,6 @@ class PostController extends Controller
             $vol->position->name == 'vice-chairperson' ||
             $volPos == 'director' || $vol->id == $chapterChair)
         {
-            dd('s');
             $validator = Validator::make($request->all(), [
                 'body' => 'required|string|min:2',
             ]);
@@ -576,7 +585,6 @@ class PostController extends Controller
         if ($post = Post::find($request->post)) {
 
             $post->delete();
-                $post->update();
             return response()->json([
                 'response' => 'Success',
                 'message' =>  'The Post Has Been Deleted',

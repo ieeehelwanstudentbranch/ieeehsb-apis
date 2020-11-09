@@ -268,14 +268,14 @@ class ChapterController extends Controller
                         }
                     }
                     $chapter->update();
-                    if (Chapter::where('name', strtolower($request->name))->first() != null) {
-                        return response()->json(['Error' => 'The name is stored before']);
-
-                    }
-                    else{
+//                    if (Chapter::where('name', strtolower($request->name))->first() != null) {
+//                        return response()->json(['Error' => 'The name is stored before']);
+//
+//                    }
+//                    else{
                         return response()->json(['Success' => 'The Chapter Has been updated successfully']);
 
-                    }
+//                    }
                     return response()->json([
                         'response' => 'Success',
                         'message' => 'The Chapter Has been updated successfully',
