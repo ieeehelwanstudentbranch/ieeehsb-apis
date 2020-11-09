@@ -19,11 +19,20 @@ class CommitteeCollection extends Resource
      */
     public function position($pos)
     {
-        $volunteer = DB::table('users')->join('volunteers','users.id','=','volunteers.user_id')->join('vol_committees', function ($join) use ($pos) {
-            $join->on('volunteers.id', '=', 'vol_committees.vol_id')
-                 ->where('vol_committees.position', '=', $pos )->where('season_id',DB::table('seasons')->where('isActive',1)->value('id'))->where('vol_committees.committee_id',$this->id);
-        })
-        ->select('users.firstName' , 'users.lastName','volunteers.id')->get();
+        if ($pos == 'hr_coordinator') {
+            $volunteer = DB::table('users')->join('volunteers', 'users.id', '=', 'volunteers.user_id')->join('vol_committees', function ($join) use ($pos) {
+                $join->on('volunteers.id', '=', 'vol_committees.vol_id')
+                    ->where('vol_committees.position', '=', $pos)->where('season_id', DB::table('seasons')->where('isActive', 1)->value('id'))->where('vol_committees.committee_id', $this->id);
+            })
+                ->select('users.firstName', 'users.lastName', 'volunteers.id')->get();
+        }
+        else{
+            $volunteer = DB::table('users')->join('volunteers', 'users.id', '=', 'volunteers.user_id')->join('vol_committees', function ($join) use ($pos) {
+                $join->on('volunteers.id', '=', 'vol_committees.vol_id')
+                    ->where('vol_committees.position', '=', $pos)->where('season_id', DB::table('seasons')->where('isActive', 1)->value('id'))->where('vol_committees.committee_id', $this->id);
+            })
+                ->select('users.firstName', 'users.lastName', 'volunteers.id')->first();
+        }
         return $volunteer;
     }
     public function chapter($chId)
