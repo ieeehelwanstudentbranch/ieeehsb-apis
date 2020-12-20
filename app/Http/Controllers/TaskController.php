@@ -85,7 +85,12 @@ class TaskController extends Controller
                 $task->from = JWTAuth::parseToken()->authenticate()->id;
                 $task->to = $to;
                 $vol = Volunteer::find($to);
-                $task->comm_id = $vol->committee->first()->id;
+                if($vol->position->name == 'volunteer'){
+                    $task->comm_id = $vol->committee->first()->id;
+                }
+                else{
+                    $task->comm_id = 0;
+                }
                 $task->status_id = Status::where('name', 'pending')->value('id');
                 // upload files
                 if ($request->hasfile('files')) {
@@ -219,16 +224,30 @@ class TaskController extends Controller
 
     public function refuseTask($id)
     {
-        $task = Task::findOrFail($id);
-        if ($task->from == JWTAuth::parseToken()->authenticate()->id) {
-            $task->status_id = Status::where('name', 'pending')->value('id');
-            $task->update();
+        $task = Task::find($id);
+        $status = Status::where('name', 'pending')->value('id');
+
+        if ($task->from == JWTAuth::parseToken()->authenticate()->id)
+        {
+            if($task->status_id == $status)
+            {
+                $task->status_id = Status::where('name', 'disapproved')->value('id');
+                $task->update();
 //            event(new TaskEvent($task , 'refuse-task'));
-            return response()->json([
-                'response' => 'Success',
-                'message' => 'The task has been refused successfully',
-            ]);
-        } else {
+                return response()->json([
+                    'response' => 'Success',
+                    'message' => 'The task has been refused successfully',
+                ]);
+            }
+            else{
+                return response()->json([
+                    'response' => 'Error',
+                    'message' => 'The task status is not pending',
+                ]);
+            }
+
+        }
+        else {
             return response()->json([
                 'response' => 'Error',
                 'message' => 'Sorry, You are Not Authorized to refuse this task.',
@@ -268,15 +287,15 @@ class TaskController extends Controller
             }
             ////////////////////
             $taskTo = Volunteer::where('user_id', $task->to)->first();
+
             if ($taskTo->position->name == 'volunteer') {
                 $comm = $taskTo->committee->first();
                 $perm = $comm->volunteer()->where('season_id', Season::where('isActive', 1)->value('id'))
                     ->where('position', 'director')
                     ->orWhere('position', 'mentor')
                     ->orWhere('position', 'hr_coordinator')
-                        ->pluck('vol_id')->toArray();
+                    ->pluck('vol_id')->toArray();
                 $p =array_unique($perm);
-
                 if (in_array($vol->id, $p) || $pos->name == 'chairperson') {
                     $feed = new TaskFeedback();
                     $feed->feedback = $request->feedback;
@@ -302,6 +321,26 @@ class TaskController extends Controller
                 $p =array_unique($perm);
 
                 if (in_array($p, $vol->id) || $pos->name == 'chairperson') {
+                    $feed = new TaskFeedback();
+                    $feed->feedback = $request->feedback;
+                    $feed->feedback_creator = $vol->user_id;
+                    $feed->task_id = $task->id;
+                    $feed->save();
+                    return response()->json([
+                        'response' => 'Success',
+                        'message' => 'The Feedback Has Been Created',
+                    ]);
+                }
+                else {
+                    return response()->json([
+                        'response' => 'Error',
+                        'message' => 'You are not allowed to add feedback for this volunteer',
+                    ]);
+                }
+            }
+            elseif($taskTo->position->role->name == 'ex_com')
+            {
+                if ($task->from ==$vol->user->id || $pos->name == 'chairperson') {
                     $feed = new TaskFeedback();
                     $feed->feedback = $request->feedback;
                     $feed->feedback_creator = $vol->user_id;
