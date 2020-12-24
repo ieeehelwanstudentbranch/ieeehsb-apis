@@ -1,13 +1,15 @@
 <?php
 
 namespace App;
-
+use App\Volunteer;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+
+class User extends Authenticatable implements JWTSubject
 {
 
     use HasApiTokens, Notifiable;
@@ -20,7 +22,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','type'
+        'firstName','lastName' ,'email', 'password','type' , 'confirmation_code'
     ];
 
     /**
@@ -32,27 +34,31 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function ex_com_option(){
-        return $this->hasOne(Ex_com_options::class);
-    }
+    public function ptype()
+            {
+        if (Volunteer::where('user_id',$this->id)->first() != null)
+        {
+            return $this->hasOne('App\Volunteer','user_id');
+        }
+        else{
+            return $this->hasOne('App\Participant','user_id');
+        }
+            }
 
-    public function high_board_option(){
-        return $this->hasOne(HighBoardOptions::class);
-    }
 
-    public function committee(){
-        return $this->belongsTo(Committee::class);
-    }
-    public function comment(){
-        return $this->hasMany(Comment::class);
-    }
-    public function post(){
-        return $this->hasMany(Post::class);
-    }
-    public function task(){
-        return $this->hasMany(Task::class);
-    }
     public function notification(){
         return $this->hasMany(Notification::class);
     }
+    public function getJWTIdentifier()
+            {
+                return $this->getKey();
+            }
+            public function getJWTCustomClaims()
+            {
+                return [];
+            }
+    public function hasType($type)
+{
+    return $this->type;
+}
 }

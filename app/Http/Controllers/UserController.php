@@ -3,41 +3,75 @@
 namespace App\Http\Controllers;
 
 use App\Committee;
+use App\Volunteer;
 use App\Http\Resources\User\UserData;
+use App\Participant;
 use App\User;
+use App\Season;
+use App\Position;
+use App\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+
+
 
 class UserController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('jwt.auth')->except('deleteUser');
+        $this->middleware('jwt.auth')->except('changeUser');
     }
 
-    public function index($id)
+    /**
+     * @SWG\Get(
+     *   path="/api/user/{id}",
+     *   summary="User Profile",
+     *   operationId="profile",
+     *   @SWG\Response(response=200, description="successful operation"),
+     *   @SWG\Response(response=406, description="not acceptable"),
+     *   @SWG\Response(response=500, description="internal server error"),
+     @SWG\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="user id",
+     *          required=true,
+     *          type="integer",
+     *     ),
+     @SWG\Parameter(
+     *          name="Authorization",
+     *          in="header",
+     *          required=true,
+     *          type="string",
+     *          schema="Bearer",
+     *          format="JWT",
+     *     ),
+
+     *   )
+     **/
+    public function show(User $user)
     {
-        $user = User::findOrFail($id);
         return new UserData($user);
     }
 
-    public function updateProfilePage($id)
+    public function edit(User $user)
     {
-        if ($id == JWTAuth::parseToken()->authenticate()->id) {
-            $user = User::findOrFail($id);
+        if ($user->id == JWTAuth::parseToken()->authenticate()->id) {
+            // $user = User::findOrFail($id);
             return new UserData($user);
         } else {
             return response()->json('error', 'Un Authenticated');
         }
     }
 
-    public function updateProfile(Request $request, $id)
+    public function update(Request $request, User $user)
     {
 
-        if ($id == JWTAuth::parseToken()->authenticate()->id) {
+        if ($user->id == JWTAuth::parseToken()->authenticate()->id) {
             $this->validate($request, [
                 'firstName' => 'required|string | max:50 | min:3',
                 'lastName' => 'required|string | max:50 | min:3',
@@ -51,15 +85,15 @@ class UserController extends Controller
             ]);
 
             $user = User::findOrFail($id);
-            $user->firstName = $request->input('firstName');
-            $user->lastName = $request->input('lastName');
-            $user->faculty = $request->input('faculty') ?? null;
-            $user->university = $request->input('university') ?? null;
-            $user->DOB = $request->input('DOB') ?? null;
-            $user->address = $request->input('address') ?? null;
-            $user->phone = $request->input('phone') ?? null;
-            $user->level = $request->input('level') ?? null;
-            $user->email = $request->input('email');
+            $user->firstName = $request->firstName;
+            $user->lastName = $request->lastName;
+            $user->faculty = $request->faculty  ?? null;
+            $user->university = $request->university  ?? null;
+            $user->DOB = $request->DOB  ?? null;
+            $user->address = $request->address  ?? null;
+            $user->phone = $request->phone  ?? null;
+            $user->level = $request->level  ?? null;
+            $user->email = $request->email ;
             $user->update();
             return response()->json(['success' => 'user updated'], 200);
         } else {
@@ -77,8 +111,8 @@ class UserController extends Controller
             ]);
             $user = User::findOrFail($id);
 
-            if (Hash::check($request->input('old_password'), $user->password)) {
-                $user->password = app('hash')->make($request->input('new_password'));
+            if (Hash::check($request->old_password , $user->password)) {
+                $user->password = app('hash')->make($request->new_password);
                 $user->update();
                 return response()->json(['success' => 'PasswordUpdated']);
             } else {
@@ -107,26 +141,43 @@ class UserController extends Controller
         }
     }
 
-    public function deleteUser($id)
+    public function changeUser($id)
     {
-        $user_id = decrypt($id);
-        try{
-        $user = User::query()->findOrFail($user_id);
-        if ($user->position == 'highBoard' && !($user->committee->name == 'RAS' ||$user->committee->name == 'PES' || $user->committee->name =='WIE'))
-        {
-        $user->committee->director_id = null;
-        $user->committee->director = null;
-        $user->committee->update();
-        }
-        if ($user->position == 'EX_com')
-        {
-            $user->ex_com_option->delete();
-        }
 
-        $user->delete();
+        $user_id =decrypt($id);
+        try{
+        $user = User::findOrFail($user_id);
+        if($user->type == "particiapnt")
+        {
+            Participant::where('user_id',$user->id)->delete();
+            $user->delete();
+
+
+        }
+          else {
+            $vol = Volunteer::where('user_id',$user->id)->value('id');
+            // dd($vol);
+            $seasonId = Season::where('isActive',1)->value('id');
+            DB::table('vol_history')->where('vol_id',$vol)->where('season_id',$seasonId)->delete();
+            DB::table('vol_committees')->where('season_id',$seasonId)->where('vol_id',$vol)
+            ->delete();
+            Volunteer::findOrFail($vol)->delete();
+            $user->type="particiapnt";
+            $user->update();
+            $par = new Participant;
+            $par->user_id = $user->id;
+            $par->save();
+            $type = $user->type;
+            $confirmation_code = $user->confirmation_code;
+             Mail::send('/emails.verify', compact(['type', 'user','confirmation_code']), function($message) use ($user) {
+            $message->to($user->email, 'user')->subject('Verify an email address');
+        });
+          }
         return response()->json(['success' => 'Deleted Successfully']);
+
         } catch (\Exception $e)
         {
+
             return response()->json(['error' => 'User Not Found']);
         }
     }

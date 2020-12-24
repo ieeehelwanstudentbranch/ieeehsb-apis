@@ -14,7 +14,7 @@ class CreateUsersTable extends Migration {
 	{
 		Schema::create('users', function(Blueprint $table)
 		{
-			$table->increments('id');
+			$table->bigIncrements('id');
 			$table->string('firstName', 191);
 			$table->string('lastName', 191);
 			$table->string('faculty', 191)->nullable();
@@ -23,9 +23,7 @@ class CreateUsersTable extends Migration {
 			$table->string('address', 100)->nullable();
 			$table->string('phone', 20)->nullable();
 			$table->integer('level')->nullable();
-			$table->string('position', 191);
 			$table->string('image', 191)->nullable()->default('default.jpg');
-			$table->enum('status', array('active','freezed','deprecated'))->default('active');
 			$table->boolean('confirmed')->default(0);
 			$table->string('confirmation_code', 191)->nullable();
 			$table->string('email', 191)->unique();
@@ -33,8 +31,8 @@ class CreateUsersTable extends Migration {
 			$table->string('token', 191)->nullable();
 			$table->string('password', 191);
 			$table->char('api_token', 60)->nullable();
-			$table->integer('committee_id')->unsigned()->nullable()->index('committee_id');
 			$table->string('remember_token', 100)->nullable();
+			$table->string('type',50);
 			$table->timestamps();
 		});
 	}

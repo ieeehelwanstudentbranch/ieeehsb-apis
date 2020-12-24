@@ -2,10 +2,14 @@
 
 namespace App\Http\Resources\User;
 
+use App\Status;
+use App\Position;
 use App\Committee;
-use App\Ex_com_options;
+use App\Volunteer;
+use App\Role;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\DB;
 
 class UserData extends JsonResource
 {
@@ -17,8 +21,16 @@ class UserData extends JsonResource
      */
     public function toArray($request)
     {
-        if($this->id == JWTAuth::parseToken()->authenticate()->id) {
-            return [
+
+      if(Volunteer::where('user_id',$this->id)->first() != null)
+      {
+      $vol = Volunteer::where('user_id',$this->id)->first();
+      $role = $vol->position->role->name;
+      $status =$vol->status->name;
+      $volCom = DB::table('vol_committees')->where('vol_id',$vol->id)->value('committee_id');
+      $volPos= DB::table('vol_committees')->where('vol_id',$vol->id)->value('position');
+
+            $data = [
                 'id' => $this->id,
                 'firstName' => $this->firstName,
                 'lastName' => $this->lastName,
@@ -29,35 +41,56 @@ class UserData extends JsonResource
                 'address' => $this->address,
                 'phone' => $this->phone,
                 'level' => $this->level,
-                'status' => $this->status,
                 'image' => $this->image,
-                'position' => $this->position,
-                'ex_options' => $this->position ? Ex_com_options::query()->where('user_id', $this->id)->select('ex_options')->get() : null,
+                'status' => $status,
+                'role' =>$role,
+                'position' => $vol->position->name,
+                'committee' => $role != "ex_com"? Committee::query()->findOrFail($volCom)->value('name') :null ,
                 'created_at' => $this->created_at->toDateTimeString(),
-                'committee' => $this->committee_id ? Committee::query()->findOrFail($this->committee_id) : null,
-                'update' => action('UserController@updateProfile', $this->id),
-                'update_image' => action('UserController@updateProfileImage', $this->id),
-                'update_password' => action('UserController@updateProfilePassword', $this->id)
+
             ];
-        } else {
-            return [
-                'id' => $this->id,
-                'firstName' => $this->firstName,
-                'lastName' => $this->lastName,
-                'email' => $this->email,
-                'faculty' => $this->faculty,
-                'university' => $this->university,
-                'DOB' => $this->DOB,
-                'address' => $this->address,
-                'phone' => $this->phone,
-                'level' => $this->level,
-                'status' => $this->status,
-                'image' => $this->image,
-                'position' => $this->position,
-                'ex_options' => $this->position ? Ex_com_options::query()->where('user_id', $this->id)->select('ex_options')->get() : null,
-                'created_at' => $this->created_at->toDateTimeString(),
-                'committee' => $this->committee_id ? Committee::query()->findOrFail($this->committee_id) : null
-            ];
+
+            //if the volunteer is not logged in
+            if($this->id != JWTAuth::parseToken()->authenticate()->id) {
+                return  [
+                  $data
+            ]; }
+            //if the volunteer logged in
+            else {
+              return [$data,
+              'update' => action('UserController@update', $this->id),
+              'update_image' => action('UserController@updateProfileImage', $this->id),
+              'update_password' => action('UserController@updateProfilePassword', $this->id)
+            ]; }
         }
-    }
+        //is a participant
+        else {
+            $data =  [
+                'id' => $this->id,
+                'firstName' => $this->firstName,
+                'lastName' => $this->lastName,
+                'email' => $this->email,
+                'faculty' => $this->faculty,
+                'university' => $this->university,
+                'DOB' => $this->DOB,
+                'address' => $this->address,
+                'phone' => $this->phone,
+                'level' => $this->level,
+                'image' => $this->image,
+                'created_at' => $this->created_at->toDateTimeString(),
+            ];
+            //if the participant is not logged in
+            if($this->id != JWTAuth::parseToken()->authenticate()->id) {
+                return  [
+                  $data
+            ]; }
+            else {
+              //if the volunteer is logged in
+              return [$data,
+              'update' => action('UserController@update', $this->id),
+              'update_image' => action('UserController@updateProfileImage', $this->id),
+              'update_password' => action('UserController@updateProfilePassword', $this->id)
+            ]; }
+          }
+  }
 }
