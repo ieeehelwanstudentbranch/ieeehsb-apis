@@ -380,6 +380,7 @@ protected $user;
         $par->user_id = $user->id;
         $par->save();
         $role = "";
+        $pos = ' ';
       }
 //      DB::commit();
 
